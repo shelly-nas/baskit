@@ -10,14 +10,7 @@
 .idea/
 .vscode/
 
-# Project configuration and state
-.DS_Store
-pubspec.lock
-
 # Operating System files
-# Windows
-Thumbs.db
-
 # macOS
 .DS_Store
 
