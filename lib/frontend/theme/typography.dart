@@ -4,88 +4,92 @@ import 'colors.dart';
 
 class AppTypography {
   static final TextTheme textTheme = TextTheme(
-    displayLarge: GoogleFonts.spaceMono(
-      fontSize: 57,
-      fontWeight: FontWeight.w400,
-      color: AppColors.black,
+    displayLarge: GoogleFonts.inter(
+      fontSize: 40,
+      fontWeight: FontWeight.w700,
+      color: AppColors.text,
+      height: 1.2,
     ),
-    displayMedium: GoogleFonts.spaceMono(
-      fontSize: 45,
-      fontWeight: FontWeight.w400,
-      color: AppColors.black,
-    ),
-    displaySmall: GoogleFonts.spaceMono(
-      fontSize: 36,
-      fontWeight: FontWeight.w400,
-      color: AppColors.black,
-    ),
-    headlineLarge: GoogleFonts.spaceMono(
+    displayMedium: GoogleFonts.inter(
       fontSize: 32,
-      fontWeight: FontWeight.w400,
-      color: AppColors.black,
+      fontWeight: FontWeight.w600,
+      color: AppColors.text,
+      height: 1.2,
     ),
-    headlineMedium: GoogleFonts.spaceMono(
+    displaySmall: GoogleFonts.inter(
       fontSize: 28,
-      fontWeight: FontWeight.w400,
-      color: AppColors.black,
+      fontWeight: FontWeight.w600,
+      color: AppColors.text,
+      height: 1.3,
     ),
-    headlineSmall: GoogleFonts.spaceMono(
+    headlineLarge: GoogleFonts.inter(
       fontSize: 24,
-      fontWeight: FontWeight.w400,
-      color: AppColors.black,
+      fontWeight: FontWeight.w600,
+      color: AppColors.text,
+      height: 1.3,
     ),
-    titleLarge: GoogleFonts.spaceMono(
-      fontSize: 22,
-      fontWeight: FontWeight.w500,
-      color: AppColors.black,
+    headlineMedium: GoogleFonts.inter(
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+      color: AppColors.text,
+      height: 1.4,
     ),
-    titleMedium: GoogleFonts.spaceMono(
+    headlineSmall: GoogleFonts.inter(
+      fontSize: 18,
+      fontWeight: FontWeight.w600,
+      color: AppColors.text,
+      height: 1.4,
+    ),
+    titleLarge: GoogleFonts.inter(
       fontSize: 16,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.15,
-      color: AppColors.black,
+      fontWeight: FontWeight.w600,
+      color: AppColors.text,
+      height: 1.5,
     ),
-    titleSmall: GoogleFonts.spaceMono(
+    titleMedium: GoogleFonts.inter(
+      fontSize: 15,
+      fontWeight: FontWeight.w500,
+      color: AppColors.text,
+      height: 1.5,
+    ),
+    titleSmall: GoogleFonts.inter(
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      letterSpacing: 0.1,
-      color: AppColors.black,
+      color: AppColors.text,
+      height: 1.5,
     ),
-    labelLarge: GoogleFonts.spaceMono(
+    labelLarge: GoogleFonts.inter(
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      letterSpacing: 0.1,
-      color: AppColors.black,
+      color: AppColors.textSecondary,
     ),
-    labelMedium: GoogleFonts.spaceMono(
+    labelMedium: GoogleFonts.inter(
       fontSize: 12,
       fontWeight: FontWeight.w500,
-      letterSpacing: 0.5,
-      color: AppColors.black,
+      color: AppColors.textSecondary,
     ),
-    labelSmall: GoogleFonts.spaceMono(
+    labelSmall: GoogleFonts.inter(
       fontSize: 11,
       fontWeight: FontWeight.w500,
-      letterSpacing: 0.5,
-      color: AppColors.black,
+      color: AppColors.textSecondary,
     ),
-    bodyLarge: GoogleFonts.spaceMono(
+    bodyLarge: GoogleFonts.inter(
       fontSize: 16,
       fontWeight: FontWeight.w400,
-      letterSpacing: 0.5,
-      color: AppColors.black,
+      color: AppColors.text,
+      height: 1.6,
     ),
-    bodyMedium: GoogleFonts.spaceMono(
+    bodyMedium: GoogleFonts.inter(
       fontSize: 14,
       fontWeight: FontWeight.w400,
-      letterSpacing: 0.25,
-      color: AppColors.black,
+      color: AppColors.text,
+      height: 1.6,
     ),
-    bodySmall: GoogleFonts.spaceMono(
+    bodySmall: GoogleFonts.inter(
       fontSize: 12,
       fontWeight: FontWeight.w400,
-      letterSpacing: 0.4,
-      color: AppColors.black,
+      color: AppColors.textSecondary,
+      height: 1.5,
     ),
   );
 }
