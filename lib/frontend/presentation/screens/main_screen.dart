@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'lists_screen.dart';
 import 'profile_screen.dart';
 import '../../theme/colors.dart';
+import '../../theme/design_tokens.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -32,11 +33,18 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.background,
-          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+          border: Border(
+            top: BorderSide(
+              color: AppColors.border,
+              width: DesignTokens.borderThin,
+            ),
+          ),
         ),
+        // SafeArea to avoid notches and system UI from device edges
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            // Minimize padding around the navigation bar at the bottom
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -69,20 +77,22 @@ class _MainScreenState extends State<MainScreen> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _onItemTapped(index),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              vertical: DesignTokens.spaceXSmall,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   icon,
-                  size: 24,
+                  size: DesignTokens.iconLarge,
                   color: isSelected
                       ? AppColors.foreground
                       : AppColors.mutedForeground,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: DesignTokens.spaceSmall),
                 Text(
                   label,
                   style: TextStyle(

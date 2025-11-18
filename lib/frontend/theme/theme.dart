@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'typography.dart';
+import 'design_tokens.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -21,12 +22,13 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: AppColors.card,
-        elevation: 0,
+        elevation: DesignTokens.elevationNone,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            10,
-          ), // var(--radius) = 0.625rem = 10px
-          side: const BorderSide(color: AppColors.border, width: 1),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
+          side: const BorderSide(
+            color: AppColors.border,
+            width: DesignTokens.borderThin,
+          ),
         ),
       ),
       dividerColor: AppColors.border,
@@ -45,25 +47,34 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.inputBackground,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.border, width: 1),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
+          borderSide: const BorderSide(
+            color: AppColors.border,
+            width: DesignTokens.borderThin,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.border, width: 1),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
+          borderSide: const BorderSide(
+            color: AppColors.border,
+            width: DesignTokens.borderThin,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
+          borderSide: const BorderSide(
+            color: AppColors.primary,
+            width: DesignTokens.borderThin,
+          ),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.primaryForeground,
-          elevation: 0,
+          elevation: DesignTokens.elevationNone,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
           ),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),

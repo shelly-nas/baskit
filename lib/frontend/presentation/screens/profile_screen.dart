@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../theme/design_tokens.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -18,25 +19,30 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 24),
               decoration: const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: Color(0xFFE9E9E7), width: 1),
+                  bottom: BorderSide(
+                    color: Color(0xFFE9E9E7),
+                    width: DesignTokens.borderThin,
+                  ),
                 ),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 64,
-                    height: 64,
+                    width: DesignTokens.avatarSize,
+                    height: DesignTokens.avatarSize,
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1F1EF),
-                      borderRadius: BorderRadius.circular(32),
+                      borderRadius: BorderRadius.circular(
+                        DesignTokens.radius3XLarge,
+                      ),
                     ),
                     child: const Icon(
                       CupertinoIcons.person,
-                      size: 32,
+                      size: DesignTokens.iconXLarge,
                       color: Color(0xFF787774),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: DesignTokens.spaceXLarge),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,8 +169,11 @@ class ProfileScreen extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE9E9E7), width: 1),
+                borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
+                border: Border.all(
+                  color: const Color(0xFFE9E9E7),
+                  width: DesignTokens.borderThin,
+                ),
               ),
               child: Column(
                 children: [
@@ -212,8 +221,11 @@ class ProfileScreen extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFFFEBEB),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFFFCCCC), width: 1),
+                borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
+                border: Border.all(
+                  color: const Color(0xFFFFCCCC),
+                  width: DesignTokens.borderThin,
+                ),
               ),
               child: Material(
                 color: Colors.transparent,
@@ -227,10 +239,10 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Icon(
                           CupertinoIcons.square_arrow_right,
-                          size: 20,
+                          size: DesignTokens.iconMedium,
                           color: Color(0xFFDC2626),
                         ),
-                        SizedBox(width: 8),
+                        SizedBox(width: DesignTokens.spaceMedium),
                         Text(
                           'Log Out',
                           style: TextStyle(
@@ -269,8 +281,11 @@ class ProfileScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE9E9E7), width: 1),
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
+        border: Border.all(
+          color: const Color(0xFFE9E9E7),
+          width: DesignTokens.borderThin,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -281,8 +296,12 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                Icon(icon, size: 20, color: const Color(0xFF787774)),
-                const SizedBox(width: 12),
+                Icon(
+                  icon,
+                  size: DesignTokens.iconMedium,
+                  color: const Color(0xFF787774),
+                ),
+                const SizedBox(width: DesignTokens.spaceLarge),
                 Expanded(
                   child: Text(
                     label,
@@ -294,7 +313,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const Icon(
                   CupertinoIcons.chevron_right,
-                  size: 20,
+                  size: DesignTokens.iconMedium,
                   color: Color(0xFF787774),
                 ),
               ],
@@ -351,7 +370,7 @@ class ProfileScreen extends StatelessWidget {
           CupertinoSwitch(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFF37352F),
+            activeTrackColor: const Color(0xFF37352F),
           ),
         ],
       ),
