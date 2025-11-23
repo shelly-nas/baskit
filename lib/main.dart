@@ -1,6 +1,7 @@
-import 'package:baskit/frontend/presentation/screens/main_screen.dart';
+import 'package:baskit/frontend/presentation/screens/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'frontend/theme/theme.dart';
+// import 'package:baskit/frontend/presentation/screens/main_screen.dart';
 // import 'frontend/presentation/screens/list_overview_screen.dart';
 // import 'di/dependency_injection.dart';
 
@@ -21,7 +22,7 @@ class BaskitApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       // darkTheme: AppTheme.darkTheme,
       // themeMode: ThemeMode.light,
-      home: const MainScreen(),
+      home: const AuthScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

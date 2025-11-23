@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { asyncHandler } = require('../../../shared/src');
+const { asyncHandler } = require('../../shared/src');
 
 router.get('/', asyncHandler(async (req, res) => {
   res.status(200).json({

@@ -6,80 +6,53 @@ PostgreSQL database schema and migration system for the Baskit grocery shopping 
 
 ```
 database/
-├── init.sql              # Database initialization (extensions, functions)
-├── migrate.js            # Migration runner script
-├── seed.js               # Seed data runner script
-├── schema/               # SQL schema files
-│   ├── 00_migrations.sql         # Migration tracking table
-│   ├── 01_user_service.sql       # User accounts and preferences
-│   ├── 02_product_service.sql    # Products, categories, variations
-│   ├── 03_list_service.sql       # Shopping lists and items
-│   ├── 04_store_service.sql      # Store locations and layouts
-│   ├── 05_price_service.sql      # Prices, history, and promotions
-│   └── 06_supporting_tables.sql  # Favorites, savings, notifications
-├── migrations/           # Version-controlled migrations (future)
+├── init.sql              # Complete database schema (extensions, functions, tables)
+├── package.json          # Project metadata
 └── seeds/                # Initial test data
-    └── 01_initial_data.sql       # Categories, stores, test users
+    └── 01_initial_data.sql       # Default test users
 ```
 
 ## Requirements
 
-- PostgreSQL 15+
-- Node.js 16+
-- npm package: `pg`
-
-## Installation
-
-1. Install PostgreSQL dependencies:
-
-```bash
-npm install pg
-```
-
-2. Set environment variables (optional):
-
-```bash
-export DB_HOST=localhost
-export DB_PORT=5432
-export DB_NAME=baskit
-export DB_USER=postgres
-export DB_PASSWORD=postgres
-```
+- Docker & Docker Compose (recommended)
+- PostgreSQL 15+ (for manual setup)
 
 ## Usage
 
-### Initialize Fresh Database
+### Docker Setup (Recommended)
 
-Run all setup scripts including extensions, functions, and schema:
+The database is automatically initialized when the PostgreSQL container starts:
 
 ```bash
-node migrate.js init
+docker-compose up -d postgres
 ```
 
-### Run Migrations
+This automatically:
 
-Execute pending schema migrations:
+- Creates the database with extensions
+- Runs the schema initialization (`init.sql`)
+- Loads seed data with test users (`seeds/01_initial_data.sql`)
+
+To rebuild the database from scratch:
 
 ```bash
-node migrate.js migrate
-# or
-node migrate.js up
+docker-compose down -v  # Remove volumes
+docker-compose up -d postgres  # Recreate with fresh data
 ```
 
-### Check Migration Status
+### Manual Setup (Alternative)
 
-View executed and pending migrations:
-
-```bash
-node migrate.js status
-```
-
-### Load Seed Data
-
-Populate database with initial test data:
+If running PostgreSQL outside Docker:
 
 ```bash
-node seed.js
+# Create database
+createdb baskit
+
+# Run initialization script
+psql -h localhost -U postgres -d baskit -f database/init.sql
+
+# Load seed data (optional)
+psql -h localhost -U postgres -d baskit -f database/seeds/01_initial_data.sql
 ```
 
 ## Database Schema
@@ -151,39 +124,34 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/seeds/01_initial_data.sql:/docker-entrypoint-initdb.d/02-seed.sql
 
 volumes:
   postgres_data:
 ```
 
-## Migration Strategy
+The PostgreSQL container automatically executes SQL files in `/docker-entrypoint-initdb.d/` in alphabetical order on first startup:
 
-### Current Approach (Initial Development)
-
-Schema files in `schema/` directory are executed sequentially by version number (e.g., `01_`, `02_`, etc.).
-
-### Future Approach (Production)
-
-Version-controlled migrations in `migrations/` directory with timestamps:
-
-- Format: `YYYYMMDD_HHmmss_description.sql`
-- Example: `20251118_143000_add_user_avatars.sql`
+1. `01-init.sql` - Complete database schema (extensions, functions, all tables)
+2. `02-seed.sql` - Test users and initial data
 
 ## Seed Data
 
 Initial test data includes:
 
-- **10 product categories** (Fruits, Dairy, Meat, etc.)
-- **8 store locations** across Amsterdam and Rotterdam
-- **2 test user accounts** (free and premium tiers)
-- **Sample products** with variations and prices
+- **3 test user accounts** (free tier, premium tier, and unverified)
+- User preferences for each test account
+- Future: Product categories, store locations, sample products with prices
 
 ### Test Users
 
-- **Free User**: `test.user@baskit.nl` / `password123`
-- **Premium User**: `premium.user@baskit.nl` / `password123`
+All test users share the same password for convenience:
 
-⚠️ **Note**: These are development passwords. Never use in production.
+- **Free User (Verified)**: `test@baskit.app` / `TestPassword123!`
+- **Premium User (Verified)**: `premium@baskit.app` / `TestPassword123!`
+- **Unverified User**: `unverified@baskit.app` / `TestPassword123!`
+
+⚠️ **Note**: These are development accounts with development passwords. Never use in production.
 
 ## Best Practices
 
@@ -217,12 +185,23 @@ GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO your_user;
 
 ### Reset Database
 
+**With Docker (Recommended):**
+
+```bash
+docker-compose down -v  # Remove volumes
+docker-compose up -d postgres  # Recreate with fresh data
+```
+
+**Manual PostgreSQL:**
+
 ```bash
 # Drop and recreate database
 dropdb baskit
 createdb baskit
-node migrate.js init
-node seed.js
+
+# Initialize schema and seed data
+psql -h localhost -U postgres -d baskit -f init.sql
+psql -h localhost -U postgres -d baskit -f seeds/01_initial_data.sql
 ```
 
 ## Support

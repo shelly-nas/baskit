@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
-const { database, logger, errorHandler, requestLogger, corsOptions } = require('../../shared/src');
+const { database, logger, errorHandler, requestLogger, corsOptions } = require('../shared/src');
 
 const healthRoutes = require('./routes/health.routes');
 const listRoutes = require('./routes/list.routes');

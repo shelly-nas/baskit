@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { database, logger } = require('../../../shared/src');
+const { database, logger } = require('../../shared/src');
 
 router.get('/', async (req, res) => {
   const healthCheck = {

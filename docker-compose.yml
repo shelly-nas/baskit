@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
@@ -14,6 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/seeds/01_initial_data.sql:/docker-entrypoint-initdb.d/02-seed.sql
     networks:
       - baskit-network
     healthcheck:
@@ -41,8 +40,8 @@ services:
   # User Service
   user-service:
     build:
-      context: ./backend/user-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: user-service/Dockerfile
     container_name: baskit-user-service
     environment:
       - PORT=3001
@@ -53,6 +52,15 @@ services:
       - DB_NAME=baskit
       - DB_USER=postgres
       - DB_PASSWORD=postgres
+      - APP_URL=http://localhost:3000
+      - FROM_EMAIL=noreply@baskit.app
+      # SMTP Configuration (optional - leave empty to use Ethereal test account)
+      # For production, configure with your SMTP provider (SendGrid, AWS SES, etc.)
+      # - SMTP_HOST=smtp.example.com
+      # - SMTP_PORT=587
+      # - SMTP_SECURE=false
+      # - SMTP_USER=your-smtp-user
+      # - SMTP_PASS=your-smtp-password
     ports:
       - "3001:3001"
     depends_on:
@@ -61,15 +69,17 @@ services:
     networks:
       - baskit-network
     volumes:
-      - ./backend/user-service:/app
+      - ./backend/user-service/src:/app/src
+      - ./backend/user-service/test:/app/test
+      - ./backend/shared:/app/shared
       - /app/node_modules
     command: npm run dev
 
   # Product Service
   product-service:
     build:
-      context: ./backend/product-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: product-service/Dockerfile
     container_name: baskit-product-service
     environment:
       - PORT=3002
@@ -88,15 +98,16 @@ services:
     networks:
       - baskit-network
     volumes:
-      - ./backend/product-service:/app
+      - ./backend/product-service/src:/app/src
+      - ./backend/shared:/app/shared
       - /app/node_modules
     command: npm run dev
 
   # List Service
   list-service:
     build:
-      context: ./backend/list-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: list-service/Dockerfile
     container_name: baskit-list-service
     environment:
       - PORT=3003
@@ -119,121 +130,122 @@ services:
     networks:
       - baskit-network
     volumes:
-      - ./backend/list-service:/app
+      - ./backend/list-service/src:/app/src
+      - ./backend/shared:/app/shared
       - /app/node_modules
     command: npm run dev
 
-  # Price Service
-  price-service:
-    build:
-      context: ./backend/price-service
-      dockerfile: Dockerfile
-    container_name: baskit-price-service
-    environment:
-      - PORT=3004
-      - NODE_ENV=development
-      - SERVICE_NAME=price-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    ports:
-      - "3004:3004"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/price-service:/app
-      - /app/node_modules
-    command: npm run dev
+  # Price Service (not implemented yet)
+  # price-service:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: price-service/Dockerfile
+  #   container_name: baskit-price-service
+  #   environment:
+  #     - PORT=3004
+  #     - NODE_ENV=development
+  #     - SERVICE_NAME=price-service
+  #     - DB_HOST=postgres
+  #     - DB_PORT=5432
+  #     - DB_NAME=baskit
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #   ports:
+  #     - "3004:3004"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - baskit-network
+  #   volumes:
+  #     - ./backend/price-service:/app
+  #     - /app/node_modules
+  #   command: npm run dev
 
-  # Store Service
-  store-service:
-    build:
-      context: ./backend/store-service
-      dockerfile: Dockerfile
-    container_name: baskit-store-service
-    environment:
-      - PORT=3005
-      - NODE_ENV=development
-      - SERVICE_NAME=store-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    ports:
-      - "3005:3005"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/store-service:/app
-      - /app/node_modules
-    command: npm run dev
+  # Store Service (not implemented yet)
+  # store-service:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: store-service/Dockerfile
+  #   container_name: baskit-store-service
+  #   environment:
+  #     - PORT=3005
+  #     - NODE_ENV=development
+  #     - SERVICE_NAME=store-service
+  #     - DB_HOST=postgres
+  #     - DB_PORT=5432
+  #     - DB_NAME=baskit
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #   ports:
+  #     - "3005:3005"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - baskit-network
+  #   volumes:
+  #     - ./backend/store-service:/app
+  #     - /app/node_modules
+  #   command: npm run dev
 
-  # Route Service
-  route-service:
-    build:
-      context: ./backend/route-service
-      dockerfile: Dockerfile
-    container_name: baskit-route-service
-    environment:
-      - PORT=3006
-      - NODE_ENV=development
-      - SERVICE_NAME=route-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    ports:
-      - "3006:3006"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/route-service:/app
-      - /app/node_modules
-    command: npm run dev
+  # Route Service (not implemented yet)
+  # route-service:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: route-service/Dockerfile
+  #   container_name: baskit-route-service
+  #   environment:
+  #     - PORT=3006
+  #     - NODE_ENV=development
+  #     - SERVICE_NAME=route-service
+  #     - DB_HOST=postgres
+  #     - DB_PORT=5432
+  #     - DB_NAME=baskit
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #   ports:
+  #     - "3006:3006"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - baskit-network
+  #   volumes:
+  #     - ./backend/route-service:/app
+  #     - /app/node_modules
+  #   command: npm run dev
 
-  # Notification Service
-  notification-service:
-    build:
-      context: ./backend/notification-service
-      dockerfile: Dockerfile
-    container_name: baskit-notification-service
-    environment:
-      - PORT=3007
-      - NODE_ENV=development
-      - SERVICE_NAME=notification-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    ports:
-      - "3007:3007"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/notification-service:/app
-      - /app/node_modules
-    command: npm run dev
+  # Notification Service (not implemented yet)
+  # notification-service:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: notification-service/Dockerfile
+  #   container_name: baskit-notification-service
+  #   environment:
+  #     - PORT=3007
+  #     - NODE_ENV=development
+  #     - SERVICE_NAME=notification-service
+  #     - DB_HOST=postgres
+  #     - DB_PORT=5432
+  #     - DB_NAME=baskit
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #   ports:
+  #     - "3007:3007"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   networks:
+  #     - baskit-network
+  #   volumes:
+  #     - ./backend/notification-service:/app
+  #     - /app/node_modules
+  #   command: npm run dev
 
   # Nginx API Gateway (optional, for production)
   # nginx:

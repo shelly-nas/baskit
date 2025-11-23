@@ -1,4 +1,4 @@
-const { logger, NotFoundError } = require('../../../shared/src');
+const { logger, NotFoundError } = require('../../shared/src');
 
 /**
  * User controller

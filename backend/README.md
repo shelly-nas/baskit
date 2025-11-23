@@ -93,12 +93,16 @@ cp product-service/.env.example product-service/.env
 
 4. **Initialize the database:**
 
+The database is automatically initialized when starting Docker Compose. See main README for details.
+
+Alternatively, for manual PostgreSQL setup:
+
 ```bash
-cd ../database
-npm install
-node migrate.js init
-node seed.js
-cd ../backend
+# Initialize schema
+psql -h localhost -U postgres -d baskit -f ../database/init.sql
+
+# Load test data (optional)
+psql -h localhost -U postgres -d baskit -f ../database/seeds/01_initial_data.sql
 ```
 
 ### Running with Docker Compose (Recommended)
@@ -181,6 +185,7 @@ curl http://localhost:3003/api/health
 ### User Service (Port 3001)
 
 **Authentication:**
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login and get JWT token
 - `POST /api/auth/logout` - Logout user
@@ -188,6 +193,7 @@ curl http://localhost:3003/api/health
 - `POST /api/auth/reset-password` - Reset password with token
 
 **User Management:**
+
 - `GET /api/users/profile` - Get user profile (requires auth)
 - `PUT /api/users/profile` - Update user profile (requires auth)
 - `GET /api/users/preferences` - Get user preferences (requires auth)
@@ -211,6 +217,7 @@ curl http://localhost:3003/api/health
 - `POST /api/lists/:id/share` - Share list (requires auth)
 
 **WebSocket Events:**
+
 - `join-list` - Join a list room for real-time updates
 - `leave-list` - Leave a list room
 - `list-updated` - Receive real-time list updates
@@ -222,13 +229,15 @@ The `shared` directory contains utilities used across all microservices:
 ### Database (`database.js`)
 
 ```javascript
-const { database } = require('../../shared/src');
+const { database } = require("../../shared/src");
 
 // Connect to database
 await database.connect();
 
 // Execute query
-const result = await database.query('SELECT * FROM users WHERE id = $1', [userId]);
+const result = await database.query("SELECT * FROM users WHERE id = $1", [
+  userId,
+]);
 
 // Health check
 const healthy = await database.healthCheck();
@@ -237,30 +246,34 @@ const healthy = await database.healthCheck();
 ### Logger (`logger.js`)
 
 ```javascript
-const { logger } = require('../../shared/src');
+const { logger } = require("../../shared/src");
 
-logger.info('User logged in', { userId, email });
-logger.error('Database error', { error });
-logger.debug('Query executed', { query, duration });
+logger.info("User logged in", { userId, email });
+logger.error("Database error", { error });
+logger.debug("Query executed", { query, duration });
 ```
 
 ### Error Handling (`errors.js`)
 
 ```javascript
-const { NotFoundError, ValidationError } = require('../../shared/src');
+const { NotFoundError, ValidationError } = require("../../shared/src");
 
-throw new NotFoundError('User not found');
-throw new ValidationError('Invalid email format');
+throw new NotFoundError("User not found");
+throw new ValidationError("Invalid email format");
 ```
 
 ### Middleware (`middleware.js`)
 
 ```javascript
-const { authenticate, asyncHandler, validate } = require('../../shared/src');
+const { authenticate, asyncHandler, validate } = require("../../shared/src");
 
-router.get('/profile', authenticate, asyncHandler(async (req, res) => {
-  // Handler code
-}));
+router.get(
+  "/profile",
+  authenticate,
+  asyncHandler(async (req, res) => {
+    // Handler code
+  })
+);
 ```
 
 ## Development
@@ -287,8 +300,8 @@ router.get('/profile', authenticate, asyncHandler(async (req, res) => {
 All errors are handled centrally by the `errorHandler` middleware:
 
 ```javascript
-throw new NotFoundError('Resource not found'); // 404
-throw new ValidationError('Invalid input'); // 400
+throw new NotFoundError("Resource not found"); // 404
+throw new ValidationError("Invalid input"); // 400
 throw new UnauthorizedError(); // 401
 throw new ForbiddenError(); // 403
 ```

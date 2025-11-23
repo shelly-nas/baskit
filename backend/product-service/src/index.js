@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const { database, logger, errorHandler, requestLogger, corsOptions } = require('../../shared/src');
+const { database, logger, errorHandler, requestLogger, corsOptions } = require('../shared/src');
 
 const healthRoutes = require('./routes/health.routes');
 const productRoutes = require('./routes/product.routes');

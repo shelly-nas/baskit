@@ -13,7 +13,6 @@ class ListOverviewScreen extends StatefulWidget {
 }
 
 class _ListOverviewScreenState extends State<ListOverviewScreen> {
-  // Mock data for demonstration (will be replaced with backend data later)
   late List<ShoppingList> _shoppingLists;
 
   @override
@@ -23,145 +22,8 @@ class _ListOverviewScreenState extends State<ListOverviewScreen> {
   }
 
   void _loadShoppingLists() {
-    // Mock data based on the functional document
-    _shoppingLists = [
-      ShoppingList(
-        id: '1',
-        name: 'Weekly Groceries',
-        description: 'Regular weekly shopping',
-        isShared: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-        updatedAt: DateTime.now(),
-        items: [
-          ListItem(
-            id: '1',
-            name: 'Milk',
-            quantity: '2L',
-            category: 'Dairy',
-            isCompleted: true,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-          ListItem(
-            id: '2',
-            name: 'Bread',
-            quantity: '2',
-            category: 'Bakery',
-            isCompleted: true,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-          ListItem(
-            id: '3',
-            name: 'Apples',
-            quantity: '1kg',
-            category: 'Fruits',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-          ListItem(
-            id: '4',
-            name: 'Chicken breast',
-            quantity: '500g',
-            category: 'Meat',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-        ],
-      ),
-      ShoppingList(
-        id: '2',
-        name: 'Party Supplies',
-        description: 'Items for birthday party on Saturday',
-        isShared: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 5)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 1)),
-        items: [
-          ListItem(
-            id: '5',
-            name: 'Chips',
-            quantity: '3 bags',
-            category: 'Snacks',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          ),
-          ListItem(
-            id: '6',
-            name: 'Soft drinks',
-            quantity: '2L x 4',
-            category: 'Beverages',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          ),
-          ListItem(
-            id: '7',
-            name: 'Paper plates',
-            quantity: '20 pieces',
-            category: 'Party',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          ),
-        ],
-      ),
-      ShoppingList(
-        id: '3',
-        name: 'Personal Care',
-        description: null,
-        isShared: false,
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        updatedAt: DateTime.now().subtract(const Duration(hours: 3)),
-        items: [
-          ListItem(
-            id: '8',
-            name: 'Toothpaste',
-            quantity: '1',
-            category: 'Personal Care',
-            isCompleted: true,
-            createdAt: DateTime.now().subtract(const Duration(days: 1)),
-          ),
-          ListItem(
-            id: '9',
-            name: 'Shampoo',
-            quantity: '1',
-            category: 'Personal Care',
-            isCompleted: true,
-            createdAt: DateTime.now().subtract(const Duration(days: 1)),
-          ),
-        ],
-      ),
-      ShoppingList(
-        id: '4',
-        name: 'Quick Stop',
-        description: 'Items for tonight\'s dinner',
-        isShared: false,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        items: [
-          ListItem(
-            id: '10',
-            name: 'Pasta',
-            quantity: '500g',
-            category: 'Pantry',
-            isCompleted: false,
-            createdAt: DateTime.now(),
-          ),
-          ListItem(
-            id: '11',
-            name: 'Tomato sauce',
-            quantity: '1 jar',
-            category: 'Pantry',
-            isCompleted: false,
-            createdAt: DateTime.now(),
-          ),
-          ListItem(
-            id: '12',
-            name: 'Parmesan cheese',
-            quantity: '100g',
-            category: 'Dairy',
-            isCompleted: false,
-            createdAt: DateTime.now(),
-          ),
-        ],
-      ),
-    ];
+    // TODO: Load shopping lists from backend
+    _shoppingLists = [];
   }
 
   void _onListTap(ShoppingList list) {

@@ -21,15 +21,11 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const UserInfoSection(
-              name: 'Sarah Johnson',
-              email: 'sarah.j@email.com',
-              badgeText: 'Premium Member',
-            ),
+            const UserInfoSection(name: '', email: '', badgeText: ''),
             const VerticalSpace(24),
             const SavingsSummary(
-              totalSavings: '\$1,247.50',
-              membershipDuration: 'Since joining 3 months ago',
+              totalSavings: '\$0.00',
+              membershipDuration: '',
             ),
             const VerticalSpace(32),
             const SectionHeader(title: 'ACCOUNT'),
@@ -61,9 +57,9 @@ class ProfileScreen extends StatelessWidget {
             const SectionHeader(title: 'PREFERENCES'),
             const VerticalSpace(12),
             PreferencesSection(
-              defaultStoreValue: 'Whole Foods',
-              priceAlertValue: '10%',
-              shoppingReminderValue: true,
+              defaultStoreValue: '',
+              priceAlertValue: '',
+              shoppingReminderValue: false,
               onDefaultStoreTap: () {},
               onPriceAlertTap: () {},
               onShoppingReminderChanged: (value) {},

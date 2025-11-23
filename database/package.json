@@ -1,16 +1,9 @@
 {
   "name": "baskit-database",
   "version": "1.0.0",
-  "description": "PostgreSQL database schema and migrations for Baskit",
-  "scripts": {
-    "migrate": "node migrate.js migrate",
-    "migrate:status": "node migrate.js status",
-    "migrate:init": "node migrate.js init",
-    "seed": "node seed.js"
-  },
-  "dependencies": {
-    "pg": "^8.11.3"
-  },
+  "description": "PostgreSQL database schema and initialization for Baskit",
+  "scripts": {},
+  "dependencies": {},
   "engines": {
     "node": ">=16.0.0"
   }

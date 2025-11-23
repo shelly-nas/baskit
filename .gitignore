@@ -1,3 +1,8 @@
+# Node.js
+node_modules/
+.npm
+.env
+
 # Flutter/Dart
 .dart_tool/
 .flutter-plugins

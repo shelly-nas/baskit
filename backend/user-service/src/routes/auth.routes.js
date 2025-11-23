@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { asyncHandler } = require('../../../shared/src');
+const { asyncHandler } = require('../../shared/src');
 const authController = require('../controllers/auth.controller');
 
 /**
@@ -23,6 +23,20 @@ router.post('/login', asyncHandler(authController.login));
  * @access  Private
  */
 router.post('/logout', asyncHandler(authController.logout));
+
+/**
+ * @route   POST /api/auth/verify-email
+ * @desc    Verify email with token
+ * @access  Public
+ */
+router.post('/verify-email', asyncHandler(authController.verifyEmail));
+
+/**
+ * @route   POST /api/auth/resend-verification
+ * @desc    Resend verification email
+ * @access  Public
+ */
+router.post('/resend-verification', asyncHandler(authController.resendVerification));
 
 /**
  * @route   POST /api/auth/forgot-password

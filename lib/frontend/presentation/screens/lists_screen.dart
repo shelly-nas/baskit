@@ -14,46 +14,8 @@ class ListsScreen extends StatefulWidget {
 class _ListsScreenState extends State<ListsScreen> {
   @override
   Widget build(BuildContext context) {
-    final List<ShoppingList> shoppingLists = [
-      ShoppingList(
-        name: 'Weekly Groceries',
-        icon: CupertinoIcons.shopping_cart,
-        itemCount: 12,
-        completedItems: 5,
-        isShared: true,
-        memberCount: 3,
-      ),
-      ShoppingList(
-        name: 'Party Supplies',
-        icon: CupertinoIcons.gift,
-        itemCount: 8,
-        completedItems: 0,
-        isShared: false,
-      ),
-      ShoppingList(
-        name: 'Camping Trip',
-        icon: CupertinoIcons.compass,
-        itemCount: 15,
-        completedItems: 3,
-        isShared: true,
-        memberCount: 4,
-      ),
-      ShoppingList(
-        name: 'Pantry Restock',
-        icon: CupertinoIcons.cube_box,
-        itemCount: 20,
-        completedItems: 20,
-        isShared: false,
-      ),
-      ShoppingList(
-        name: 'Holiday Dinner',
-        icon: CupertinoIcons.star,
-        itemCount: 25,
-        completedItems: 12,
-        isShared: true,
-        memberCount: 2,
-      ),
-    ];
+    // TODO: Load shopping lists from backend
+    final List<ShoppingList> shoppingLists = [];
 
     return Scaffold(
       appBar: AppBar(

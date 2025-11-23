@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const { database, logger, errorHandler, requestLogger, corsOptions } = require('../../shared/src');
+const { database, logger, errorHandler, requestLogger, corsOptions } = require('../shared/src');
 
 const healthRoutes = require('./routes/health.routes');
 const userRoutes = require('./routes/user.routes');
@@ -58,6 +58,9 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-startServer();
+// Only start server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
 
 module.exports = app;
