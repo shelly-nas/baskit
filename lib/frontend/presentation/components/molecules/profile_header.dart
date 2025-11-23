@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/design_tokens.dart';
 import '../atoms/app_avatar.dart';
 import '../atoms/app_badge.dart';
 import '../atoms/app_text.dart';
@@ -24,8 +26,8 @@ class ProfileHeader extends StatelessWidget {
       children: [
         const AppAvatar(
           icon: CupertinoIcons.person,
-          backgroundColor: Color(0xFFF1F1EF),
-          iconColor: Color(0xFF787774),
+          backgroundColor: AppColors.secondary,
+          iconColor: AppColors.mutedForeground,
         ),
         const HorizontalSpace.xLarge(),
         Expanded(
@@ -36,15 +38,15 @@ class ProfileHeader extends StatelessWidget {
                 name,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF37352F),
+                color: AppColors.foreground,
               ),
-              const VerticalSpace(4),
-              AppText(email, fontSize: 14, color: const Color(0xFF787774)),
-              const VerticalSpace(8),
+              const VerticalSpace(DesignTokens.spaceSmall),
+              AppText(email, fontSize: 14, color: AppColors.mutedForeground),
+              const VerticalSpace(DesignTokens.spaceMedium),
               AppBadge(
                 text: badgeText,
-                backgroundColor: const Color(0xFF37352F),
-                textColor: Colors.white,
+                backgroundColor: AppColors.primary,
+                textColor: AppColors.primaryForeground,
               ),
             ],
           ),

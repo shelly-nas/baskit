@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../atoms/app_text.dart';
 
 /// Organism component for version display
@@ -10,7 +11,7 @@ class VersionDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: AppText(version, fontSize: 12, color: const Color(0xFF787774)),
+      child: AppText(version, fontSize: 12, color: AppColors.mutedForeground),
     );
   }
 }

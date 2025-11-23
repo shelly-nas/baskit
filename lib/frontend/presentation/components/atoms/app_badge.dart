@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/design_tokens.dart';
 import 'app_text.dart';
 
 /// Atomic badge component for labels and indicators
@@ -22,10 +23,16 @@ class AppBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding:
-          padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding ??
+          const EdgeInsets.symmetric(
+            horizontal: DesignTokens.spaceMedium,
+            vertical: DesignTokens.spaceSmall,
+          ),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(borderRadius ?? 12),
+        borderRadius: BorderRadius.circular(
+          borderRadius ?? DesignTokens.radiusLarge,
+        ),
       ),
       child: AppText(text, fontSize: 12, color: textColor),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../atoms/app_icon.dart';
 import '../atoms/app_text.dart';
@@ -22,10 +23,10 @@ class MenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
         border: Border.all(
-          color: const Color(0xFFE9E9E7),
+          color: AppColors.border,
           width: DesignTokens.borderThin,
         ),
       ),
@@ -33,28 +34,28 @@ class MenuItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
             child: Row(
               children: [
                 AppIcon(
                   icon,
                   size: DesignTokens.iconMedium,
-                  color: const Color(0xFF787774),
+                  color: AppColors.mutedForeground,
                 ),
                 const HorizontalSpace.large(),
                 Expanded(
                   child: AppText(
                     label,
                     fontSize: 14,
-                    color: const Color(0xFF37352F),
+                    color: AppColors.foreground,
                   ),
                 ),
                 const AppIcon(
                   CupertinoIcons.chevron_right,
                   size: DesignTokens.iconMedium,
-                  color: Color(0xFF787774),
+                  color: AppColors.mutedForeground,
                 ),
               ],
             ),

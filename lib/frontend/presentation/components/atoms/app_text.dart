@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/typography.dart';
 
 /// Atomic text component for consistent typography
 class AppText extends StatelessWidget {
@@ -25,6 +27,9 @@ class AppText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Use AppTypography's bodyMedium as the base style
+    final baseStyle = AppTypography.textTheme.bodyMedium;
+
     return Text(
       text,
       style:
@@ -33,7 +38,11 @@ class AppText extends StatelessWidget {
             fontSize: fontSize,
             fontWeight: fontWeight,
           ) ??
-          TextStyle(color: color, fontSize: fontSize, fontWeight: fontWeight),
+          baseStyle?.copyWith(
+            color: color ?? AppColors.foreground,
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+          ),
       maxLines: maxLines,
       overflow: overflow,
       textAlign: textAlign,

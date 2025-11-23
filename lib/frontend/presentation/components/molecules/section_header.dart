@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../atoms/app_text.dart';
 
 /// Molecular component for section headers
@@ -13,7 +14,7 @@ class SectionHeader extends StatelessWidget {
       title,
       fontSize: 12,
       fontWeight: FontWeight.w600,
-      color: const Color(0xFF787774),
+      color: AppColors.mutedForeground,
     );
   }
 }

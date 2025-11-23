@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/design_tokens.dart';
 
 /// Atomic icon component for consistent iconography
 class AppIcon extends StatelessWidget {
@@ -10,6 +12,10 @@ class AppIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(icon, size: size, color: color);
+    return Icon(
+      icon,
+      size: size ?? DesignTokens.iconMedium,
+      color: color ?? AppColors.foreground,
+    );
   }
 }
