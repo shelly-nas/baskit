@@ -150,7 +150,7 @@ const markVerificationTokenUsed = async (token, client = null) => {
   try {
     const dbClient = client || database;
     await dbClient.query(
-      'UPDATE verification_tokens SET used_at = NOW(), used = true WHERE token = $1',
+      'UPDATE verification_tokens SET used_at = NOW() WHERE token = $1',
       [token]
     );
     logger.info('Verification token marked as used');

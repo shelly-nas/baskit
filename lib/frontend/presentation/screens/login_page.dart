@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../theme/colors.dart';
 import '../../theme/design_tokens.dart';
+import '../../services/auth_service.dart';
 import '../components/atoms/spacing.dart';
 import '../components/atoms/app_text.dart';
+import 'lists_screen.dart';
 
 /// Login Page
 class LoginPage extends StatefulWidget {
@@ -33,17 +35,50 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
 
-      // TODO: Implement actual login logic with backend
-      await Future.delayed(const Duration(seconds: 2));
+      try {
+        final authService = AuthService();
+        final result = await authService.login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
 
-      if (mounted) {
+        if (!mounted) return;
+
         setState(() => _isLoading = false);
 
-        // TODO: Navigate to main screen on successful login
+        if (result['success'] == true) {
+          // TODO: Store tokens securely
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Login successful'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+
+          // Navigate to lists screen
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const ListsScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['error'] ?? 'Login failed'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+
+        setState(() => _isLoading = false);
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login functionality will be connected to backend'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text('An error occurred: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
           ),
         );
       }

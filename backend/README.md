@@ -309,12 +309,31 @@ throw new ForbiddenError(); // 403
 ## Testing
 
 ```bash
-# Run tests for a specific service
+# Run all backend tests from the backend root directory
+cd backend
+npm test
+
+# Or run tests for specific services
+npm run test:user-service
+npm run test:product-service
+npm run test:list-service
+npm run test:shared
+
+# Run tests within a specific service directory
 cd user-service
 npm test
 
-# Run all tests
-npm run test:all
+# Watch mode for user-service
+cd user-service
+npm run test:watch
+
+# Unit tests only for user-service
+cd user-service
+npm run test:unit
+
+# Integration tests only for user-service
+cd user-service
+npm run test:integration
 ```
 
 ## Deployment

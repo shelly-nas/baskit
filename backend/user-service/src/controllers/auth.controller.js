@@ -105,25 +105,301 @@ const register = async (req, res) => {
   }
 };
 
+/**
+ * User login
+ * FR-001.2.1 through FR-001.2.8
+ */
 const login = async (req, res) => {
-  // TODO: Implement user login with JWT
-  logger.info('User login attempt', { email: req.body.email });
+  const { email, password, rememberMe = false } = req.body;
   
-  res.status(200).json({
-    success: true,
-    message: 'User login endpoint - to be implemented',
-    data: { email: req.body.email },
-  });
+  // Get client info for audit logging and rate limiting
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.get('user-agent');
+
+  logger.info('User login attempt', { email, ipAddress });
+
+  // Validate input fields (email and password format)
+  const { loginSchema } = require('../utils/validators');
+  const { error } = loginSchema.validate({ email, password });
+  if (error) {
+    throw new ValidationError(error.details[0].message);
+  }
+
+  const rateLimitService = require('../services/rateLimit.service');
+  
+  // FR-001.2.2: Check IP rate limiting (5 failed attempts per 15 minutes per IP)
+  // Check early but don't throw yet - need to track user-level attempts for account locking
+  const rateLimitCheck = rateLimitService.checkIpRateLimit(ipAddress);
+  
+  const client = await database.getClient();
+  let transactionCommitted = false;
+
+  try {
+    await client.query('BEGIN');
+
+    // Retrieve user account by email (with lowercase normalization)
+    const userResult = await client.query(
+      `SELECT id, email, password_hash, display_name, status, 
+              is_email_verified, failed_login_attempts, locked_until,
+              subscription_tier
+       FROM users 
+       WHERE email = $1`,
+      [email.trim().toLowerCase()]
+    );
+
+    if (userResult.rows.length === 0) {
+      // Don't reveal if email exists - security best practice
+      const auditService = require('../services/audit.service');
+      await auditService.logLoginFailure(null, email, 'Invalid credentials', ipAddress, userAgent, client);
+      
+      await client.query('COMMIT');
+      transactionCommitted = true;
+      rateLimitService.recordIpFailedAttempt(ipAddress);
+      
+      throw new UnauthorizedError('Invalid email or password');
+    }
+
+    const user = userResult.rows[0];
+
+    // FR-001.2.8: Check if email is verified
+    if (user.status === 'pending_verification' || !user.is_email_verified) {
+      // Don't increment failed attempts for unverified accounts
+      const auditService = require('../services/audit.service');
+      await auditService.logLoginFailure(user.id, email, 'unverified email', ipAddress, userAgent, client);
+      
+      await client.query('COMMIT');
+      transactionCommitted = true;
+      
+      throw new UnauthorizedError('Please verify your email address before logging in');
+    }
+
+    // Check if account is locked (temporary or permanent)
+    const lockStatus = rateLimitService.checkAccountLockStatus(user);
+    if (lockStatus.isLocked) {
+      const auditService = require('../services/audit.service');
+      await auditService.logLoginFailure(user.id, email, 'Account locked', ipAddress, userAgent, client);
+      
+      await client.query('COMMIT');
+      transactionCommitted = true;
+      
+      throw new UnauthorizedError(lockStatus.reason);
+    }
+
+    // Verify password against stored hash
+    const passwordService = require('../services/password.service');
+    const isPasswordValid = await passwordService.verifyPassword(password, user.password_hash);
+
+    if (!isPasswordValid) {
+      // Increment failed login attempts
+      const newFailedAttempts = (user.failed_login_attempts || 0) + 1;
+      
+      // FR-001.2.3: Check if account should be locked (10 consecutive failures)
+      const attemptCheck = rateLimitService.checkUserLoginAttempts(user.id, newFailedAttempts);
+      
+      if (attemptCheck.shouldLock) {
+        // Lock the account
+        await client.query(
+          `UPDATE users 
+           SET failed_login_attempts = $1, 
+               locked_until = $2,
+               status = CASE WHEN status != 'active' THEN status ELSE 'active' END,
+               updated_at = NOW()
+           WHERE id = $3`,
+          [newFailedAttempts, attemptCheck.lockUntil, user.id]
+        );
+
+        const auditService = require('../services/audit.service');
+        await auditService.logAccountLockout(
+          user.id,
+          email,
+          'Multiple failed login attempts',
+          ipAddress,
+          userAgent,
+          client
+        );
+        
+        await client.query('COMMIT');
+        transactionCommitted = true;
+        rateLimitService.recordIpFailedAttempt(ipAddress);
+
+        throw new UnauthorizedError(
+          'Account locked due to multiple failed login attempts. Please contact support or reset your password'
+        );
+      } else {
+        // Update failed attempts count
+        await client.query(
+          'UPDATE users SET failed_login_attempts = $1, updated_at = NOW() WHERE id = $2',
+          [newFailedAttempts, user.id]
+        );
+
+        const auditService = require('../services/audit.service');
+        await auditService.logLoginFailure(user.id, email, 'Invalid password', ipAddress, userAgent, client);
+        
+        await client.query('COMMIT');
+        transactionCommitted = true;
+        rateLimitService.recordIpFailedAttempt(ipAddress);
+
+        logger.warn('Login failed - invalid password', { 
+          email, 
+          attempts: newFailedAttempts,
+          remaining: attemptCheck.remainingAttempts 
+        });
+
+        throw new UnauthorizedError('Invalid email or password');
+      }
+    }
+
+    // Password is valid - check rate limit before allowing login
+    if (!rateLimitCheck.allowed) {
+      await client.query('COMMIT');
+      transactionCommitted = true;
+      logger.warn('Login rate limit exceeded', { ipAddress, email });
+      throw new UnauthorizedError(
+        `Too many login attempts. Please try again in ${rateLimitCheck.waitTime} minute${rateLimitCheck.waitTime !== 1 ? 's' : ''}`
+      );
+    }
+
+    // Successful login!
+
+    // Reset failed login attempts and IP rate limit
+    await client.query(
+      `UPDATE users 
+       SET failed_login_attempts = 0, 
+           locked_until = NULL,
+           last_login_at = NOW(),
+           updated_at = NOW()
+       WHERE id = $1`,
+      [user.id]
+    );
+
+    rateLimitService.resetIpRateLimit(ipAddress);
+
+    // FR-001.2.4, FR-001.2.5, FR-001.2.6: Generate JWT tokens
+    const jwtService = require('../services/jwt.service');
+    const tokens = jwtService.generateTokenPair(user, rememberMe);
+
+    // Create session for token rotation and multi-device management
+    const sessionService = require('../services/session.service');
+    const expiresAt = new Date(Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000);
+    
+    const session = await sessionService.createSession({
+      userId: user.id,
+      refreshToken: tokens.refreshToken,
+      ipAddress,
+      userAgent,
+      expiresAt,
+    }, client);
+
+    // FR-001.2.7: Log successful login for security auditing
+    const auditService = require('../services/audit.service');
+    await auditService.logLoginSuccess(user.id, email, ipAddress, userAgent, client);
+
+    await client.query('COMMIT');
+    transactionCommitted = true;
+
+    logger.info('User logged in successfully', { 
+      userId: user.id, 
+      email: user.email,
+      sessionId: session.id 
+    });
+
+    // Return tokens and user profile data
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          displayName: user.display_name,
+          status: user.status,
+          subscriptionTier: user.subscription_tier,
+        },
+        tokens: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          expiresIn: tokens.expiresIn,
+        },
+        session: {
+          id: session.id,
+          expiresAt: session.expires_at,
+        },
+      },
+    });
+  } catch (error) {
+    if (!transactionCommitted) {
+      await client.query('ROLLBACK');
+    }
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
+/**
+ * User logout
+ * FR-001.3.1 through FR-001.3.5
+ */
 const logout = async (req, res) => {
-  // TODO: Implement logout logic (token blacklisting if needed)
-  logger.info('User logout');
+  const authHeader = req.headers.authorization;
   
-  res.status(200).json({
-    success: true,
-    message: 'User logged out successfully',
-  });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new UnauthorizedError('No authentication token provided');
+  }
+
+  const accessToken = authHeader.split(' ')[1];
+  const jwtService = require('../services/jwt.service');
+  const sessionService = require('../services/session.service');
+
+  // Decode token to get user info (even if expired)
+  const decoded = jwtService.decodeToken(accessToken);
+  
+  if (!decoded || !decoded.userId) {
+    throw new UnauthorizedError('Invalid token');
+  }
+
+  const userId = decoded.userId;
+  logger.info('User logout', { userId });
+
+  try {
+    // FR-001.3.3: Add access token to blacklist
+    const ttl = jwtService.getTokenExpirationTime(accessToken) || 86400; // Default 24h
+    sessionService.blacklistToken(accessToken, ttl);
+
+    // Get refresh token from body or cookie if provided
+    const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
+    
+    if (refreshToken) {
+      // Blacklist refresh token too
+      const refreshTtl = jwtService.getTokenExpirationTime(refreshToken) || 2592000; // Default 30d
+      sessionService.blacklistToken(refreshToken, refreshTtl);
+
+      // Invalidate session associated with refresh token
+      const refreshDecoded = jwtService.decodeToken(refreshToken);
+      if (refreshDecoded && refreshDecoded.tokenId) {
+        // Find and invalidate session
+        const sessions = await sessionService.getUserSessions(userId);
+        for (const session of sessions) {
+          await sessionService.invalidateSession(session.id, userId);
+        }
+      }
+    }
+
+    // FR-001.3.4: Clear client-side tokens (inform client to do this)
+    logger.info('User logged out successfully', { userId });
+
+    res.status(200).json({
+      success: true,
+      message: 'Logged out successfully',
+    });
+  } catch (error) {
+    logger.error('Error during logout:', error);
+    // Even if logout partially fails, return success to client
+    res.status(200).json({
+      success: true,
+      message: 'Logged out successfully',
+    });
+  }
 };
 
 const forgotPassword = async (req, res) => {
@@ -151,7 +427,8 @@ const resetPassword = async (req, res) => {
  * FR-001.1.7: Activate account after email verification
  */
 const verifyEmail = async (req, res) => {
-  const { token } = req.body;
+  // Accept token from both query (GET) and body (POST) for flexibility
+  const { token } = req.query.token ? req.query : req.body;
   
   const ipAddress = req.ip || req.connection.remoteAddress;
   const userAgent = req.get('user-agent');
@@ -272,10 +549,103 @@ const resendVerification = async (req, res) => {
   });
 };
 
+/**
+ * Refresh access token using refresh token
+ * FR-001.6.3: Rotate refresh tokens on each use
+ */
+const refreshToken = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    throw new ValidationError('Refresh token is required');
+  }
+
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.get('user-agent');
+
+  logger.info('Token refresh attempt');
+
+  const jwtService = require('../services/jwt.service');
+  const sessionService = require('../services/session.service');
+
+  // Verify refresh token
+  const decoded = jwtService.verifyToken(refreshToken, 'refresh');
+  
+  if (!decoded) {
+    throw new UnauthorizedError('Invalid or expired refresh token');
+  }
+
+  // Check if token is blacklisted
+  if (sessionService.isTokenBlacklisted(refreshToken)) {
+    throw new UnauthorizedError('Refresh token has been invalidated');
+  }
+
+  // Verify session exists and is valid
+  const session = await sessionService.verifyRefreshTokenSession(refreshToken, decoded.userId);
+  
+  if (!session) {
+    throw new UnauthorizedError('Invalid session or refresh token');
+  }
+
+  // Get user data
+  const userResult = await database.query(
+    'SELECT id, email, display_name, status, subscription_tier FROM users WHERE id = $1',
+    [decoded.userId]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw new UnauthorizedError('User not found');
+  }
+
+  const user = userResult.rows[0];
+
+  // Generate new token pair (rotate refresh token)
+  // Use a small delay to ensure different iat (issued at) timestamp
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  const newTokens = jwtService.generateTokenPair(user, false);
+
+  // Invalidate old session
+  await sessionService.invalidateSession(session.id, user.id);
+
+  // Create new session with new refresh token
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const newSession = await sessionService.createSession({
+    userId: user.id,
+    refreshToken: newTokens.refreshToken,
+    ipAddress,
+    userAgent,
+    expiresAt,
+  });
+
+  // Blacklist old tokens
+  const oldAccessTtl = 86400; // 24h
+  const oldRefreshTtl = jwtService.getTokenExpirationTime(refreshToken) || 2592000;
+  sessionService.blacklistToken(refreshToken, oldRefreshTtl);
+
+  logger.info('Token refreshed successfully', { userId: user.id, sessionId: newSession.id });
+
+  res.status(200).json({
+    success: true,
+    message: 'Token refreshed successfully',
+    data: {
+      tokens: {
+        accessToken: newTokens.accessToken,
+        refreshToken: newTokens.refreshToken,
+        expiresIn: newTokens.expiresIn,
+      },
+      session: {
+        id: newSession.id,
+        expiresAt: newSession.expires_at,
+      },
+    },
+  });
+};
+
 module.exports = {
   register,
   login,
   logout,
+  refreshToken,
   forgotPassword,
   resetPassword,
   verifyEmail,

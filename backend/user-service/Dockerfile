@@ -5,12 +5,18 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy shared utilities first
-COPY shared/ /app/shared/
+COPY shared/package*.json /app/shared/
+COPY shared/src/ /app/shared/src/
 
-# Copy package files
+# Install shared dependencies
+WORKDIR /app/shared
+RUN npm ci --omit=dev
+
+# Copy user-service package files
+WORKDIR /app
 COPY user-service/package*.json ./
 
-# Install dependencies
+# Install user-service dependencies
 RUN npm ci --omit=dev
 
 # Copy application code

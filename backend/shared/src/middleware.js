@@ -45,18 +45,67 @@ const validate = (schema) => {
 };
 
 /**
- * Simple authentication middleware (to be implemented with JWT)
+ * JWT Authentication middleware
+ * FR-001.6.7: Validate token signatures on every request
+ * FR-001.6.8: Check token blacklist before accepting tokens
  */
-const authenticate = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  
-  if (!token) {
-    throw new UnauthorizedError('No authentication token provided');
-  }
+const authenticate = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedError('No authentication token provided');
+    }
 
-  // TODO: Implement JWT verification
-  // For now, just pass through
-  next();
+    const token = authHeader.split(' ')[1];
+    
+    // Check if token is blacklisted (logout/invalidated tokens)
+    // Note: This requires session service from user-service
+    // In production, this should use Redis for cross-service blacklist
+    try {
+      // Try to load session service if available (for user-service)
+      const sessionService = require('../../user-service/src/services/session.service');
+      if (sessionService.isTokenBlacklisted(token)) {
+        throw new UnauthorizedError('Token has been invalidated');
+      }
+    } catch (loadError) {
+      // Session service not available (different microservice)
+      // In production, implement Redis-based blacklist checking
+      logger.debug('Session service not available for blacklist check');
+    }
+
+    // Verify JWT token
+    let jwtService;
+    try {
+      jwtService = require('../../user-service/src/services/jwt.service');
+    } catch (loadError) {
+      // JWT service not available - service might not have it
+      logger.error('JWT service not available');
+      throw new UnauthorizedError('Authentication service unavailable');
+    }
+
+    const decoded = jwtService.verifyToken(token, 'access');
+    
+    if (!decoded) {
+      throw new UnauthorizedError('Invalid or expired token');
+    }
+
+    // Attach user info to request object
+    req.user = {
+      userId: decoded.userId,
+      email: decoded.email,
+      role: decoded.role || 'user',
+    };
+
+    logger.debug('User authenticated', { userId: req.user.userId });
+    next();
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      throw error;
+    }
+    logger.error('Authentication error:', error);
+    throw new UnauthorizedError('Authentication failed');
+  }
 };
 
 /**

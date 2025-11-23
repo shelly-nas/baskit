@@ -59,7 +59,7 @@ const logRegistration = async (userId, email, ipAddress, userAgent, client = nul
 /**
  * Log login success event
  */
-const logLoginSuccess = async (userId, email, ipAddress, userAgent) => {
+const logLoginSuccess = async (userId, email, ipAddress, userAgent, client = null) => {
   return logEvent({
     userId,
     eventType: 'login_success',
@@ -67,27 +67,29 @@ const logLoginSuccess = async (userId, email, ipAddress, userAgent) => {
     ipAddress,
     userAgent,
     metadata: { email },
+    client,
   });
 };
 
 /**
  * Log login failure event
  */
-const logLoginFailure = async (email, reason, ipAddress, userAgent) => {
+const logLoginFailure = async (userId, email, reason, ipAddress, userAgent, client = null) => {
   return logEvent({
-    userId: null,
+    userId: userId || null,
     eventType: 'login_failed',
     eventDescription: `Login failed for ${email}: ${reason}`,
     ipAddress,
     userAgent,
     metadata: { email, reason },
+    client,
   });
 };
 
 /**
  * Log password reset request
  */
-const logPasswordResetRequest = async (userId, email, ipAddress, userAgent) => {
+const logPasswordResetRequest = async (userId, email, ipAddress, userAgent, client = null) => {
   return logEvent({
     userId,
     eventType: 'password_reset_request',
@@ -95,13 +97,14 @@ const logPasswordResetRequest = async (userId, email, ipAddress, userAgent) => {
     ipAddress,
     userAgent,
     metadata: { email },
+    client,
   });
 };
 
 /**
  * Log password reset completion
  */
-const logPasswordResetComplete = async (userId, email, ipAddress, userAgent) => {
+const logPasswordResetComplete = async (userId, email, ipAddress, userAgent, client = null) => {
   return logEvent({
     userId,
     eventType: 'password_reset_complete',
@@ -109,6 +112,7 @@ const logPasswordResetComplete = async (userId, email, ipAddress, userAgent) => 
     ipAddress,
     userAgent,
     metadata: { email },
+    client,
   });
 };
 
@@ -130,7 +134,7 @@ const logEmailVerification = async (userId, email, ipAddress, userAgent, client 
 /**
  * Log account lockout
  */
-const logAccountLockout = async (userId, email, reason, ipAddress, userAgent) => {
+const logAccountLockout = async (userId, email, reason, ipAddress, userAgent, client = null) => {
   return logEvent({
     userId,
     eventType: 'account_locked',
@@ -138,6 +142,7 @@ const logAccountLockout = async (userId, email, reason, ipAddress, userAgent) =>
     ipAddress,
     userAgent,
     metadata: { email, reason },
+    client,
   });
 };
 

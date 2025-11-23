@@ -1,0 +1,31 @@
+{
+  "name": "baskit-backend",
+  "version": "1.0.0",
+  "description": "Baskit Backend Microservices - Root package",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:all",
+    "test:all": "npm run test:user-service && npm run test:product-service && npm run test:list-service && npm run test:shared",
+    "test:user-service": "cd user-service && npm test",
+    "test:product-service": "cd product-service && npm test",
+    "test:list-service": "cd list-service && npm test",
+    "test:shared": "cd shared && npm test",
+    "test:price-service": "cd price-service && npm test",
+    "test:store-service": "cd store-service && npm test",
+    "test:route-service": "cd route-service && npm test",
+    "test:notification-service": "cd notification-service && npm test",
+    "install:all": "npm run install:shared && npm run install:services",
+    "install:shared": "cd shared && npm install",
+    "install:services": "cd user-service && npm install && cd ../product-service && npm install && cd ../list-service && npm install && cd ../price-service && npm install && cd ../store-service && npm install && cd ../route-service && npm install && cd ../notification-service && npm install",
+    "dev:user-service": "cd user-service && npm run dev",
+    "dev:product-service": "cd product-service && npm run dev",
+    "dev:list-service": "cd list-service && npm run dev"
+  },
+  "keywords": [
+    "baskit",
+    "backend",
+    "microservices"
+  ],
+  "author": "Jelle van der Graaf",
+  "license": "ISC"
+}

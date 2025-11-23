@@ -52,6 +52,11 @@
         "lines": 80,
         "statements": 80
       }
+    },
+    "moduleNameMapper": {
+      "^\\.\\./\\.\\./\\.\\./shared/src$": "<rootDir>/../shared/src/index.js",
+      "^\\.\\./\\.\\./shared/src$": "<rootDir>/../shared/src/index.js",
+      "^\\.\\./shared/src$": "<rootDir>/../shared/src/index.js"
     }
   }
 }

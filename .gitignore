@@ -3,6 +3,7 @@ node_modules/
 .npm
 .env
 coverage/
+logs/
 
 # Flutter/Dart
 .dart_tool/

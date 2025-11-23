@@ -20,15 +20,23 @@ router.post('/login', asyncHandler(authController.login));
 /**
  * @route   POST /api/auth/logout
  * @desc    Logout user
- * @access  Private
+ * @access  Public (requires token in header but doesn't validate it)
  */
 router.post('/logout', asyncHandler(authController.logout));
 
 /**
- * @route   POST /api/auth/verify-email
- * @desc    Verify email with token
+ * @route   POST /api/auth/refresh
+ * @desc    Refresh access token using refresh token
  * @access  Public
  */
+router.post('/refresh', asyncHandler(authController.refreshToken));
+
+/**
+ * @route   GET/POST /api/auth/verify-email
+ * @desc    Verify email with token (accepts token in query or body)
+ * @access  Public
+ */
+router.get('/verify-email', asyncHandler(authController.verifyEmail));
 router.post('/verify-email', asyncHandler(authController.verifyEmail));
 
 /**

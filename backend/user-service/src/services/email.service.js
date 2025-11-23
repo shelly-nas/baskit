@@ -74,7 +74,7 @@ const initializeTransporter = async () => {
  */
 const sendVerificationEmail = async (email, displayName, token) => {
   try {
-    const verificationUrl = `${APP_URL}/verify-email?token=${token}`;
+    const verificationUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
     const emailTransporter = await initializeTransporter();
     
     const mailOptions = {
@@ -158,7 +158,7 @@ const sendVerificationEmail = async (email, displayName, token) => {
  */
 const sendPasswordResetEmail = async (email, displayName, token) => {
   try {
-    const resetUrl = `${APP_URL}/reset-password?token=${token}`;
+    const resetUrl = `${APP_URL}/api/auth/reset-password?token=${token}`;
     const emailTransporter = await initializeTransporter();
     
     const mailOptions = {

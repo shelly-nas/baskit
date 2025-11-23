@@ -508,8 +508,24 @@ COMMENT ON TABLE shopping_routes IS 'Saved and optimized shopping routes';
 
 -- ============================================================================
 -- SCHEMA: VERIFICATION & SECURITY
--- Tables: verification_tokens, password_reset_tokens, password_history, audit_logs
+-- Tables: user_sessions, verification_tokens, password_reset_tokens, password_history, audit_logs
 -- ============================================================================
+
+-- User sessions table (for JWT refresh token management and multi-device sessions)
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    refresh_token_hash VARCHAR(255) NOT NULL,
+    ip_address INET,
+    user_agent TEXT,
+    device_type VARCHAR(50),
+    device_name VARCHAR(100),
+    browser VARCHAR(100),
+    is_active BOOLEAN DEFAULT TRUE,
+    last_activity_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Verification tokens table
 CREATE TABLE IF NOT EXISTS verification_tokens (
@@ -553,6 +569,10 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 );
 
 -- Indexes
+CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
+CREATE INDEX idx_user_sessions_refresh_token_hash ON user_sessions(refresh_token_hash);
+CREATE INDEX idx_user_sessions_expires_at ON user_sessions(expires_at);
+CREATE INDEX idx_user_sessions_is_active ON user_sessions(is_active);
 CREATE INDEX idx_verification_tokens_user_id ON verification_tokens(user_id);
 CREATE INDEX idx_verification_tokens_token ON verification_tokens(token);
 CREATE INDEX idx_verification_tokens_expires_at ON verification_tokens(expires_at);
@@ -565,6 +585,7 @@ CREATE INDEX idx_audit_logs_event_type ON audit_logs(event_type);
 CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
 
 -- Comments
+COMMENT ON TABLE user_sessions IS 'User sessions for JWT refresh token management and multi-device tracking';
 COMMENT ON TABLE verification_tokens IS 'Email verification and email change verification tokens';
 COMMENT ON TABLE password_reset_tokens IS 'Password reset tokens with expiration';
 COMMENT ON TABLE password_history IS 'Password history for preventing reuse of recent passwords';
