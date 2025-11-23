@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/design_tokens.dart';
 import '../atoms/app_text.dart';
 
 /// Molecular component for preference items with label and value
@@ -21,12 +23,12 @@ class PreferenceItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppText(label, fontSize: 14, color: const Color(0xFF37352F)),
-              AppText(value, fontSize: 14, color: const Color(0xFF787774)),
+              AppText(label, fontSize: 14, color: AppColors.foreground),
+              AppText(value, fontSize: 14, color: AppColors.mutedForeground),
             ],
           ),
         ),

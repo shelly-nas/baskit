@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../atoms/app_icon.dart';
 import '../atoms/app_text.dart';
@@ -38,8 +39,8 @@ class BottomNavItem extends StatelessWidget {
                   icon,
                   size: DesignTokens.iconLarge,
                   color: isSelected
-                      ? const Color(0xFF37352F)
-                      : const Color(0xFF787774),
+                      ? AppColors.primary
+                      : AppColors.mutedForeground,
                 ),
                 const VerticalSpace.small(),
                 AppText(
@@ -47,8 +48,8 @@ class BottomNavItem extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                   color: isSelected
-                      ? const Color(0xFF37352F)
-                      : const Color(0xFF787774),
+                      ? AppColors.primary
+                      : AppColors.mutedForeground,
                 ),
               ],
             ),

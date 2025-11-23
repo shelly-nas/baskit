@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/design_tokens.dart';
 import '../../models/shopping_list.dart';
 import '../atoms/app_progress_bar.dart';
 import '../atoms/spacing.dart';
@@ -15,33 +17,36 @@ class ShoppingListCardComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: DesignTokens.spaceLarge),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE9E9E7), width: 1),
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
+        border: Border.all(
+          color: AppColors.border,
+          width: DesignTokens.borderThin,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap ?? () {},
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ListCardHeader(name: list.name, isShared: list.isShared),
-                const VerticalSpace(4),
+                const VerticalSpace(DesignTokens.spaceSmall),
                 ListCardInfo(
                   completedItems: list.completedItems,
                   totalItems: list.itemCount,
                 ),
-                const VerticalSpace(12),
+                const VerticalSpace(DesignTokens.spaceLarge),
                 AppProgressBar(
                   value: list.completionPercentage,
-                  backgroundColor: const Color(0xFFF1F1EF),
-                  valueColor: const Color(0xFF37352F),
+                  backgroundColor: AppColors.secondary,
+                  valueColor: AppColors.primary,
                 ),
               ],
             ),

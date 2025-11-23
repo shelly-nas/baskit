@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../atoms/app_icon.dart';
 import '../atoms/app_text.dart';
@@ -23,14 +23,14 @@ class ListCardHeader extends StatelessWidget {
                 name,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF37352F),
+                color: AppColors.foreground,
               ),
               if (isShared) ...[
                 const HorizontalSpace.medium(),
                 const AppIcon(
                   CupertinoIcons.person_2,
                   size: DesignTokens.iconSmall,
-                  color: Color(0xFF787774),
+                  color: AppColors.mutedForeground,
                 ),
               ],
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../atoms/app_icon.dart';
 import '../atoms/app_text.dart';
@@ -15,10 +16,10 @@ class LogoutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFEBEB),
+        color: const Color(0xFFFFEBEB), // Light destructive background
         borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
         border: Border.all(
-          color: const Color(0xFFFFCCCC),
+          color: const Color(0xFFFFCCCC), // Light destructive border
           width: DesignTokens.borderThin,
         ),
       ),
@@ -26,23 +27,23 @@ class LogoutButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
           child: const Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(DesignTokens.spaceXLarge),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 AppIcon(
                   CupertinoIcons.square_arrow_right,
                   size: DesignTokens.iconMedium,
-                  color: Color(0xFFDC2626),
+                  color: AppColors.destructive,
                 ),
                 HorizontalSpace.medium(),
                 AppText(
                   'Log Out',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFDC2626),
+                  color: AppColors.destructive,
                 ),
               ],
             ),

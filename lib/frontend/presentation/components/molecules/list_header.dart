@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../atoms/app_icon.dart';
 import '../atoms/app_text.dart';
@@ -26,13 +27,14 @@ class ListHeader extends StatelessWidget {
           title,
           fontSize: 28,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF37352F),
+          color: AppColors.foreground,
         ),
         if (showAddButton)
           IconButton(
             icon: const AppIcon(
               CupertinoIcons.add_circled_solid,
               size: DesignTokens.iconXLarge,
+              color: AppColors.foreground,
             ),
             onPressed: onAddPressed ?? () {},
           ),

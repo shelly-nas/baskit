@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/design_tokens.dart';
 import '../atoms/app_text.dart';
 import '../atoms/spacing.dart';
 
@@ -16,10 +18,10 @@ class SavingsSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F6F3),
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.secondary,
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,20 +29,20 @@ class SavingsSummary extends StatelessWidget {
           const AppText(
             'Your Total Savings',
             fontSize: 14,
-            color: Color(0xFF787774),
+            color: AppColors.mutedForeground,
           ),
-          const VerticalSpace(12),
+          const VerticalSpace(DesignTokens.spaceLarge),
           AppText(
             totalSavings,
             fontSize: 28,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF37352F),
+            color: AppColors.foreground,
           ),
-          const VerticalSpace(8),
+          const VerticalSpace(DesignTokens.spaceMedium),
           AppText(
             membershipDuration,
             fontSize: 12,
-            color: const Color(0xFF787774),
+            color: AppColors.mutedForeground,
           ),
         ],
       ),

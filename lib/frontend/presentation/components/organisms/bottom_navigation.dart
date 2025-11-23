@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../molecules/bottom_nav_item.dart';
 
@@ -18,10 +18,10 @@ class BottomNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFFFAFAF9),
+        color: AppColors.card,
         border: Border(
           top: BorderSide(
-            color: Color(0xFFE9E9E7),
+            color: AppColors.border,
             width: DesignTokens.borderThin,
           ),
         ),

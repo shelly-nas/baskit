@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/design_tokens.dart';
 import '../atoms/app_text.dart';
 
 /// Molecular component for preference toggle items with switch
@@ -18,15 +19,16 @@ class PreferenceToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          AppText(label, fontSize: 14, color: const Color(0xFF37352F)),
+          AppText(label, fontSize: 14, color: AppColors.foreground),
           CupertinoSwitch(
             value: value,
             onChanged: onChanged,
-            activeTrackColor: const Color(0xFF37352F),
+            activeTrackColor: AppColors.primary,
+            trackColor: AppColors.switchBackground,
           ),
         ],
       ),

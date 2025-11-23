@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../atoms/app_divider.dart';
 import '../molecules/preference_item.dart';
@@ -27,10 +28,10 @@ class PreferencesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
         border: Border.all(
-          color: const Color(0xFFE9E9E7),
+          color: AppColors.border,
           width: DesignTokens.borderThin,
         ),
       ),
@@ -41,13 +42,13 @@ class PreferencesSection extends StatelessWidget {
             value: defaultStoreValue,
             onTap: onDefaultStoreTap,
           ),
-          const AppDivider(height: 1, color: Color(0xFFE9E9E7)),
+          const AppDivider(height: 1, color: AppColors.border),
           PreferenceItem(
             label: 'Price Alert Threshold',
             value: priceAlertValue,
             onTap: onPriceAlertTap,
           ),
-          const AppDivider(height: 1, color: Color(0xFFE9E9E7)),
+          const AppDivider(height: 1, color: AppColors.border),
           PreferenceToggle(
             label: 'Shopping Reminder',
             value: shoppingReminderValue,

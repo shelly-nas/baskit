@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../molecules/profile_header.dart';
 
@@ -18,11 +19,11 @@ class UserInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: DesignTokens.space2XLarge),
       decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Color(0xFFE9E9E7),
+            color: AppColors.border,
             width: DesignTokens.borderThin,
           ),
         ),

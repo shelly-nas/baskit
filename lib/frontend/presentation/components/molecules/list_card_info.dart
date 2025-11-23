@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
 import '../atoms/app_text.dart';
 
 /// Molecular component for list card info text
@@ -17,7 +18,7 @@ class ListCardInfo extends StatelessWidget {
     return AppText(
       '$completedItems/$totalItems items completed',
       fontSize: 12,
-      color: const Color(0xFF787774),
+      color: AppColors.mutedForeground,
     );
   }
 }
