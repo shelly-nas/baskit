@@ -40,6 +40,9 @@ describe('Login Requirements - FR-001.2.x', () => {
     // Clear rate limits
     rateLimitService.clearAllRateLimits();
 
+    // Delete any existing test user first to ensure clean state
+    await database.query('DELETE FROM users WHERE email = $1', [TEST_EMAIL]);
+
     // Create verified test user
     const hashedPassword = await passwordService.hashPassword(TEST_PASSWORD);
     const result = await database.query(

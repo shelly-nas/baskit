@@ -369,8 +369,7 @@ describe('User Registration Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error).toContain('already exists');
       expect(mockClient.query).toHaveBeenCalledWith(
-        expect.stringContaining('ROLLBACK'),
-        undefined
+        expect.stringContaining('ROLLBACK')
       );
     });
 
@@ -577,8 +576,7 @@ describe('User Registration Integration Tests', () => {
         .expect(500);
 
       expect(mockClient.query).toHaveBeenCalledWith(
-        expect.stringContaining('ROLLBACK'),
-        undefined
+        expect.stringContaining('ROLLBACK')
       );
     });
 

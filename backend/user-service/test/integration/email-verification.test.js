@@ -205,7 +205,7 @@ describe('Email Verification Integration Tests', () => {
         .mockImplementationOnce((query, params) => {
           // Verify the token is marked as used
           expect(query).toContain('UPDATE');
-          expect(query).toContain('used = true');
+          expect(query).toContain('used_at');
           return Promise.resolve({ rows: [] });
         })
         .mockResolvedValueOnce({ rows: [] })
@@ -428,8 +428,7 @@ describe('Email Verification Integration Tests', () => {
         .expect(500);
 
       expect(mockClient.query).toHaveBeenCalledWith(
-        expect.stringContaining('ROLLBACK'),
-        undefined
+        expect.stringContaining('ROLLBACK')
       );
     });
 

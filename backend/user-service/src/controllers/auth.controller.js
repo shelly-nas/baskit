@@ -98,7 +98,7 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
-    await client.query('ROLLBACK', undefined);
+    await client.query('ROLLBACK');
     throw error;
   } finally {
     client.release();
@@ -492,7 +492,7 @@ const verifyEmail = async (req, res) => {
       },
     });
   } catch (error) {
-    await client.query('ROLLBACK', undefined);
+    await client.query('ROLLBACK');
     throw error;
   } finally {
     client.release();

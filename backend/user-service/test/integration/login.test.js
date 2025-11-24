@@ -25,6 +25,9 @@ describe('Login Flow - Integration Tests', () => {
     // Clear rate limits before each test
     rateLimitService.clearAllRateLimits();
 
+    // Delete any existing test user first to ensure clean state
+    await database.query('DELETE FROM users WHERE email = $1', ['logintest@example.com']);
+
     // Create a verified test user
     const hashedPassword = await passwordService.hashPassword('TestPass123!');
     const result = await database.query(
