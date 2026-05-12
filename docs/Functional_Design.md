@@ -325,6 +325,8 @@ For premium users, Baskit provides the intelligence layer that makes strategic g
 
 **FR-001: User Authentication & Account Management**
 
+See [docs/features/FR-001.md](features/FR-001.md) for full detail.
+
 - The system SHALL allow users to register with email and password
 - The system SHALL provide secure login and logout functionality
 - The system SHALL include password recovery mechanism
@@ -333,12 +335,16 @@ For premium users, Baskit provides the intelligence layer that makes strategic g
 
 **FR-002: Product Search & AI Matching**
 
+See [docs/features/FR-002.md](features/FR-002.md) for full detail.
+
 - The system SHALL allow users to search for grocery products by name using intelligent text search
 - The system SHALL implement AI-powered product matching that maps generic terms (e.g., "peanut butter") to specific brands and variations
 - The system SHALL provide search suggestions and autocomplete functionality
 - The system SHALL display product information including name, brand and size
 
 **FR-003: Shopping List Management**
+
+See [docs/features/FR-003.md](features/FR-003.md) for full detail.
 
 - The system SHALL allow users to create multiple shopping lists
 - The system SHALL support both private (personal) and shared (family/household) list types
@@ -350,6 +356,8 @@ For premium users, Baskit provides the intelligence layer that makes strategic g
 
 **FR-004: Price Comparison & Analysis**
 
+See [docs/features/FR-004.md](features/FR-004.md) for full detail.
+
 - The system SHALL aggregate real-time pricing data from target Dutch supermarkets (Albert Heijn, Jumbo, Dirk, Plus, Hoogvliet, Lidl)
 - The system SHALL display price comparisons across multiple stores for individual items
 - The system SHALL show total shopping list cost comparisons across different stores
@@ -358,6 +366,8 @@ For premium users, Baskit provides the intelligence layer that makes strategic g
 - The system SHALL identify current promotions and discounts affecting list items
 
 **FR-005: Route Optimization**
+
+See [docs/features/FR-005.md](features/FR-005.md) for full detail.
 
 - The system SHALL generate optimized shopping routes based on user preference (cheapest vs fastest)
 - The system SHALL consider store locations, travel time, and user's current location
