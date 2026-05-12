@@ -2,6 +2,8 @@ import '../database/data_sources/shopping_list_data_source.dart';
 import '../database/repositories/shopping_list_repository.dart';
 import '../backend/use_cases/shopping_list_use_cases.dart';
 import '../backend/services/shopping_list_service.dart';
+import '../frontend/services/auth_service.dart';
+import '../frontend/services/token_storage_service.dart';
 
 /// Dependency Injection Container
 /// Sets up and provides all dependencies for the application
@@ -31,6 +33,8 @@ class DependencyInjection {
 
   // Services
   late final ShoppingListService _shoppingListService;
+  late final AuthService _authService;
+  late final TokenStorageService _tokenStorageService;
 
   /// Initialize all dependencies
   void initialize() {
@@ -49,6 +53,10 @@ class DependencyInjection {
     _deleteItemUseCase = DeleteItemUseCase(_repository);
     _toggleItemCompletionUseCase = ToggleItemCompletionUseCase(_repository);
 
+    // Initialize auth services
+    _authService = AuthService();
+    _tokenStorageService = TokenStorageService();
+
     // Initialize services
     _shoppingListService = ShoppingListService(
       getAllListsUseCase: _getAllListsUseCase,
@@ -65,6 +73,8 @@ class DependencyInjection {
 
   // Getters for services
   ShoppingListService get shoppingListService => _shoppingListService;
+  AuthService get authService => _authService;
+  TokenStorageService get tokenStorageService => _tokenStorageService;
 
   // You can add getters for other dependencies if needed directly
   ShoppingListRepository get repository => _repository;

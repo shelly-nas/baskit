@@ -70,7 +70,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   result['message'] ??
                       'Registration successful! Please check your email to verify your account.',
                 ),
-                backgroundColor: Colors.green,
+                backgroundColor: AppColors.primary,
                 duration: const Duration(seconds: 4),
               ),
             );
@@ -84,7 +84,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 content: Text(
                   result['error'] ?? 'Registration failed. Please try again.',
                 ),
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.destructive,
                 duration: const Duration(seconds: 3),
               ),
             );
@@ -96,7 +96,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('An error occurred: ${e.toString()}'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.destructive,
               duration: const Duration(seconds: 3),
             ),
           );
@@ -167,6 +167,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       }
                       if (value.length < 2) {
                         return 'Name must be at least 2 characters';
+                      }
+                      if (value.length > 50) {
+                        return 'Name must be at most 50 characters';
                       }
                       return null;
                     },
@@ -239,8 +242,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       if (!RegExp(r'[A-Z]').hasMatch(value)) {
                         return 'Password must contain at least one uppercase letter';
                       }
+                      if (!RegExp(r'[a-z]').hasMatch(value)) {
+                        return 'Password must contain at least one lowercase letter';
+                      }
                       if (!RegExp(r'[0-9]').hasMatch(value)) {
                         return 'Password must contain at least one number';
+                      }
+                      if (!RegExp(r'[@$!%*?&]').hasMatch(value)) {
+                        return r'Password must contain at least one special character (@$!%*?&)';
                       }
                       return null;
                     },

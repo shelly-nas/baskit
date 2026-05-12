@@ -3,9 +3,11 @@ import 'package:flutter/cupertino.dart';
 import '../../theme/colors.dart';
 import '../../theme/design_tokens.dart';
 import '../../services/auth_service.dart';
+import '../../services/token_storage_service.dart';
 import '../components/atoms/spacing.dart';
 import '../components/atoms/app_text.dart';
 import 'lists_screen.dart';
+import 'forgot_password_screen.dart';
 
 /// Login Page
 class LoginPage extends StatefulWidget {
@@ -47,11 +49,29 @@ class _LoginPageState extends State<LoginPage> {
         setState(() => _isLoading = false);
 
         if (result['success'] == true) {
-          // TODO: Store tokens securely
+          final data = result['data'] as Map<String, dynamic>?;
+          final tokens = data?['tokens'] as Map<String, dynamic>?;
+          final user = data?['user'] as Map<String, dynamic>?;
+
+          if (tokens != null && user != null) {
+            final tokenStorage = TokenStorageService();
+            await tokenStorage.saveTokens(
+              accessToken: tokens['accessToken'] as String,
+              refreshToken: tokens['refreshToken'] as String,
+            );
+            await tokenStorage.saveUserInfo(
+              userId: user['id'] as String,
+              email: user['email'] as String,
+              displayName: user['displayName'] as String? ?? '',
+            );
+          }
+
+          if (!mounted) return;
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(result['message'] ?? 'Login successful'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.primary,
               duration: const Duration(seconds: 2),
             ),
           );
@@ -64,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(result['error'] ?? 'Login failed'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.destructive,
               duration: const Duration(seconds: 3),
             ),
           );
@@ -77,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('An error occurred: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.destructive,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -198,11 +218,9 @@ class _LoginPageState extends State<LoginPage> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // TODO: Implement forgot password
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Password recovery coming soon'),
-                            duration: Duration(seconds: 2),
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordScreen(),
                           ),
                         );
                       },

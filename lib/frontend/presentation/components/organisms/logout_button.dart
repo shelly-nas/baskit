@@ -16,10 +16,10 @@ class LogoutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFEBEB), // Light destructive background
+        color: AppColors.destructive.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
         border: Border.all(
-          color: const Color(0xFFFFCCCC), // Light destructive border
+          color: AppColors.destructive.withValues(alpha: 0.3),
           width: DesignTokens.borderThin,
         ),
       ),

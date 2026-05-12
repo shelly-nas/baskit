@@ -11,6 +11,11 @@ const { logger } = require('../../shared/src');
 const rateLimitStore = new Map();
 const userAttemptStore = new Map();
 
+// Password reset rate limit store: max 3 requests per hour per email
+const passwordResetStore = new Map();
+const MAX_PASSWORD_RESET_ATTEMPTS = 3;
+const PASSWORD_RESET_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
 const RATE_LIMIT_WINDOW_MS = parseInt(process.env.LOGIN_RATE_LIMIT_WINDOW) || 15 * 60 * 1000; // 15 minutes
 const MAX_LOGIN_ATTEMPTS_PER_IP = parseInt(process.env.LOGIN_RATE_LIMIT_MAX) || 5;
 const MAX_LOGIN_ATTEMPTS_PER_USER = 10; // FR-001.2.3
@@ -211,11 +216,64 @@ const getIpRateLimitStatus = (ipAddress) => {
 };
 
 /**
+ * Check if an email has exceeded the password reset rate limit
+ * Max 3 requests per hour per email
+ * @param {string} email - Email address to check
+ * @returns {Object} - { allowed: boolean, waitTime: number (minutes) }
+ */
+const checkPasswordResetRateLimit = (email) => {
+  if (!email) {
+    return { allowed: true };
+  }
+
+  const now = Date.now();
+  const key = `pwreset:${email.toLowerCase()}`;
+  const record = passwordResetStore.get(key);
+
+  if (!record || now > record.resetAt) {
+    return { allowed: true };
+  }
+
+  const allowed = record.attempts < MAX_PASSWORD_RESET_ATTEMPTS;
+  const waitTime = allowed ? 0 : Math.ceil((record.resetAt - now) / 1000 / 60);
+
+  return { allowed, waitTime };
+};
+
+/**
+ * Record a password reset attempt for an email
+ * @param {string} email - Email address
+ */
+const recordPasswordResetAttempt = (email) => {
+  if (!email) return;
+
+  const now = Date.now();
+  const key = `pwreset:${email.toLowerCase()}`;
+  const record = passwordResetStore.get(key);
+
+  if (!record || now > record.resetAt) {
+    passwordResetStore.set(key, {
+      attempts: 1,
+      resetAt: now + PASSWORD_RESET_WINDOW_MS,
+    });
+  } else {
+    record.attempts += 1;
+    passwordResetStore.set(key, record);
+  }
+
+  logger.debug('Password reset attempt recorded', {
+    email,
+    attempts: passwordResetStore.get(key).attempts,
+  });
+};
+
+/**
  * Clear all rate limit data (for testing or admin purposes)
  */
 const clearAllRateLimits = () => {
   rateLimitStore.clear();
   userAttemptStore.clear();
+  passwordResetStore.clear();
   logger.info('All rate limits cleared');
 };
 
@@ -227,10 +285,14 @@ module.exports = {
   checkAccountLockStatus,
   getRemainingMinutes,
   getIpRateLimitStatus,
+  checkPasswordResetRateLimit,
+  recordPasswordResetAttempt,
   clearAllRateLimits,
   // Export constants for testing
   MAX_LOGIN_ATTEMPTS_PER_IP,
   MAX_LOGIN_ATTEMPTS_PER_USER,
   RATE_LIMIT_WINDOW_MS,
   ACCOUNT_LOCK_DURATION_MS,
+  MAX_PASSWORD_RESET_ATTEMPTS,
+  PASSWORD_RESET_WINDOW_MS,
 };

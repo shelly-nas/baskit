@@ -1,9 +1,10 @@
 const { database, logger, ValidationError, ConflictError, UnauthorizedError, NotFoundError } = require('../../shared/src');
-const { registrationSchema } = require('../utils/validators');
-const { hashPassword } = require('../services/password.service');
-const { createVerificationToken } = require('../services/token.service');
-const { sendVerificationEmail } = require('../services/email.service');
-const { logRegistration } = require('../services/audit.service');
+const { registrationSchema, forgotPasswordSchema, resetPasswordSchema } = require('../utils/validators');
+const { hashPassword, verifyPassword, isPasswordReused } = require('../services/password.service');
+const { createVerificationToken, createPasswordResetToken, verifyPasswordResetToken, markPasswordResetTokenUsed } = require('../services/token.service');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/email.service');
+const { logRegistration, logPasswordResetRequest, logPasswordResetComplete } = require('../services/audit.service');
+const { checkPasswordResetRateLimit, recordPasswordResetAttempt } = require('../services/rateLimit.service');
 
 /**
  * Authentication controller
@@ -402,24 +403,187 @@ const logout = async (req, res) => {
   }
 };
 
+/**
+ * Forgot password — request a password reset email
+ * FR-001.4.1 through FR-001.4.4
+ */
 const forgotPassword = async (req, res) => {
-  // TODO: Implement password reset request
-  logger.info('Password reset requested', { email: req.body.email });
-  
-  res.status(200).json({
-    success: true,
-    message: 'Password reset email sent (to be implemented)',
-  });
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.get('user-agent');
+
+  // Validate input
+  const { error, value } = forgotPasswordSchema.validate(req.body);
+  if (error) {
+    throw new ValidationError(error.details[0].message);
+  }
+
+  const email = value.email.trim().toLowerCase();
+  logger.info('Password reset requested', { email });
+
+  // Security: always return success regardless of whether email exists
+  const successResponse = () =>
+    res.status(200).json({
+      success: true,
+      message: 'If an account exists with this email, you will receive a password reset link.',
+    });
+
+  // Rate limit: max 3 requests per hour per email
+  const rateLimit = checkPasswordResetRateLimit(email);
+  if (!rateLimit.allowed) {
+    logger.warn('Password reset rate limit exceeded', { email });
+    // Return success to avoid leaking info about the rate limit
+    return successResponse();
+  }
+
+  // Record the attempt before checking user existence (to prevent enumeration timing)
+  recordPasswordResetAttempt(email);
+
+  // Look up user by email
+  const userResult = await database.query(
+    `SELECT id, email, display_name, status FROM users WHERE email = $1 AND deleted_at IS NULL`,
+    [email]
+  );
+
+  // If user exists and is active, send reset email
+  if (userResult.rows.length > 0) {
+    const user = userResult.rows[0];
+
+    if (user.status === 'active') {
+      try {
+        const resetToken = await createPasswordResetToken(user.id);
+        await sendPasswordResetEmail(user.email, user.display_name, resetToken.token);
+        await logPasswordResetRequest(user.id, user.email, ipAddress, userAgent);
+        logger.info('Password reset email sent', { userId: user.id, email: user.email });
+      } catch (err) {
+        // Log error but still return success to client for security
+        logger.error('Error sending password reset email:', err);
+      }
+    }
+  }
+
+  return successResponse();
 };
 
+/**
+ * Reset password using a valid reset token
+ * FR-001.4.5 through FR-001.4.8
+ */
 const resetPassword = async (req, res) => {
-  // TODO: Implement password reset with token
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.get('user-agent');
+
+  // Validate input
+  const { error, value } = resetPasswordSchema.validate(req.body);
+  if (error) {
+    throw new ValidationError(error.details[0].message);
+  }
+
+  const { token, password } = value;
   logger.info('Password reset attempt');
-  
-  res.status(200).json({
-    success: true,
-    message: 'Password reset successfully (to be implemented)',
-  });
+
+  // Verify reset token
+  const tokenData = await verifyPasswordResetToken(token);
+  if (!tokenData) {
+    throw new ValidationError('This password reset link is invalid or has expired. Please request a new one.');
+  }
+
+  const userId = tokenData.user_id;
+  const email = tokenData.email;
+
+  // Check password history (last 5)
+  const historyResult = await database.query(
+    `SELECT password_hash FROM password_history
+     WHERE user_id = $1
+     ORDER BY created_at DESC
+     LIMIT 5`,
+    [userId]
+  );
+
+  const passwordHashes = historyResult.rows.map(r => r.password_hash);
+  const isReused = await isPasswordReused(password, passwordHashes);
+  if (isReused) {
+    throw new ValidationError('You cannot reuse one of your last 5 passwords. Please choose a different password.');
+  }
+
+  // Also check against current password
+  const userResult = await database.query(
+    `SELECT id, email, password_hash, display_name FROM users WHERE id = $1`,
+    [userId]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw new ValidationError('User not found.');
+  }
+
+  const user = userResult.rows[0];
+  const isCurrentPassword = await verifyPassword(password, user.password_hash);
+  if (isCurrentPassword) {
+    throw new ValidationError('You cannot reuse your current password. Please choose a different password.');
+  }
+
+  const client = await database.getClient();
+
+  try {
+    await client.query('BEGIN');
+
+    // Hash new password
+    const newPasswordHash = await hashPassword(password);
+
+    // Ensure password_history doesn't exceed 5 entries — delete oldest if at limit
+    const countResult = await client.query(
+      'SELECT COUNT(*) as count FROM password_history WHERE user_id = $1',
+      [userId]
+    );
+    const historyCount = parseInt(countResult.rows[0].count, 10);
+    if (historyCount >= 5) {
+      await client.query(
+        `DELETE FROM password_history
+         WHERE id IN (
+           SELECT id FROM password_history
+           WHERE user_id = $1
+           ORDER BY created_at ASC
+           LIMIT $2
+         )`,
+        [userId, historyCount - 4]
+      );
+    }
+
+    // Archive current password hash in history
+    await client.query(
+      `INSERT INTO password_history (user_id, password_hash) VALUES ($1, $2)`,
+      [userId, user.password_hash]
+    );
+
+    // Update user's password
+    await client.query(
+      `UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2`,
+      [newPasswordHash, userId]
+    );
+
+    // Mark reset token as used
+    await markPasswordResetTokenUsed(token);
+
+    // Invalidate all sessions
+    const sessionService = require('../services/session.service');
+    await sessionService.invalidateAllUserSessions(userId);
+
+    // Log audit event
+    await logPasswordResetComplete(userId, email, ipAddress, userAgent, client);
+
+    await client.query('COMMIT');
+
+    logger.info('Password reset completed', { userId, email });
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully. You can now log in with your new password.',
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 };
 
 /**
