@@ -121,7 +121,7 @@ void main() {
       });
 
       test('should accept password with multiple uppercase letters', () {
-        expect(PasswordValidator.isValid('AA1@5678'), isTrue);
+        expect(PasswordValidator.isValid('AAa1@678'), isTrue);
       });
 
       test('should detect uppercase letter presence correctly', () {
@@ -268,8 +268,9 @@ void main() {
 
     group('Validation error messages', () {
       test('should return all errors for weak password', () {
+        // 'abc': missing length, uppercase, number, special char = 4 errors
         final errors = PasswordValidator.getValidationErrors('abc');
-        expect(errors.length, equals(4)); // missing length, uppercase, number, special
+        expect(errors.length, equals(4));
       });
 
       test('should return empty list for valid password', () {
@@ -337,8 +338,12 @@ void main() {
       });
 
       test('should handle password with all requirement types', () {
-        expect(PasswordValidator.isValid('aA1!bB2@cC3#'), isFalse); // # is not in special chars
+        // 'aA1!bB2@cC3#' contains ! and @ which ARE valid special chars → valid
+        expect(PasswordValidator.isValid('aA1!bB2@cC3#'), isTrue);
+        // '#' alone is not in allowed set, but '!' is present so still valid
         expect(PasswordValidator.isValid('aA1!bB2@cC3%'), isTrue);
+        // password with only '#' as special char (not in set) → invalid
+        expect(PasswordValidator.isValid('aA1#bbbbbbbb'), isFalse);
       });
     });
   });

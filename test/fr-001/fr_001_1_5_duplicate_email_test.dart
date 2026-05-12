@@ -35,6 +35,7 @@ class RegistrationResult {
 // Mock user repository for testing duplicate email checks
 class MockUserRepository {
   final Map<String, User> _users = {};
+  static int _counter = 0;
 
   /// Check if email already exists in the database
   Future<bool> emailExists(String email) async {
@@ -71,7 +72,7 @@ class MockUserRepository {
     }
 
     // Create new user
-    final userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
+    final userId = 'user_${++_counter}';
     final user = User(
       id: userId,
       email: email.toLowerCase().trim(),

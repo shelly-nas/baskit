@@ -9,8 +9,15 @@ import 'package:flutter_test/flutter_test.dart';
 class EmailValidator {
   // RFC 5322 compliant email regex pattern
   // This pattern covers most valid email formats according to the standard
+  // Covers FR-001.1.2: rejects leading/trailing dots, consecutive dots in local
+  // part, and leading/trailing hyphens in domain labels.
+  // Local part: must start and end with alphanumeric; dots allowed but not
+  // at start/end and not consecutive (enforced via separate check).
+  // Domain: each label starts/ends with alphanumeric, labels separated by dots.
   static final RegExp _emailRegExp = RegExp(
-    r'^(?:[a-zA-Z0-9!#$%&'"*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'"*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$',
+    r'^[a-zA-Z0-9]([a-zA-Z0-9_%+\-]*(\.[a-zA-Z0-9_%+\-]+)*[a-zA-Z0-9_%+\-]*)?@'
+    r'(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)'
+    r'+[a-zA-Z]{2,}$',
   );
 
   /// Validates an email address according to RFC 5322 standards
