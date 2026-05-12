@@ -1,0 +1,578 @@
+{
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/database/init.sql": {
+    "mtime": 1763918851.9278226,
+    "hash": "be1db6374d2d9ea75293ed832d66c5de"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/database/seeds/01_initial_data.sql": {
+    "mtime": 1763914506.7077656,
+    "hash": "32fd0622eef7e54575d5abcac92a2048"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/test/fr-001/fr_001_1_5_duplicate_email_test.dart": {
+    "mtime": 1765218564.2778132,
+    "hash": "bbf6081dce3a6e2f0d0dbc14938ebf0c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/test/fr-001/fr_001_1_4_display_name_validation_test.dart": {
+    "mtime": 1765218515.0398977,
+    "hash": "f7f050cc16e3a88979457c727e44ab77"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/test/fr-001/fr_001_1_2_email_validation_test.dart": {
+    "mtime": 1765218415.6980658,
+    "hash": "254904dcab0fda02ef63b6bf3013d4a7"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/test/fr-001/fr_001_1_1_registration_test.dart": {
+    "mtime": 1765218375.2027054,
+    "hash": "c9530abe13939824109befafd7a4aa1e"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/test/fr-001/fr_001_1_6_verification_email_test.dart": {
+    "mtime": 1765218629.4435859,
+    "hash": "5415381038cd70363ad0c3d9d10ec148"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/test/fr-001/fr_001_1_3_password_complexity_test.dart": {
+    "mtime": 1765218472.369833,
+    "hash": "35553e999c9399bb02e80d29afac28a7"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/test/fr-001/fr_001_1_7_email_verification_required_test.dart": {
+    "mtime": 1765218698.4572685,
+    "hash": "38080c7c6c228b7f519a46389e8c3f5c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/test/fr-001/fr_001_1_8_bcrypt_hashing_test.dart": {
+    "mtime": 1765218764.9904263,
+    "hash": "c666f4d3bb29c7493e7fbdf4a069978c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/list-service/src/index.js": {
+    "mtime": 1763910261.9425452,
+    "hash": "1efada99f2639dec369c98caaf63c6a1"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/list-service/src/routes/health.routes.js": {
+    "mtime": 1763910261.971524,
+    "hash": "3d2fbb364574a488252b4df0a40f8a29"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/list-service/src/routes/list.routes.js": {
+    "mtime": 1763910261.9715323,
+    "hash": "ef449440c4653d43e245a0e360069db0"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/product-service/src/index.js": {
+    "mtime": 1763910261.942388,
+    "hash": "887127908fc09e8f9f8d53b9ff68678b"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/product-service/src/routes/health.routes.js": {
+    "mtime": 1763910261.971504,
+    "hash": "cf3298c808d5b7a9a60198471c17f40f"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/product-service/src/routes/product.routes.js": {
+    "mtime": 1763910261.9715157,
+    "hash": "35bf1dfbc0b5c852d6500aefe610c710"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/shared/src/database.js": {
+    "mtime": 1763895962.9683316,
+    "hash": "dc687a37c7aff86474a87cc486f3e19a"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/shared/src/logger.js": {
+    "mtime": 1763895962.9687755,
+    "hash": "65147456e02a3564cac06e2d7550abd5"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/shared/src/index.js": {
+    "mtime": 1763895962.9686267,
+    "hash": "fbb21ab1d670893a984d6c5d8b446c80"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/shared/src/errors.js": {
+    "mtime": 1763895962.9684803,
+    "hash": "02d6416bcd0c9f991381cb856832a5bf"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/shared/src/middleware.js": {
+    "mtime": 1763918851.924514,
+    "hash": "2c790855cfbd71f51d6fd374a263d401"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/test-login-flow.js": {
+    "mtime": 1763918851.932017,
+    "hash": "bcb7fefec57473f73e3e3b5ee6b0bb7e"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/test/unit/validators.test.js": {
+    "mtime": 1763902987.4287102,
+    "hash": "dd78af3ab78980f0c3dc98f6f409175b"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/test/unit/jwt.service.test.js": {
+    "mtime": 1763919759.8640957,
+    "hash": "da3572d4bac75304a0200f8aba9b8576"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/test/integration/login-requirements.test.js": {
+    "mtime": 1763970191.8555267,
+    "hash": "534f7987eec4f8e31aa5738abb1aa1b5"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/test/integration/registration.test.js": {
+    "mtime": 1763975844.7292778,
+    "hash": "12aeb04acb0f2a802119251be8e326db"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/test/integration/login.test.js": {
+    "mtime": 1763970191.8608134,
+    "hash": "af95d220984828d8cec0f4699bad3993"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/test/integration/email-verification.test.js": {
+    "mtime": 1763975844.7452207,
+    "hash": "7dbeb2aea1cb0e780e5ceab890c2cd0d"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/index.js": {
+    "mtime": 1763910261.9424179,
+    "hash": "3e4e26a7952e946f8be39d41480a4e36"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/utils/validators.js": {
+    "mtime": 1763904328.0981896,
+    "hash": "77836da05492ca1918e0f802735c1a8a"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/controllers/auth.controller.js": {
+    "mtime": 1763970191.8558917,
+    "hash": "b95481e4d26a91da79ab8d3c0bc1db19"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/controllers/user.controller.js": {
+    "mtime": 1763910261.9487543,
+    "hash": "cd0e53699e1c4f424d616ecbcacbe47d"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/routes/health.routes.js": {
+    "mtime": 1763910261.9539177,
+    "hash": "8f73cbd7f135adf0c83a083f6444a95c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/routes/auth.routes.js": {
+    "mtime": 1763930000.152125,
+    "hash": "bac2cac2e2ccdd63c701893d35e3601b"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/routes/user.routes.js": {
+    "mtime": 1763910261.9487772,
+    "hash": "f30b1d10b50a823cffab635170bf79d9"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/services/session.service.js": {
+    "mtime": 1763928765.6816452,
+    "hash": "e4a48d2235c9064f06522d488045f927"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/services/email.service.js": {
+    "mtime": 1763929399.3078098,
+    "hash": "023e6705f4b649f94b1bdd52b53cfbcd"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/services/audit.service.js": {
+    "mtime": 1763928765.6782386,
+    "hash": "cdb6296073f029245132b6b843ec921e"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/services/jwt.service.js": {
+    "mtime": 1763928765.678108,
+    "hash": "056fd5bb881b19dee181c260b065f355"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/src/services/rateLimit.service.js": {
+    "mtime": 1763928765.678002,
+    "hash": "6494876fab342662bf7b49a7e60410f9"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Runner-Bridging-Header.h": {
+    "mtime": 1763895934.325385,
+    "hash": "e07862ac930ed4d8479185d52c6cc66d"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/GeneratedPluginRegistrant.h": {
+    "mtime": 1763321328.9430997,
+    "hash": "decb9041b5e91a07e66f4664e5dac408"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/AppDelegate.swift": {
+    "mtime": 1763895934.3220289,
+    "hash": "303ca46dbd58544be7b816861d70a27c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/GeneratedPluginRegistrant.m": {
+    "mtime": 1764013162.364623,
+    "hash": "691234d9425373087cef3ebf515f5ba3"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Flutter/ephemeral/flutter_lldb_helper.py": {
+    "mtime": 1763326320.0343,
+    "hash": "98fc75412162af387e2e3461e4e58094"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/android/gradlew": {
+    "mtime": 1763321328.305313,
+    "hash": "7f1cd7eb3f75a1dc85cd37753972a6e2"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java": {
+    "mtime": 1764013162.3632538,
+    "hash": "47c617541253ad1a2b5d8222884ad66b"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/android/app/src/main/kotlin/com/example/baskit/MainActivity.kt": {
+    "mtime": 1763895934.310918,
+    "hash": "1501ff2824732eaa42dd78a8a43001fd"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/main.dart": {
+    "mtime": 1763908792.8352869,
+    "hash": "57416c6ec249ff6bc3e33614b89d76be"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/database/repositories/shopping_list_repository.dart": {
+    "mtime": 1763895934.3266723,
+    "hash": "1cb53289c5af3da4f0e4a9daad6b5590"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/database/models/shopping_list_entity.dart": {
+    "mtime": 1763895934.3265452,
+    "hash": "a02de41c9c010e08869b91bbc2a559cb"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/database/data_sources/shopping_list_data_source.dart": {
+    "mtime": 1763907055.9746504,
+    "hash": "f1abac7cec696be41a4c4314a0068a6f"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/database/mappers/shopping_list_mapper.dart": {
+    "mtime": 1763895934.3263936,
+    "hash": "7e062e2c4aec23bb18144d73112ceb85"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/di/dependency_injection.dart": {
+    "mtime": 1763899252.4501913,
+    "hash": "b4aaa24d5d52defeb59d0609e1dcc24c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/theme/colors.dart": {
+    "mtime": 1763895934.3322613,
+    "hash": "2578ac819483c598172dad9969829206"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/theme/app_theme.dart": {
+    "mtime": 1763895934.332149,
+    "hash": "d698d9b425705d87fc1fef65457049cb"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/theme/typography.dart": {
+    "mtime": 1763895934.332747,
+    "hash": "f1585bed750011a39d336b96ff3cd4fb"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/theme/design_tokens.dart": {
+    "mtime": 1763895934.332419,
+    "hash": "642e012790ee0fd914e35a0688e53e08"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/theme/theme.dart": {
+    "mtime": 1763895934.3325257,
+    "hash": "0c4463d47338c8ac5f77483f80b47fbb"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/models/shopping_list.dart": {
+    "mtime": 1763895934.3310888,
+    "hash": "0d240ad1e05b4e9948093807a228fe1b"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/screens/list_overview_screen.dart": {
+    "mtime": 1763907055.974819,
+    "hash": "f6cb97756e4051bb0f0b3da3a1a23fad"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/screens/profile_screen.dart": {
+    "mtime": 1763907056.0010712,
+    "hash": "a13a992fe6e3a80e110e3e21980073f7"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/screens/lists_screen.dart": {
+    "mtime": 1763907055.9746692,
+    "hash": "394e3cd9bdda9e0870b929863c631852"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/screens/login_page.dart": {
+    "mtime": 1763930551.7219052,
+    "hash": "60af5e9765b82257d1edeea23394b2a2"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/screens/main_screen.dart": {
+    "mtime": 1763895962.9779177,
+    "hash": "6f18d030fee879399a61dcc787b83109"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/screens/registration_page.dart": {
+    "mtime": 1763909970.4062319,
+    "hash": "a578c02d93b798a82656c558cea2abab"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/screens/home_screen.dart": {
+    "mtime": 1763895934.331222,
+    "hash": "8d15fe9ee5310c8fd4ff40a8e0d76c35"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/screens/auth_screen.dart": {
+    "mtime": 1763908792.8353257,
+    "hash": "3796fc6e7c8791238cd2a5a8a837dbb9"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/components.dart": {
+    "mtime": 1763895962.975112,
+    "hash": "e675d7d090735dbadd702a2e0c592c01"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/bottom_nav_item.dart": {
+    "mtime": 1763895962.9753222,
+    "hash": "3bcf89ca23d5d3c608f7e3f8a3599f89"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/preference_toggle.dart": {
+    "mtime": 1763921566.858797,
+    "hash": "0a2825caf234d5fef4d9d50ff0058a20"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/profile_header.dart": {
+    "mtime": 1763921566.8588364,
+    "hash": "08a9a679d0a9d8269cf7e124d742f89f"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/list_card_info.dart": {
+    "mtime": 1763895962.9755993,
+    "hash": "746c0dd29847e9dbdc54b1e13f0855dd"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/preference_item.dart": {
+    "mtime": 1763895962.9760942,
+    "hash": "23b3a591b47318bbcdc4720eb7f2341a"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/list_header.dart": {
+    "mtime": 1763895962.975715,
+    "hash": "a8169645d45efc82cea008658fb3cc60"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/section_header.dart": {
+    "mtime": 1763895962.9764633,
+    "hash": "346b33b678dd9eee2d3152d36ccfd74a"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/molecules.dart": {
+    "mtime": 1763895962.975971,
+    "hash": "ad385bea76b29b5c4bdaccc84430cef3"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/menu_item.dart": {
+    "mtime": 1763895962.9758413,
+    "hash": "5830d31887f8d7c870d08d5a21fb0f6a"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/molecules/list_card_header.dart": {
+    "mtime": 1763895962.975481,
+    "hash": "62754b687904a5488423e8f46ff34e3e"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/app_badge.dart": {
+    "mtime": 1763895962.9737267,
+    "hash": "08d11712c36b3313390c4d0ec8fb9289"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/atoms.dart": {
+    "mtime": 1763895962.9747682,
+    "hash": "0dbde6793e483eb95a2ec13e9383922c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/app_container.dart": {
+    "mtime": 1763895962.973857,
+    "hash": "b3bce510e6f928d872c2c47b8eae02e9"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/app_icon.dart": {
+    "mtime": 1763895962.9741979,
+    "hash": "f9a64cf9c7c44391884ce08ed36bd15f"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/app_progress_bar.dart": {
+    "mtime": 1763895962.9744387,
+    "hash": "23a0b4d9b4ff1cfdb721f99d23124416"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/app_divider.dart": {
+    "mtime": 1763895962.9740136,
+    "hash": "affbe285903cd78ae57a78c2063f937a"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/spacing.dart": {
+    "mtime": 1763895962.974994,
+    "hash": "47bd4c3750537aa11633edb7aa508301"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/app_avatar.dart": {
+    "mtime": 1763895962.9735882,
+    "hash": "d37421a9b24f22e678cf0aa38ec7fe7a"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/atoms/app_text.dart": {
+    "mtime": 1763895962.9746323,
+    "hash": "51a251814e19cabe3ddc47263eb3e88e"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/organisms/preferences_section.dart": {
+    "mtime": 1763895962.9770112,
+    "hash": "ea7d246ac332c0f8fa87cca73ca2979d"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/organisms/shopping_list_card_component.dart": {
+    "mtime": 1763895962.977296,
+    "hash": "44f7173151bffd6db08526366bf039cc"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/organisms/version_display.dart": {
+    "mtime": 1763895962.9775412,
+    "hash": "7cd5dea64c69098ecc62b80a97fe4bf1"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/organisms/savings_summary.dart": {
+    "mtime": 1763895962.9771583,
+    "hash": "32b6877bacfadeebb3f49497af146be7"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/organisms/organisms.dart": {
+    "mtime": 1763895962.9768627,
+    "hash": "0904979af024ab420824ca92e64ef1b8"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/organisms/bottom_navigation.dart": {
+    "mtime": 1763895962.9766278,
+    "hash": "4d55225d1aa366da952616c85bdd57d9"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/organisms/user_info_section.dart": {
+    "mtime": 1763895962.9774203,
+    "hash": "e12043fddf572d456424c89d67bca135"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/components/organisms/logout_button.dart": {
+    "mtime": 1763895962.9767468,
+    "hash": "42c6552f33bf0ea56545ac3e55ad3217"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/presentation/widgets/shopping_list_card.dart": {
+    "mtime": 1763895934.331952,
+    "hash": "17539d50a8621374ae3e4da716bfdebd"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/services/auth_service.dart": {
+    "mtime": 1763909970.4062347,
+    "hash": "ef0b96dfc67fae2b8d3b774bcba65013"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/frontend/services/api_client.dart": {
+    "mtime": 1763909970.4053915,
+    "hash": "0f1b1b56e6e080ba4742cfbff3e1acd5"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/backend/models/shopping_list.dart": {
+    "mtime": 1763895934.325729,
+    "hash": "b146f42056621dca7e91cb6d8040bc05"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/backend/use_cases/shopping_list_use_cases.dart": {
+    "mtime": 1763895934.3260324,
+    "hash": "ef1512ae9253998c5c51e41a047ce898"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/lib/backend/services/shopping_list_service.dart": {
+    "mtime": 1763895934.3259063,
+    "hash": "c3cdd30029a833926d20433cfc7a67a9"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/README.md": {
+    "mtime": 1763895934.3100204,
+    "hash": "00a44490c97a7bb7adea70e5db6b8d6f"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/pubspec.yaml": {
+    "mtime": 1764013160.6639516,
+    "hash": "682d36a5435c50d317eb5a2708cb0370"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/docker-compose.yml": {
+    "mtime": 1763930340.038768,
+    "hash": "8ad91820f9f5d93de38809fd0e148db7"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/analysis_options.yaml": {
+    "mtime": 1763895934.3101146,
+    "hash": "66d03d7647c8e438164feaf5b922d44a"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/CLAUDE.md": {
+    "mtime": 1778510152.1123013,
+    "hash": "e4058c988c18d54e9f7b00daee3e39b8"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/database/README.md": {
+    "mtime": 1763914506.782908,
+    "hash": "accb2dd6fd57ad8ec67481e8b155c538"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/web/index.html": {
+    "mtime": 1763895934.3354409,
+    "hash": "8f8d19007eb1e63149a55c2daab46f6e"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/README.md": {
+    "mtime": 1763921817.9186993,
+    "hash": "27a292cf27845ba3b094df2dc0577ed6"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/backend/user-service/test/LOGIN_TEST_COVERAGE.md": {
+    "mtime": 1763919557.646828,
+    "hash": "88708fcd30ff6cc095a455df3869d247"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/docs/Functional_Design.md": {
+    "mtime": 1763461375.5739346,
+    "hash": "3f7cc608accde9ec0c34decdf9a407a2"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/docs/Architecture_Diagram.md": {
+    "mtime": 1763895934.319279,
+    "hash": "77f5ee403257a9ae8227aedf2f1c61d5"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/docs/Business_Case.md": {
+    "mtime": 1763461375.5736818,
+    "hash": "fa6f14b94dceadead7a2afc5126c6e46"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/docs/features/FR-001.md": {
+    "mtime": 1763899857.565945,
+    "hash": "59217008a6dd1737e63b6bbeb686d5e1"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md": {
+    "mtime": 1763895934.3249347,
+    "hash": "e175e436acacf76c814d83532d0b662c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/web/favicon.png": {
+    "mtime": 1763895934.334464,
+    "hash": "5dcef449791fa27946b3d35ad8803796"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/web/icons/Icon-192.png": {
+    "mtime": 1763895934.3346922,
+    "hash": "ac9a721a12bbc803b44f645561ecb1e1"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/web/icons/Icon-maskable-192.png": {
+    "mtime": 1763895934.3350654,
+    "hash": "c457ef57daa1d16f64b27b786ec2ea3c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/web/icons/Icon-maskable-512.png": {
+    "mtime": 1763895934.3352637,
+    "hash": "301a7604d45b3e739efc881eb04896ea"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/web/icons/Icon-512.png": {
+    "mtime": 1763895934.334877,
+    "hash": "96e752610906ba2a93c65f8abe1645f1"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png": {
+    "mtime": 1763895934.3247154,
+    "hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png": {
+    "mtime": 1763895934.324834,
+    "hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png": {
+    "mtime": 1763895934.3246114,
+    "hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png": {
+    "mtime": 1763895934.3242419,
+    "hash": "643842917530acf4c5159ae851b0baf2"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png": {
+    "mtime": 1763895934.3233044,
+    "hash": "be8887071dd7ec39cb754d236aa9584f"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png": {
+    "mtime": 1763895934.323641,
+    "hash": "2247a840b6ee72b8a069208af170e5b1"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png": {
+    "mtime": 1763895934.323016,
+    "hash": "a2f8558fb1d42514111fbbb19fb67314"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png": {
+    "mtime": 1763895934.3229089,
+    "hash": "c785f8932297af4acd5f5ccb7630f01c"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png": {
+    "mtime": 1763895934.3243542,
+    "hash": "665cb5e3c5729da6d639d26eff47a503"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png": {
+    "mtime": 1763895934.3232043,
+    "hash": "1b3b1538136316263c7092951e923e9d"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png": {
+    "mtime": 1763895934.3231094,
+    "hash": "2247a840b6ee72b8a069208af170e5b1"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png": {
+    "mtime": 1763895934.3235478,
+    "hash": "2b1452c4c1bda6177b4fbbb832df217f"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png": {
+    "mtime": 1763895934.323745,
+    "hash": "8245359312aea1b0d2412f79a07b0ca5"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png": {
+    "mtime": 1763895934.3240511,
+    "hash": "e419d22a37bc40ba185aca1acb6d4ac6"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png": {
+    "mtime": 1763895934.3239424,
+    "hash": "5b3c0902200ce596e9848f22e1f0fe0e"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png": {
+    "mtime": 1763895934.324145,
+    "hash": "36c0d7a7132bdde18898ffdfcfcdc4d2"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png": {
+    "mtime": 1763895934.323849,
+    "hash": "5b3c0902200ce596e9848f22e1f0fe0e"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png": {
+    "mtime": 1763895934.3234382,
+    "hash": "043119ef4faa026ff82bd03f241e5338"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/android/app/src/main/res/mipmap-mdpi/ic_launcher.png": {
+    "mtime": 1763895934.3116558,
+    "hash": "6270344430679711b81476e29878caa7"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/android/app/src/main/res/mipmap-hdpi/ic_launcher.png": {
+    "mtime": 1763895934.3115282,
+    "hash": "13e9c72ec37fac220397aa819fa1ef2d"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": {
+    "mtime": 1763895934.3124123,
+    "hash": "57838d52c318faff743130c3fcfae0c6"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": {
+    "mtime": 1763895934.3120105,
+    "hash": "afe1b655b9f32da22f9a4301bb8e6ba8"
+  },
+  "/Users/jelle/Documents/GitHub/Shelly-NAS/baskit/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png": {
+    "mtime": 1763895934.3117926,
+    "hash": "a0a8db5985280b3679d99a820ae2db79"
+  }
+}

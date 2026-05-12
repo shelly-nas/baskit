@@ -1,0 +1,59 @@
+# Node.js
+node_modules/
+.npm
+.env
+coverage/
+logs/
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+/build/
+
+# IDE files
+.idea/
+.vscode/
+
+# Operating System files
+# macOS
+.DS_Store
+
+# Android-specific files
+android/
+!android/app/src/main/
+!android/app/build.gradle
+!android/app/src/main/AndroidManifest.xml
+!android/build.gradle
+!android/gradle.properties
+!android/gradlew
+!android/gradlew.bat
+!android/settings.gradle
+/android/key.properties
+/android/local.properties
+/android/.gradle/
+/android/app/build/
+/android/app/.cxx/
+/android/app/.externalNativeBuild/
+/android/app/release/
+/android/app/debug/
+
+# iOS/Xcode-specific files
+ios/
+!ios/Flutter/
+!ios/Runner/
+!ios/Runner.xcodeproj/
+!ios/Runner.xcodeproj/project.pbxproj
+!ios/Runner.xcworkspace/
+!ios/Runner.xcworkspace/contents.xcworkspacedata
+!ios/Podfile
+!ios/Podfile.lock
+!ios/Runner.xcscheme
+!ios/Runner.xcodeproj/xcshareddata/
+/ios/.symlinks/
+/ios/Flutter/Generated.xcconfig
+/ios/Pods/
+/ios/Runner.xcworkspace/xcuserdata/
+/ios/Runner.xcodeproj/xcuserdata/
