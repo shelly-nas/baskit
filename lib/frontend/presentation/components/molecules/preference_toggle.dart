@@ -28,7 +28,7 @@ class PreferenceToggle extends StatelessWidget {
             value: value,
             onChanged: onChanged,
             activeTrackColor: AppColors.primary,
-            trackColor: AppColors.switchBackground,
+            inactiveTrackColor: AppColors.switchBackground,
           ),
         ],
       ),

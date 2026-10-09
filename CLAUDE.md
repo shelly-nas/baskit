@@ -42,6 +42,11 @@ docker compose up --build -d          # web only, nginx on :8080
 
 ## Deployment
 
+CI (`.github/workflows/ci.yml`): `flutter analyze` (must be clean, infos included) and `flutter test`
+with Flutter 3.44.0, the same version as the Dockerfile build image. Deploy
+(`.github/workflows/deploy.yml`): every push to `main` builds and deploys via
+`shelly-nas/shared-workflows`. Commit messages follow Conventional Commits.
+
 `Dockerfile` (Flutter build + nginx), `deploy/nginx.conf.template` (proxy `/api/discounts/` to
 `${DISCOUNT_API_UPSTREAM}/api/public/v1/`), `docker-compose.yml` (dev) and
 `docker-compose.prod.yml` (NAS, `shelly-network`, Traefik host `baskit.shelly-nas.nl`).

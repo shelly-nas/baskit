@@ -87,5 +87,23 @@ docker compose -f docker-compose.prod.yml up -d
 | `DISCOUNT_API_URL` (build arg / `--dart-define`) | `/api/discounts` | Base URL of the discount API as seen by the app |
 | `DISCOUNT_API_UPSTREAM` (runtime, nginx) | `http://host.docker.internal:3001` (dev), `http://discount-scraper-api:3001` (prod) | Where nginx forwards `/api/discounts` |
 
+### CI and deployment
+
+- `.github/workflows/ci.yml` runs `flutter analyze` and `flutter test` on every push and pull request.
+- `.github/workflows/deploy.yml` runs on every push to `main`: it builds the image on the NAS runner
+  (shared workflow `build-push-image.yml`), pushes `baskit-web:latest` and redeploys
+  `docker-compose.prod.yml` into `/volume1/docker/baskit` (shared workflow `deploy-production.yml`).
+
+Required repository settings (Settings, Secrets and variables, Actions):
+
+| Name | Kind | Value |
+| ---- | ---- | ----- |
+| `REGISTRY_URL` | variable | the NAS registry host |
+| `REGISTRY_USERNAME` | variable | registry user |
+| `REGISTRY_PASSWORD` | secret | registry password |
+
+The discount-scraper API must be deployed with its `shelly-network` change first, otherwise nginx
+cannot resolve `discount-scraper-api`.
+
 The planned microservice backend (`backend/`, `database/`) only starts with
 `docker compose --profile backend up`; several of its services do not exist yet.

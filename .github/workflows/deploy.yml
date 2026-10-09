@@ -1,0 +1,34 @@
+name: Baskit Build, Push & Deploy
+
+# Every push to main builds the images on the NAS runner, pushes them to the
+# registry and redeploys the production stack (same flow as discount-scraper).
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-web:
+    name: Build and Push Web
+    uses: shelly-nas/shared-workflows/.github/workflows/build-push-image.yml@main
+    with:
+      registry: ${{ vars.REGISTRY_URL }}
+      image_tag: ${{ vars.REGISTRY_URL }}/baskit-web:latest
+      context: .
+    secrets:
+      registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+
+  deploy:
+    name: Deploy from Registry
+    needs: [build-web]
+    if: ${{ success() }}
+    uses: shelly-nas/shared-workflows/.github/workflows/deploy-production.yml@main
+    with:
+      registry: ${{ vars.REGISTRY_URL }}
+      deploy_directory: /volume1/docker/baskit
+      compose_file: docker-compose.prod.yml
+      image_tag: latest
+    secrets:
+      registry_username: ${{ vars.REGISTRY_USERNAME }}
+      registry_password: ${{ secrets.REGISTRY_PASSWORD }}

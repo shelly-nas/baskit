@@ -39,7 +39,7 @@ class ShoppingListCard extends StatelessWidget {
                         vertical: AppTheme.spacingXSmall,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.infoColor.withOpacity(0.1),
+                        color: AppTheme.infoColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(
                           AppTheme.borderRadiusSmall,
                         ),
@@ -125,7 +125,7 @@ class ShoppingListCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.successColor.withOpacity(0.1),
+                        color: AppTheme.successColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(
                           AppTheme.borderRadiusSmall,
                         ),

@@ -231,7 +231,7 @@ class _ListOverviewScreenState extends State<ListOverviewScreen> {
             Icon(
               Icons.shopping_basket_outlined,
               size: 80,
-              color: AppTheme.textSecondaryColor.withOpacity(0.5),
+              color: AppTheme.textSecondaryColor.withValues(alpha: 0.5),
             ),
             const SizedBox(height: AppTheme.spacingLarge),
             Text(
