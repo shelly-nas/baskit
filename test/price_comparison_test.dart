@@ -94,7 +94,7 @@ void main() {
     final repository = FakeOfferRepository();
     final controller = createShoppingListController();
     await controller.load();
-    final list = await controller.createList('Weekend');
+    final list = (await controller.createList('Weekend'))!;
     await controller.addItem(list.id, 'Melk', quantity: '2');
     await controller.addItem(list.id, 'Brood');
     await controller.addItem(list.id, 'Kaas');

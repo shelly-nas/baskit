@@ -9,6 +9,8 @@ Future<String?> showTextInputDialog(
   required String confirmLabel,
   String initialValue = '',
   String hintText = '',
+  bool obscureText = false,
+  TextInputType? keyboardType,
 }) {
   return showDialog<String>(
     context: context,
@@ -17,6 +19,8 @@ Future<String?> showTextInputDialog(
       confirmLabel: confirmLabel,
       initialValue: initialValue,
       hintText: hintText,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
     ),
   );
 }
@@ -26,12 +30,16 @@ class _TextInputDialog extends StatefulWidget {
   final String confirmLabel;
   final String initialValue;
   final String hintText;
+  final bool obscureText;
+  final TextInputType? keyboardType;
 
   const _TextInputDialog({
     required this.title,
     required this.confirmLabel,
     required this.initialValue,
     required this.hintText,
+    required this.obscureText,
+    required this.keyboardType,
   });
 
   @override
@@ -50,7 +58,9 @@ class _TextInputDialogState extends State<_TextInputDialog> {
   }
 
   void _submit() {
-    final value = _controller.text.trim();
+    final value = widget.obscureText
+        ? _controller.text
+        : _controller.text.trim();
     if (value.isNotEmpty) Navigator.of(context).pop(value);
   }
 
@@ -65,6 +75,8 @@ class _TextInputDialogState extends State<_TextInputDialog> {
       content: TextField(
         controller: _controller,
         autofocus: true,
+        obscureText: widget.obscureText,
+        keyboardType: widget.keyboardType,
         decoration: InputDecoration(hintText: widget.hintText),
         textInputAction: TextInputAction.done,
         onSubmitted: (_) => _submit(),

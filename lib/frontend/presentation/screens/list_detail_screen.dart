@@ -8,11 +8,12 @@ import '../../utils/formatters.dart';
 import '../components/atoms/app_icon.dart';
 import '../components/atoms/app_text.dart';
 import '../components/organisms/list_item_row.dart';
+import '../components/organisms/share_list_sheet.dart';
 import '../controllers/shopping_list_controller.dart';
 import '../dialogs/text_input_dialog.dart';
 import 'price_comparison_screen.dart';
 
-enum _DetailAction { rename, clearCompleted, delete }
+enum _DetailAction { rename, share, clearCompleted, delete, leave }
 
 enum _ItemAction { quantity, remove }
 
@@ -126,6 +127,34 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
           initialValue: list.name,
         );
         if (name != null) await _controller.renameList(list.id, name);
+      case _DetailAction.share:
+        if (!_controller.isSynced) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(
+                content: Text('Sign in on the Profile tab to share lists.'),
+              ),
+            );
+          return;
+        }
+        await showShareListSheet(
+          context,
+          controller: _controller,
+          listId: list.id,
+        );
+      case _DetailAction.leave:
+        final confirmed = await showConfirmDialog(
+          context,
+          title: 'Leave list',
+          message:
+              'Stop seeing "${list.name}"? ${list.owner?.displayName ?? 'The owner'} '
+              'can share it with you again.',
+          confirmLabel: 'Leave',
+        );
+        if (!confirmed) return;
+        await _controller.leaveList(list.id);
+        if (mounted) Navigator.of(context).pop();
       case _DetailAction.clearCompleted:
         await _controller.clearCompleted(list.id);
       case _DetailAction.delete:
@@ -157,10 +186,17 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
         return Scaffold(
           appBar: AppBar(
             surfaceTintColor: Colors.transparent,
-            title: AppText(
-              list.name,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppText(list.name, fontSize: 18, fontWeight: FontWeight.w700),
+                if (_sharingLine(list) != null)
+                  AppText(
+                    _sharingLine(list)!,
+                    fontSize: 12,
+                    color: AppColors.mutedForeground,
+                  ),
+              ],
             ),
             actions: [
               if (widget.comparisonService != null &&
@@ -196,15 +232,25 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                     value: _DetailAction.rename,
                     child: Text('Rename'),
                   ),
+                  if (list.isOwner)
+                    const PopupMenuItem(
+                      value: _DetailAction.share,
+                      child: Text('Share'),
+                    ),
                   if (list.completedItems.isNotEmpty)
                     const PopupMenuItem(
                       value: _DetailAction.clearCompleted,
                       child: Text('Remove completed items'),
                     ),
-                  const PopupMenuItem(
-                    value: _DetailAction.delete,
-                    child: Text('Delete list'),
-                  ),
+                  list.isOwner
+                      ? const PopupMenuItem(
+                          value: _DetailAction.delete,
+                          child: Text('Delete list'),
+                        )
+                      : const PopupMenuItem(
+                          value: _DetailAction.leave,
+                          child: Text('Leave list'),
+                        ),
                 ],
               ),
             ],
@@ -250,6 +296,19 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
         );
       },
     );
+  }
+
+  /// "Shared by Anna" for a list shared with you, "Shared with 2 people"
+  /// for your own shared list.
+  String? _sharingLine(ShoppingList list) {
+    if (!list.isOwner && list.owner != null) {
+      return 'Shared by ${list.owner!.displayName}';
+    }
+    final count = list.members.length;
+    if (count == 0) return null;
+    return count == 1
+        ? 'Shared with ${list.members.single.displayName}'
+        : 'Shared with $count people';
   }
 
   Widget _buildOfferSummary(ShoppingList list) {

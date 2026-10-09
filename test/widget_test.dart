@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/fake_offer_repository.dart';
-import 'support/test_shopping_lists.dart';
+import 'package:baskit/database/data_sources/key_value_store.dart';
+import 'package:baskit/di/dependency_injection.dart';
 
 void main() {
   late FakeOfferRepository repository;
@@ -29,8 +30,10 @@ void main() {
   testWidgets('app opens on the search tab', (tester) async {
     await tester.pumpWidget(
       BaskitApp(
-        offerSearchService: service,
-        shoppingListController: createShoppingListController(),
+        dependencies: AppDependencies.create(
+          store: InMemoryStore(),
+          offerRepository: repository,
+        ),
       ),
     );
     await tester.pumpAndSettle();

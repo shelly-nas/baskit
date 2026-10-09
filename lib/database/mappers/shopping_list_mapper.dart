@@ -13,8 +13,17 @@ class ShoppingListMapper {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       items: entity.items.map((item) => ListItemMapper.toDomain(item)).toList(),
+      isOwner: entity.role != 'editor',
+      owner: entity.owner == null ? null : _person(entity.owner!),
+      members: entity.members.map(_person).toList(),
     );
   }
+
+  static ListPerson _person(Map<String, dynamic> json) => ListPerson(
+    id: json['id'] as String,
+    displayName: json['display_name'] as String,
+    email: json['email'] as String?,
+  );
 
   /// Convert domain model to entity
   static ShoppingListEntity toEntity(ShoppingList domain) {

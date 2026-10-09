@@ -10,7 +10,7 @@ void main() {
     final first = createShoppingListController(store);
     await first.load();
 
-    final list = await first.createList('  Weekly groceries ');
+    final list = (await first.createList('  Weekly groceries '))!;
     await first.addItem(list.id, 'Bread', quantity: '2');
     await first.addOffer(
       list.id,
@@ -52,8 +52,8 @@ void main() {
     final controller = createShoppingListController(store);
     await controller.load();
 
-    final keep = await controller.createList('Keep');
-    final remove = await controller.createList('Remove');
+    final keep = (await controller.createList('Keep'))!;
+    final remove = (await controller.createList('Remove'))!;
     await controller.addItem(keep.id, 'Apples');
     await controller.addItem(keep.id, 'Pears');
     final apples = controller.listById(keep.id)!.items.first;
@@ -67,9 +67,11 @@ void main() {
     expect(reloaded.lists.single.items.map((i) => i.name), ['Pears']);
   });
 
-  test('empty names are rejected', () async {
+  test('empty names are rejected with a message', () async {
     final controller = createShoppingListController();
     await controller.load();
-    expect(() => controller.createList('   '), throwsA(anything));
+    expect(await controller.createList('   '), isNull);
+    expect(controller.messages.value, 'List name cannot be empty');
+    expect(controller.lists, isEmpty);
   });
 }

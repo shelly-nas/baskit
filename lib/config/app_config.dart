@@ -12,10 +12,22 @@ class AppConfig {
     defaultValue: '/api/discounts',
   );
 
+  /// Baskit server (accounts, synced and shared lists). Relative by default:
+  /// nginx proxies /api to the server. For `flutter run` use e.g.
+  /// `--dart-define=BASKIT_API_URL=http://localhost:3002/api`.
+  static const String baskitApiUrl = String.fromEnvironment(
+    'BASKIT_API_URL',
+    defaultValue: '/api',
+  );
+
+  static Uri get baskitApiBaseUri => _resolve(baskitApiUrl);
+
   /// The discount API base URL resolved to an absolute URI.
   /// Relative values are resolved against the page URL (web only).
-  static Uri get discountApiBaseUri {
-    final uri = Uri.parse(discountApiUrl);
+  static Uri get discountApiBaseUri => _resolve(discountApiUrl);
+
+  static Uri _resolve(String url) {
+    final uri = Uri.parse(url);
     return uri.hasScheme ? uri : Uri.base.resolveUri(uri);
   }
 }

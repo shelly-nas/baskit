@@ -12,7 +12,7 @@ import '../controllers/shopping_list_controller.dart';
 import '../dialogs/text_input_dialog.dart';
 import 'list_detail_screen.dart';
 
-enum _ListAction { rename, delete }
+enum _ListAction { rename, delete, leave }
 
 class ListsScreen extends StatefulWidget {
   final ShoppingListController controller;
@@ -48,7 +48,7 @@ class _ListsScreenState extends State<ListsScreen> {
     );
     if (name == null) return;
     final list = await _controller.createList(name);
-    if (mounted) _openList(list);
+    if (list != null && mounted) _openList(list);
   }
 
   void _openList(ShoppingList list) {
@@ -81,6 +81,14 @@ class _ListsScreenState extends State<ListsScreen> {
           confirmLabel: 'Delete',
         );
         if (confirmed) await _controller.deleteList(list.id);
+      case _ListAction.leave:
+        final confirmed = await showConfirmDialog(
+          context,
+          title: 'Leave list',
+          message: 'Stop seeing "${list.name}"?',
+          confirmLabel: 'Leave',
+        );
+        if (confirmed) await _controller.leaveList(list.id);
     }
   }
 
@@ -132,15 +140,20 @@ class _ListsScreenState extends State<ListsScreen> {
                       color: AppColors.mutedForeground,
                     ),
                     onSelected: (action) => _onAction(list, action),
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
                         value: _ListAction.rename,
                         child: Text('Rename'),
                       ),
-                      PopupMenuItem(
-                        value: _ListAction.delete,
-                        child: Text('Delete'),
-                      ),
+                      list.isOwner
+                          ? const PopupMenuItem(
+                              value: _ListAction.delete,
+                              child: Text('Delete'),
+                            )
+                          : const PopupMenuItem(
+                              value: _ListAction.leave,
+                              child: Text('Leave'),
+                            ),
                     ],
                   ),
                 );

@@ -84,7 +84,7 @@ Future<String?> showAddToListSheet(
                       );
                       if (name == null) return;
                       final list = await controller.createList(name);
-                      if (sheetContext.mounted) {
+                      if (list != null && sheetContext.mounted) {
                         Navigator.of(sheetContext).pop(list.id);
                       }
                     },

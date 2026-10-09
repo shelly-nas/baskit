@@ -8,16 +8,15 @@ It is a Flutter app (web first, also built for iOS and Android) with a Notion st
 ```
 supermarkets --> discount-scraper (scrapers + Postgres + admin UI)
                         |
-                        |  GET /api/public/v1/...   (read-only public API)
+                        |  /api/public/v1   (read-only: offers, catalog, compare)
                         v
-                 Baskit web / mobile app
+   Baskit web / mobile app  <-- /api -->  Baskit server (accounts, lists) --> Postgres
 ```
 
 - **[discount-scraper](https://github.com/shelly-nas/discount-scraper)** owns all supermarket
-  data. It scrapes the offers, stores them in its own database and has a management UI to
-  check whether the scrapers run correctly.
-- **Baskit** is purely for end users. It never talks to the discount database directly; it
-  reads offers through the discount-scraper public API (`/api/public/v1`).
+  data: weekly offers and the full catalog at regular prices, with its own management UI.
+- **Baskit server** (`server/`) owns accounts and synced, shared shopping lists.
+- **Baskit app** (`lib/`) talks to both. It never reads either database directly.
 
 ## Features
 
@@ -25,87 +24,106 @@ supermarkets --> discount-scraper (scrapers + Postgres + admin UI)
 | ------- | ------ |
 | Search all current supermarket offers (text search, supermarket and category filters, sorting, paging) | Working, live data |
 | Offer details with regular price, savings, deal text and link to the supermarket | Working, live data |
-| Shopping lists: create, rename, delete; add, check off and remove items; quantities | Working, stored on the device |
+| Shopping lists: create, rename, delete; add, check off and remove items; quantities | Working |
 | Add an offer from search to a list (keeps supermarket, price and end date) | Working |
 | Compare what a list costs at each supermarket (offers and regular catalog prices) | Working, live data |
-| Profile | UI only, mock data |
+| Accounts: register, sign in, change name and password | Working |
+| Lists on the device when signed out; synced to the account when signed in (device lists are uploaded once) | Working |
+| Share a list with other accounts by email; members edit, the owner manages sharing | Working |
+| Admin: usage numbers, make admin, disable accounts | Working |
 
 ## Project structure
 
 ```
 lib/
-  config/            build-time configuration (API URL)
-  backend/           domain models, services and use cases (business logic)
-  database/          data sources (HTTP / local), DTO parsing, repositories
+  config/            build-time configuration (API URLs)
+  backend/           domain models and services (business logic)
+  database/          data sources (HTTP / device), DTO parsing, repositories
   frontend/          theme, design tokens and atomic design components
     presentation/
+      controllers/   ChangeNotifiers shared by screens (lists, auth)
       components/    atoms, molecules, organisms
-      screens/       search, lists, profile
-  di/                dependency wiring
-backend/, database/  planned Node.js microservices for accounts and lists (work in progress)
+      screens/       search, lists, list detail, compare, profile, admin
+  di/                dependency wiring (AppDependencies)
+server/              Baskit server: Express + TypeScript + Postgres
+  src/               routes, managers (SQL), middleware (auth, errors, rate limit)
+  migrations/        NNN_*.sql schema changes, applied on startup
+database/            init.sql (first schema) and the database image
 ```
 
 ## Running locally
 
-1. Start the discount-scraper stack (it exposes its API on `http://localhost:3001`):
+1. Start the discount-scraper stack (API on `http://localhost:3001`):
 
    ```bash
    cd ../discount-scraper && docker compose up --build -d
    ```
 
-2. Run Baskit against it:
+2. Start the Baskit server and database:
+
+   ```bash
+   cp .env.example .env    # set ADMIN_EMAILS to your email to become admin
+   docker compose up --build -d db server
+   ```
+
+3. Run the app against both:
 
    ```bash
    flutter pub get
-   flutter run -d chrome --dart-define=DISCOUNT_API_URL=http://localhost:3001/api/public/v1
+   flutter run -d chrome \
+     --dart-define=DISCOUNT_API_URL=http://localhost:3001/api/public/v1 \
+     --dart-define=BASKIT_API_URL=http://localhost:3002/api
    ```
 
-   For Android or iOS use an address the device can reach, for example
-   `http://10.0.2.2:3001/api/public/v1` on the Android emulator.
+   Or run everything including the web build behind nginx: `docker compose up --build -d`
+   (http://localhost:8080). For Android or iOS use addresses the device can reach, for example
+   `http://10.0.2.2:3001` on the Android emulator.
 
 ### Tests
 
 ```bash
-flutter analyze
-flutter test
+flutter analyze && flutter test
+
+cd server && npm ci
+DB_HOST=localhost DB_PORT=5434 DB_NAME=baskit DB_USER=baskit DB_PASSWORD=baskit npm test
 ```
 
-## Docker (web)
+The server tests reset the database they run against; use a test database.
 
-The `Dockerfile` builds the Flutter web bundle and serves it with nginx. nginx proxies
-`/api/discounts/*` to `${DISCOUNT_API_UPSTREAM}/api/public/v1/*`, so the web build uses a
-relative API URL and needs no CORS configuration.
+## Docker and deployment
 
-```bash
-# Development: Baskit on http://localhost:8080, discount-scraper API on the host (port 3001)
-docker compose up --build -d
+The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. nginx proxies
+`/api/discounts/*` to `${DISCOUNT_API_UPSTREAM}/api/public/v1/*` and `/api/*` to
+`${BASKIT_API_UPSTREAM}/api/*`, so the web build uses relative API URLs and needs no CORS.
 
-# Production (NAS): image from the registry, joined to shelly-network
-docker compose -f docker-compose.prod.yml up -d
-```
-
-| Variable | Default | Description |
-| -------- | ------- | ----------- |
-| `DISCOUNT_API_URL` (build arg / `--dart-define`) | `/api/discounts` | Base URL of the discount API as seen by the app |
-| `DISCOUNT_API_UPSTREAM` (runtime, nginx) | `http://host.docker.internal:3001` (dev), `http://discount-scraper-api:3001` (prod) | Where nginx forwards `/api/discounts` |
+| Variable | Where | Description |
+| -------- | ----- | ----------- |
+| `DISCOUNT_API_URL`, `BASKIT_API_URL` | build (`--dart-define`) | API base URLs as seen by the app; default `/api/discounts` and `/api` |
+| `DISCOUNT_API_UPSTREAM`, `BASKIT_API_UPSTREAM` | web container | Where nginx forwards |
+| `DB_NAME`, `DB_USER`, `DB_PASSWORD` | db, server | Database |
+| `JWT_SECRET` | server | Signs sign-in tokens; required (32+ characters) in production |
+| `ADMIN_EMAILS` | server | Comma separated; these accounts get the admin role |
+| `TOKEN_TTL` | server | How long a sign-in lasts, default `30d` |
 
 ### CI and deployment
 
-- `.github/workflows/ci.yml` runs `flutter analyze` and `flutter test` on every push and pull request.
-- `.github/workflows/deploy.yml` runs on every push to `main`: it builds the image on the NAS runner
-  (shared workflow `build-push-image.yml`), pushes `baskit-web:latest` and redeploys
-  `docker-compose.prod.yml` into `/volume1/docker/baskit` (shared workflow `deploy-production.yml`).
+- `.github/workflows/ci.yml`: `flutter analyze` and `flutter test`, plus the shared shelly-nas
+  Node + Postgres CI for `server/` (typecheck, `database/init.sql`, migrations twice, server tests).
+- `.github/workflows/deploy.yml` runs on every push to `main`: builds `baskit-web`, `baskit-server`
+  and `baskit-db` on the NAS runner, pushes them and redeploys `docker-compose.prod.yml` into
+  `/volume1/docker/baskit`.
 
 Required repository settings (Settings, Secrets and variables, Actions):
 
 | Name | Kind | Value |
 | ---- | ---- | ----- |
-| `REGISTRY_URL` | variable | the NAS registry host |
-| `REGISTRY_USERNAME` | variable | registry user |
+| `REGISTRY_URL`, `REGISTRY_USERNAME` | variables | NAS registry |
 | `REGISTRY_PASSWORD` | secret | registry password |
+| `DB_PASSWORD` | secret | Baskit database password |
+| `JWT_SECRET` | secret | 32+ random characters |
+| `ADMIN_EMAILS` | variable | admin account emails |
+| `DB_NAME`, `DB_USER`, `TZ` | variables, optional | default `baskit`, `baskit`, `Europe/Amsterdam` |
 
-The discount-scraper API must be deployed with its `shelly-network` change first, otherwise nginx
-cannot resolve `discount-scraper-api`.
-
-The planned microservice backend (`backend/`, `database/`) only starts with
-`docker compose --profile backend up`; several of its services do not exist yet.
+On the NAS, `/volume1/docker/baskit/data/postgres` must exist and be owned by uid 70. The
+discount-scraper API must be deployed with its `shelly-network` change, otherwise nginx cannot
+resolve `discount-scraper-api`.

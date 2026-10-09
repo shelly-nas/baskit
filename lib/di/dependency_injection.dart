@@ -1,92 +1,84 @@
-import '../database/data_sources/key_value_store.dart';
-import '../database/data_sources/shopping_list_data_source.dart';
-import '../database/repositories/shopping_list_repository.dart';
-import '../backend/use_cases/shopping_list_use_cases.dart';
-import '../backend/services/shopping_list_service.dart';
 import '../backend/services/offer_search_service.dart';
 import '../backend/services/price_comparison_service.dart';
+import '../backend/services/shopping_list_service.dart';
+import '../backend/use_cases/shopping_list_use_cases.dart';
 import '../config/app_config.dart';
+import '../database/data_sources/baskit_api_client.dart';
 import '../database/data_sources/discount_api_data_source.dart';
+import '../database/data_sources/key_value_store.dart';
+import '../database/data_sources/remote_shopping_list_data_source.dart';
+import '../database/data_sources/shopping_list_data_source.dart';
+import '../database/repositories/auth_repository.dart';
 import '../database/repositories/offer_repository.dart';
+import '../database/repositories/shopping_list_repository.dart';
+import '../frontend/presentation/controllers/auth_controller.dart';
+import '../frontend/presentation/controllers/shopping_list_controller.dart';
 
-/// Dependency Injection Container
-/// Sets up and provides all dependencies for the application
-class DependencyInjection {
-  static final DependencyInjection _instance = DependencyInjection._internal();
+/// Builds the shopping list service stack on top of a data source.
+ShoppingListService buildShoppingListService(ShoppingListDataSource source) {
+  final repository = ShoppingListRepository(source);
+  return ShoppingListService(
+    getAllListsUseCase: GetAllListsUseCase(repository),
+    getListByIdUseCase: GetListByIdUseCase(repository),
+    createListUseCase: CreateListUseCase(repository),
+    updateListUseCase: UpdateListUseCase(repository),
+    deleteListUseCase: DeleteListUseCase(repository),
+    addItemUseCase: AddItemUseCase(repository),
+    updateItemUseCase: UpdateItemUseCase(repository),
+    deleteItemUseCase: DeleteItemUseCase(repository),
+    toggleItemCompletionUseCase: ToggleItemCompletionUseCase(repository),
+  );
+}
 
-  factory DependencyInjection() {
-    return _instance;
-  }
+/// Wires data sources, repositories, services and controllers.
+class AppDependencies {
+  final OfferSearchService offerSearchService;
+  final PriceComparisonService priceComparisonService;
+  final ShoppingListController shoppingListController;
+  final AuthController authController;
 
-  DependencyInjection._internal();
+  AppDependencies._({
+    required this.offerSearchService,
+    required this.priceComparisonService,
+    required this.shoppingListController,
+    required this.authController,
+  });
 
-  // Data Layer
-  late final ShoppingListDataSource _dataSource;
-  late final ShoppingListRepository _repository;
-
-  // Business Logic Layer
-  late final GetAllListsUseCase _getAllListsUseCase;
-  late final GetListByIdUseCase _getListByIdUseCase;
-  late final CreateListUseCase _createListUseCase;
-  late final UpdateListUseCase _updateListUseCase;
-  late final DeleteListUseCase _deleteListUseCase;
-  late final AddItemUseCase _addItemUseCase;
-  late final UpdateItemUseCase _updateItemUseCase;
-  late final DeleteItemUseCase _deleteItemUseCase;
-  late final ToggleItemCompletionUseCase _toggleItemCompletionUseCase;
-
-  // Services
-  late final ShoppingListService _shoppingListService;
-  late final OfferSearchService _offerSearchService;
-  late final PriceComparisonService _priceComparisonService;
-
-  /// Initialize all dependencies
-  ///
   /// [store] defaults to device storage; tests pass an [InMemoryStore].
-  void initialize({KeyValueStore? store}) {
-    // Initialize data layer
-    _dataSource = LocalShoppingListDataSource(
-      store ?? SharedPreferencesStore(),
-    );
-    _repository = ShoppingListRepository(_dataSource);
+  factory AppDependencies.create({
+    KeyValueStore? store,
+    BaskitApiClient? baskitApi,
+    OfferRepository? offerRepository,
+  }) {
+    final storage = store ?? SharedPreferencesStore();
 
-    // Initialize use cases
-    _getAllListsUseCase = GetAllListsUseCase(_repository);
-    _getListByIdUseCase = GetListByIdUseCase(_repository);
-    _createListUseCase = CreateListUseCase(_repository);
-    _updateListUseCase = UpdateListUseCase(_repository);
-    _deleteListUseCase = DeleteListUseCase(_repository);
-    _addItemUseCase = AddItemUseCase(_repository);
-    _updateItemUseCase = UpdateItemUseCase(_repository);
-    _deleteItemUseCase = DeleteItemUseCase(_repository);
-    _toggleItemCompletionUseCase = ToggleItemCompletionUseCase(_repository);
+    // Offers and prices come from the discount-scraper public API.
+    final offers =
+        offerRepository ??
+        ApiOfferRepository(
+          DiscountApiDataSource(baseUri: AppConfig.discountApiBaseUri),
+        );
 
-    // Initialize services
-    _shoppingListService = ShoppingListService(
-      getAllListsUseCase: _getAllListsUseCase,
-      getListByIdUseCase: _getListByIdUseCase,
-      createListUseCase: _createListUseCase,
-      updateListUseCase: _updateListUseCase,
-      deleteListUseCase: _deleteListUseCase,
-      addItemUseCase: _addItemUseCase,
-      updateItemUseCase: _updateItemUseCase,
-      deleteItemUseCase: _deleteItemUseCase,
-      toggleItemCompletionUseCase: _toggleItemCompletionUseCase,
-    );
+    // Lists: on the device when signed out, on the Baskit server when signed in.
+    final api =
+        baskitApi ?? BaskitApiClient(baseUri: AppConfig.baskitApiBaseUri);
+    final deviceStore = LocalShoppingListDataSource(storage);
+    final accountStore = RemoteShoppingListDataSource(api);
+    final deviceService = buildShoppingListService(deviceStore);
+    final lists = ShoppingListController(deviceService);
 
-    // Offers and prices come from the discount-scraper public API
-    final offerRepository = ApiOfferRepository(
-      DiscountApiDataSource(baseUri: AppConfig.discountApiBaseUri),
+    return AppDependencies._(
+      offerSearchService: OfferSearchService(offers),
+      priceComparisonService: PriceComparisonService(offers),
+      shoppingListController: lists,
+      authController: AuthController(
+        repository: AuthRepository(api, storage),
+        lists: lists,
+        deviceService: deviceService,
+        deviceStore: deviceStore,
+        accountService: buildShoppingListService(accountStore),
+        accountStore: accountStore,
+      ),
     );
-    _offerSearchService = OfferSearchService(offerRepository);
-    _priceComparisonService = PriceComparisonService(offerRepository);
   }
-
-  // Getters for services
-  ShoppingListService get shoppingListService => _shoppingListService;
-  OfferSearchService get offerSearchService => _offerSearchService;
-  PriceComparisonService get priceComparisonService => _priceComparisonService;
-
-  // You can add getters for other dependencies if needed directly
-  ShoppingListRepository get repository => _repository;
 }

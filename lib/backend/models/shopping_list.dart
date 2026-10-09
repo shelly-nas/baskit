@@ -9,6 +9,16 @@ class ShoppingList {
   final DateTime updatedAt;
   final List<ListItem> items;
 
+  /// Whether the signed-in user owns the list. Lists on the device (signed
+  /// out) are always owned.
+  final bool isOwner;
+
+  /// Owner of a synced list; null for lists on the device.
+  final ListPerson? owner;
+
+  /// People a synced list is shared with (not including the owner).
+  final List<ListPerson> members;
+
   ShoppingList({
     required this.id,
     required this.name,
@@ -17,6 +27,9 @@ class ShoppingList {
     required this.createdAt,
     required this.updatedAt,
     required this.items,
+    this.isOwner = true,
+    this.owner,
+    this.members = const [],
   });
 
   /// Get the total number of items
@@ -85,6 +98,9 @@ class ShoppingList {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       items: items ?? this.items,
+      isOwner: isOwner,
+      owner: owner,
+      members: members,
     );
   }
 }
@@ -162,4 +178,13 @@ class ListItemOffer {
   });
 
   bool isExpired([DateTime? now]) => expireDate.isBefore(now ?? DateTime.now());
+}
+
+/// Someone a list belongs to or is shared with.
+class ListPerson {
+  final String id;
+  final String displayName;
+  final String? email;
+
+  const ListPerson({required this.id, required this.displayName, this.email});
 }
