@@ -2,6 +2,10 @@ import '../database/data_sources/shopping_list_data_source.dart';
 import '../database/repositories/shopping_list_repository.dart';
 import '../backend/use_cases/shopping_list_use_cases.dart';
 import '../backend/services/shopping_list_service.dart';
+import '../backend/services/offer_search_service.dart';
+import '../config/app_config.dart';
+import '../database/data_sources/discount_api_data_source.dart';
+import '../database/repositories/offer_repository.dart';
 
 /// Dependency Injection Container
 /// Sets up and provides all dependencies for the application
@@ -31,6 +35,7 @@ class DependencyInjection {
 
   // Services
   late final ShoppingListService _shoppingListService;
+  late final OfferSearchService _offerSearchService;
 
   /// Initialize all dependencies
   void initialize() {
@@ -61,10 +66,18 @@ class DependencyInjection {
       deleteItemUseCase: _deleteItemUseCase,
       toggleItemCompletionUseCase: _toggleItemCompletionUseCase,
     );
+
+    // Offers come from the discount-scraper public API
+    _offerSearchService = OfferSearchService(
+      ApiOfferRepository(
+        DiscountApiDataSource(baseUri: AppConfig.discountApiBaseUri),
+      ),
+    );
   }
 
   // Getters for services
   ShoppingListService get shoppingListService => _shoppingListService;
+  OfferSearchService get offerSearchService => _offerSearchService;
 
   // You can add getters for other dependencies if needed directly
   ShoppingListRepository get repository => _repository;

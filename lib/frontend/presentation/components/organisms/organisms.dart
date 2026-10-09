@@ -6,3 +6,5 @@ export 'savings_summary.dart';
 export 'shopping_list_card_component.dart';
 export 'user_info_section.dart';
 export 'version_display.dart';
+export 'offer_card.dart';
+export 'offer_details_sheet.dart';

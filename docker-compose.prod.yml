@@ -1,0 +1,23 @@
+# Production: Baskit web app next to the discount-scraper stack on the NAS.
+# The discount-scraper API joins shelly-network, so nginx can reach it by
+# container name.
+services:
+  web:
+    image: ${REGISTRY}/baskit-web:${IMAGE_TAG:-latest}
+    container_name: baskit-web
+    environment:
+      DISCOUNT_API_UPSTREAM: ${DISCOUNT_API_UPSTREAM:-http://discount-scraper-api:3001}
+    ports:
+      - "8091:80"
+    restart: always
+    networks:
+      - shelly-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.baskit.rule=Host(`baskit.shelly-nas.nl`)"
+      - "traefik.http.routers.baskit.entrypoints=web"
+      - "traefik.http.services.baskit.loadbalancer.server.port=80"
+
+networks:
+  shelly-network:
+    external: true

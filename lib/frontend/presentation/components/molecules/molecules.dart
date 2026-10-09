@@ -8,3 +8,5 @@ export 'preference_item.dart';
 export 'preference_toggle.dart';
 export 'profile_header.dart';
 export 'section_header.dart';
+export 'filter_pill.dart';
+export 'search_field.dart';

@@ -33,16 +33,22 @@ class BottomNavigation extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               BottomNavItem(
-                icon: CupertinoIcons.list_bullet,
-                label: 'Lists',
+                icon: CupertinoIcons.search,
+                label: 'Search',
                 isSelected: selectedIndex == 0,
                 onTap: () => onItemTapped(0),
               ),
               BottomNavItem(
-                icon: CupertinoIcons.person,
-                label: 'Profile',
+                icon: CupertinoIcons.list_bullet,
+                label: 'Lists',
                 isSelected: selectedIndex == 1,
                 onTap: () => onItemTapped(1),
+              ),
+              BottomNavItem(
+                icon: CupertinoIcons.person,
+                label: 'Profile',
+                isSelected: selectedIndex == 2,
+                onTap: () => onItemTapped(2),
               ),
             ],
           ),

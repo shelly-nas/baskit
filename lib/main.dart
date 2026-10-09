@@ -1,18 +1,20 @@
 import 'package:baskit/frontend/presentation/screens/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'backend/services/offer_search_service.dart';
 import 'frontend/theme/theme.dart';
-// import 'frontend/presentation/screens/list_overview_screen.dart';
-// import 'di/dependency_injection.dart';
+import 'di/dependency_injection.dart';
 
 void main() {
   // Initialize dependency injection
-  // DependencyInjection().initialize();
+  final di = DependencyInjection()..initialize();
 
-  runApp(const BaskitApp());
+  runApp(BaskitApp(offerSearchService: di.offerSearchService));
 }
 
 class BaskitApp extends StatelessWidget {
-  const BaskitApp({super.key});
+  final OfferSearchService offerSearchService;
+
+  const BaskitApp({super.key, required this.offerSearchService});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class BaskitApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       // darkTheme: AppTheme.darkTheme,
       // themeMode: ThemeMode.light,
-      home: const MainScreen(),
+      home: MainScreen(offerSearchService: offerSearchService),
       debugShowCheckedModeBanner: false,
     );
   }

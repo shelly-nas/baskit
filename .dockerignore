@@ -1,0 +1,10 @@
+.dart_tool/
+build/
+.git/
+android/
+ios/
+backend/
+database/
+**/node_modules/
+*.iml
+.idea/

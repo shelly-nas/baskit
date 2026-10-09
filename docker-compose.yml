@@ -1,8 +1,30 @@
-version: '3.8'
+# Default: only the Baskit web app, which reads discounts from the
+# discount-scraper API (run that project separately; it exposes port 3001).
+#   docker compose up --build -d
+#
+# The microservice backend below is still a work in progress and only starts
+# with the "backend" profile:
+#   docker compose --profile backend up --build -d
 
 services:
+  # Baskit web app (Flutter web served by nginx)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: baskit-web
+    environment:
+      # nginx proxies /api/discounts to <upstream>/api/public/v1
+      DISCOUNT_API_UPSTREAM: ${DISCOUNT_API_UPSTREAM:-http://host.docker.internal:3001}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
   # PostgreSQL Database
   postgres:
+    profiles: ["backend"]
     image: postgres:15-alpine
     container_name: baskit-postgres
     environment:
@@ -24,6 +46,7 @@ services:
 
   # Redis for caching and real-time messaging
   redis:
+    profiles: ["backend"]
     image: redis:7-alpine
     container_name: baskit-redis
     ports:
@@ -40,6 +63,7 @@ services:
 
   # User Service
   user-service:
+    profiles: ["backend"]
     build:
       context: ./backend/user-service
       dockerfile: Dockerfile
@@ -67,6 +91,7 @@ services:
 
   # Product Service
   product-service:
+    profiles: ["backend"]
     build:
       context: ./backend/product-service
       dockerfile: Dockerfile
@@ -94,6 +119,7 @@ services:
 
   # List Service
   list-service:
+    profiles: ["backend"]
     build:
       context: ./backend/list-service
       dockerfile: Dockerfile
@@ -125,6 +151,7 @@ services:
 
   # Price Service
   price-service:
+    profiles: ["backend"]
     build:
       context: ./backend/price-service
       dockerfile: Dockerfile
@@ -152,6 +179,7 @@ services:
 
   # Store Service
   store-service:
+    profiles: ["backend"]
     build:
       context: ./backend/store-service
       dockerfile: Dockerfile
@@ -179,6 +207,7 @@ services:
 
   # Route Service
   route-service:
+    profiles: ["backend"]
     build:
       context: ./backend/route-service
       dockerfile: Dockerfile
@@ -206,6 +235,7 @@ services:
 
   # Notification Service
   notification-service:
+    profiles: ["backend"]
     build:
       context: ./backend/notification-service
       dockerfile: Dockerfile
