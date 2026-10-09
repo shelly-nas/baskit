@@ -1,4 +1,5 @@
 import '../../backend/models/offer.dart';
+import '../../backend/models/price_comparison.dart';
 
 /// JSON parsing for the discount-scraper public API (`/api/public/v1`).
 class OfferDto {
@@ -45,6 +46,43 @@ class OfferDto {
       items: items,
       total: (json['total'] as num).toInt(),
       offset: (json['offset'] as num).toInt(),
+    );
+  }
+
+  static PriceComparison comparisonFromJson(Map<String, dynamic> json) {
+    final stores = (json['supermarkets'] as List<dynamic>).map((raw) {
+      final store = raw as Map<String, dynamic>;
+      final lines = (store['lines'] as List<dynamic>).map((rawLine) {
+        final line = rawLine as Map<String, dynamic>;
+        final product = line['product'] as Map<String, dynamic>?;
+        return ComparisonLine(
+          itemId: line['itemId'] as String,
+          count: (line['count'] as num?)?.toInt() ?? 1,
+          productName: product?['name'] as String?,
+          unitPrice: (product?['price'] as num?)?.toDouble(),
+          lineTotal: (line['lineTotal'] as num?)?.toDouble(),
+          isOffer: product?['discount'] != null,
+          specialDiscount:
+              (product?['discount']
+                      as Map<String, dynamic>?)?['specialDiscount']
+                  as String?,
+          productUrl: product?['productUrl'] as String?,
+        );
+      }).toList();
+      return StoreComparison(
+        supermarket: Supermarket(
+          key: store['key'] as String,
+          name: store['name'] as String,
+        ),
+        total: (store['total'] as num).toDouble(),
+        matched: (store['matched'] as num).toInt(),
+        missingItemIds: (store['missing'] as List<dynamic>).cast<String>(),
+        lines: lines,
+      );
+    }).toList();
+    return PriceComparison(
+      itemCount: (json['itemCount'] as num).toInt(),
+      stores: stores,
     );
   }
 

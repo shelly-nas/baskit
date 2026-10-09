@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../backend/models/shopping_list.dart';
+import '../../../backend/services/price_comparison_service.dart';
 import '../../theme/colors.dart';
 import '../../theme/design_tokens.dart';
 import '../components/atoms/app_icon.dart';
@@ -15,8 +16,13 @@ enum _ListAction { rename, delete }
 
 class ListsScreen extends StatefulWidget {
   final ShoppingListController controller;
+  final PriceComparisonService? comparisonService;
 
-  const ListsScreen({super.key, required this.controller});
+  const ListsScreen({
+    super.key,
+    required this.controller,
+    this.comparisonService,
+  });
 
   @override
   State<ListsScreen> createState() => _ListsScreenState();
@@ -48,8 +54,11 @@ class _ListsScreenState extends State<ListsScreen> {
   void _openList(ShoppingList list) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) =>
-            ListDetailScreen(controller: _controller, listId: list.id),
+        builder: (_) => ListDetailScreen(
+          controller: _controller,
+          listId: list.id,
+          comparisonService: widget.comparisonService,
+        ),
       ),
     );
   }

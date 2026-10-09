@@ -27,6 +27,7 @@ supermarkets --> discount-scraper (scrapers + Postgres + admin UI)
 | Offer details with regular price, savings, deal text and link to the supermarket | Working, live data |
 | Shopping lists: create, rename, delete; add, check off and remove items; quantities | Working, stored on the device |
 | Add an offer from search to a list (keeps supermarket, price and end date) | Working |
+| Compare what a list costs at each supermarket (offers and regular catalog prices) | Working, live data |
 | Profile | UI only, mock data |
 
 ## Project structure

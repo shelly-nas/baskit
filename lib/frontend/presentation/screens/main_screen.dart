@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../backend/services/offer_search_service.dart';
+import '../../../backend/services/price_comparison_service.dart';
 import '../controllers/shopping_list_controller.dart';
 import 'lists_screen.dart';
 import 'profile_screen.dart';
@@ -9,11 +10,13 @@ import '../components/organisms/bottom_navigation.dart';
 class MainScreen extends StatefulWidget {
   final OfferSearchService offerSearchService;
   final ShoppingListController shoppingListController;
+  final PriceComparisonService? priceComparisonService;
 
   const MainScreen({
     super.key,
     required this.offerSearchService,
     required this.shoppingListController,
+    this.priceComparisonService,
   });
 
   @override
@@ -28,7 +31,10 @@ class _MainScreenState extends State<MainScreen> {
       service: widget.offerSearchService,
       listController: widget.shoppingListController,
     ),
-    ListsScreen(controller: widget.shoppingListController),
+    ListsScreen(
+      controller: widget.shoppingListController,
+      comparisonService: widget.priceComparisonService,
+    ),
     const ProfileScreen(),
   ];
 

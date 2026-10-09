@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../backend/models/offer.dart';
+import '../../backend/models/price_comparison.dart';
 import '../models/offer_dto.dart';
 
 /// Remote data source for the discount-scraper public API.
@@ -59,19 +60,41 @@ class DiscountApiDataSource {
     return OfferDto.pageFromJson(json);
   }
 
-  Future<dynamic> _get(String path, [Map<String, String>? params]) async {
+  Future<PriceComparison> compare(List<CompareRequestItem> items) async {
+    final json =
+        await _post('compare', {
+              'items': items.map((item) => item.toJson()).toList(),
+            })
+            as Map<String, dynamic>;
+    return OfferDto.comparisonFromJson(json);
+  }
+
+  Uri _uri(String path, [Map<String, String>? params]) {
     final base = _baseUri.path.endsWith('/')
         ? _baseUri
         : _baseUri.replace(path: '${_baseUri.path}/');
-    final uri = base
+    return base
         .resolve(path)
         .replace(
           queryParameters: params == null || params.isEmpty ? null : params,
         );
+  }
 
+  Future<dynamic> _get(String path, [Map<String, String>? params]) =>
+      _send(() => _client.get(_uri(path, params)));
+
+  Future<dynamic> _post(String path, Map<String, dynamic> body) => _send(
+    () => _client.post(
+      _uri(path),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    ),
+  );
+
+  Future<dynamic> _send(Future<http.Response> Function() request) async {
     final http.Response response;
     try {
-      response = await _client.get(uri).timeout(_timeout);
+      response = await request().timeout(_timeout);
     } catch (e) {
       throw DiscountApiException('Could not reach the discount service', e);
     }

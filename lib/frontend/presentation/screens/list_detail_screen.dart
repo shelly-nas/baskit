@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../backend/models/shopping_list.dart';
+import '../../../backend/services/price_comparison_service.dart';
 import '../../theme/colors.dart';
 import '../../theme/design_tokens.dart';
 import '../../utils/formatters.dart';
@@ -9,6 +10,7 @@ import '../components/atoms/app_text.dart';
 import '../components/organisms/list_item_row.dart';
 import '../controllers/shopping_list_controller.dart';
 import '../dialogs/text_input_dialog.dart';
+import 'price_comparison_screen.dart';
 
 enum _DetailAction { rename, clearCompleted, delete }
 
@@ -19,10 +21,14 @@ class ListDetailScreen extends StatefulWidget {
   final ShoppingListController controller;
   final String listId;
 
+  /// Enables "Compare prices" when set.
+  final PriceComparisonService? comparisonService;
+
   const ListDetailScreen({
     super.key,
     required this.controller,
     required this.listId,
+    this.comparisonService,
   });
 
   @override
@@ -157,6 +163,29 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
               fontWeight: FontWeight.w700,
             ),
             actions: [
+              if (widget.comparisonService != null &&
+                  list.uncompletedItems.isNotEmpty)
+                TextButton.icon(
+                  icon: const AppIcon(
+                    CupertinoIcons.chart_bar_alt_fill,
+                    size: DesignTokens.iconMedium,
+                  ),
+                  label: const Text(
+                    'Compare prices',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.foreground,
+                  ),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => PriceComparisonScreen(
+                        list: list,
+                        service: widget.comparisonService!,
+                      ),
+                    ),
+                  ),
+                ),
               PopupMenuButton<_DetailAction>(
                 tooltip: 'List options',
                 color: AppColors.card,

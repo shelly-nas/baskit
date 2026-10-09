@@ -1,4 +1,5 @@
 import 'package:baskit/backend/models/offer.dart';
+import 'package:baskit/backend/models/price_comparison.dart';
 import 'package:baskit/database/repositories/offer_repository.dart';
 
 const dirk = Supermarket(key: 'dirk', name: 'Dirk', activeDiscounts: 2);
@@ -40,6 +41,7 @@ final sampleOffers = [
 /// In-memory repository that filters [sampleOffers] like the real API does.
 class FakeOfferRepository implements OfferRepository {
   final List<OfferQuery> queries = [];
+  final List<List<CompareRequestItem>> comparisons = [];
   bool fail = false;
 
   @override
@@ -76,6 +78,47 @@ class FakeOfferRepository implements OfferRepository {
       items: matches.skip(offset).take(limit).toList(),
       total: matches.length,
       offset: offset,
+    );
+  }
+
+  /// Dirk finds every item (0.50 each), Jumbo only the first (1.00).
+  @override
+  Future<PriceComparison> compare(List<CompareRequestItem> items) async {
+    comparisons.add(items);
+    if (fail) throw Exception('offline');
+    StoreComparison store(Supermarket sm, double price, int found) {
+      final lines = [
+        for (var i = 0; i < items.length; i++)
+          i < found
+              ? ComparisonLine(
+                  itemId: items[i].id,
+                  count: items[i].count,
+                  productName: '${sm.name} ${items[i].query}',
+                  unitPrice: price,
+                  lineTotal: price * items[i].count,
+                  isOffer: sm.key == 'dirk',
+                )
+              : ComparisonLine(itemId: items[i].id, count: items[i].count),
+      ];
+      return StoreComparison(
+        supermarket: sm,
+        total: lines.fold(0.0, (sum, l) => sum + (l.lineTotal ?? 0)),
+        matched: found,
+        missingItemIds: [
+          for (final l in lines)
+            if (!l.isFound) l.itemId,
+        ],
+        lines: lines,
+      );
+    }
+
+    return PriceComparison(
+      itemCount: items.length,
+      stores: [
+        store(dirk, 0.5, items.length),
+        store(jumbo, 1.0, items.isEmpty ? 0 : 1),
+        store(aldi, 0, 0),
+      ],
     );
   }
 }

@@ -24,7 +24,7 @@ docker compose up --build -d          # web only, nginx on :8080
 
 - Baskit is the end-user app. All supermarket and offer data comes from the separate
   **discount-scraper** project (`shelly-nas/discount-scraper`) through its read-only public API
-  `/api/public/v1` (`/supermarkets`, `/categories`, `/search`, `/products/:id`). Never connect to
+  `/api/public/v1` (`/supermarkets`, `/categories`, `/search`, `/products/:id`, `POST /compare`). Never connect to
   the discount database directly; if data is missing, extend that public API first.
 - `lib/config/app_config.dart` - `DISCOUNT_API_URL` dart-define; relative by default
   (`/api/discounts`), which nginx proxies to the discount-scraper API.
@@ -43,6 +43,10 @@ docker compose up --build -d          # web only, nginx on :8080
 - `lib/frontend/presentation/controllers/shopping_list_controller.dart` - `ChangeNotifier` shared
   by the Lists tab, `ListDetailScreen` and the Search tab (`add_to_list_sheet.dart`), so changes
   show everywhere at once. Tests build it with `test/support/test_shopping_lists.dart`.
+- Price comparison: `PriceComparisonService` sends the unchecked items of a list (name as query,
+  count parsed from simple quantities such as "2" or "3x", the offer's `productId` when the item
+  came from search) to `POST /compare`; `PriceComparisonScreen` (opened from `ListDetailScreen`)
+  ranks the supermarkets. Models in `lib/backend/models/price_comparison.dart`.
 - Profile still uses mock data.
 - `backend/` and `database/` hold the planned Node.js microservices; they are incomplete and
   only run with `docker compose --profile backend`.
