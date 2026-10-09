@@ -28,3 +28,18 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+
+  # Server: typecheck, schema (database/init.sql), migrations twice and the
+  # server tests against Postgres - the shared shelly-nas CI.
+  server:
+    name: Server
+    uses: shelly-nas/shared-workflows/.github/workflows/ci-node-postgres.yml@main
+    with:
+      typecheck_projects: '["server"]'
+      client_directory: ''
+      server_directory: server
+      db_user: baskit
+      db_name: baskit
+      init_sql: database/init.sql
+      seed_sql: ''
+      migrations_directory: server/migrations

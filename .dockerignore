@@ -3,7 +3,7 @@ build/
 .git/
 android/
 ios/
-backend/
+server/
 database/
 **/node_modules/
 *.iml

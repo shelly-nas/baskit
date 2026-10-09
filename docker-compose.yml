@@ -1,289 +1,65 @@
-# Default: only the Baskit web app, which reads discounts from the
-# discount-scraper API (run that project separately; it exposes port 3001).
+# Local development: Baskit web on http://localhost:8080 with its server and
+# database. Discounts come from the discount-scraper project, which must run
+# separately (its API on port 3001).
+#   cp .env.example .env
 #   docker compose up --build -d
-#
-# The microservice backend below is still a work in progress and only starts
-# with the "backend" profile:
-#   docker compose --profile backend up --build -d
 
 services:
-  # Baskit web app (Flutter web served by nginx)
+  db:
+    build:
+      context: database
+    container_name: baskit-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-baskit}
+      POSTGRES_USER: ${DB_USER:-baskit}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-baskit}
+    ports:
+      - "5434:5432"
+    volumes:
+      - baskit_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-baskit} -d ${DB_NAME:-baskit}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  server:
+    build:
+      context: server
+    container_name: baskit-server
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-baskit}
+      DB_USER: ${DB_USER:-baskit}
+      DB_PASSWORD: ${DB_PASSWORD:-baskit}
+      SERVER_PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-development-only-secret-change-me-1234567890}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+    ports:
+      - "3002:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
   web:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: baskit-web
     environment:
-      # nginx proxies /api/discounts to <upstream>/api/public/v1
+      # nginx proxies /api/discounts to <upstream>/api/public/v1 and /api to the server
       DISCOUNT_API_UPSTREAM: ${DISCOUNT_API_UPSTREAM:-http://host.docker.internal:3001}
+      BASKIT_API_UPSTREAM: http://server:3000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
       - "8080:80"
+    depends_on:
+      - server
     restart: unless-stopped
 
-  # PostgreSQL Database
-  postgres:
-    profiles: ["backend"]
-    image: postgres:15-alpine
-    container_name: baskit-postgres
-    environment:
-      POSTGRES_DB: baskit
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
-    networks:
-      - baskit-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Redis for caching and real-time messaging
-  redis:
-    profiles: ["backend"]
-    image: redis:7-alpine
-    container_name: baskit-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - baskit-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-
-  # User Service
-  user-service:
-    profiles: ["backend"]
-    build:
-      context: ./backend/user-service
-      dockerfile: Dockerfile
-    container_name: baskit-user-service
-    environment:
-      - PORT=3001
-      - NODE_ENV=development
-      - SERVICE_NAME=user-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    ports:
-      - "3001:3001"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/user-service:/app
-      - /app/node_modules
-    command: npm run dev
-
-  # Product Service
-  product-service:
-    profiles: ["backend"]
-    build:
-      context: ./backend/product-service
-      dockerfile: Dockerfile
-    container_name: baskit-product-service
-    environment:
-      - PORT=3002
-      - NODE_ENV=development
-      - SERVICE_NAME=product-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    ports:
-      - "3002:3002"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/product-service:/app
-      - /app/node_modules
-    command: npm run dev
-
-  # List Service
-  list-service:
-    profiles: ["backend"]
-    build:
-      context: ./backend/list-service
-      dockerfile: Dockerfile
-    container_name: baskit-list-service
-    environment:
-      - PORT=3003
-      - NODE_ENV=development
-      - SERVICE_NAME=list-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    ports:
-      - "3003:3003"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/list-service:/app
-      - /app/node_modules
-    command: npm run dev
-
-  # Price Service
-  price-service:
-    profiles: ["backend"]
-    build:
-      context: ./backend/price-service
-      dockerfile: Dockerfile
-    container_name: baskit-price-service
-    environment:
-      - PORT=3004
-      - NODE_ENV=development
-      - SERVICE_NAME=price-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    ports:
-      - "3004:3004"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/price-service:/app
-      - /app/node_modules
-    command: npm run dev
-
-  # Store Service
-  store-service:
-    profiles: ["backend"]
-    build:
-      context: ./backend/store-service
-      dockerfile: Dockerfile
-    container_name: baskit-store-service
-    environment:
-      - PORT=3005
-      - NODE_ENV=development
-      - SERVICE_NAME=store-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    ports:
-      - "3005:3005"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/store-service:/app
-      - /app/node_modules
-    command: npm run dev
-
-  # Route Service
-  route-service:
-    profiles: ["backend"]
-    build:
-      context: ./backend/route-service
-      dockerfile: Dockerfile
-    container_name: baskit-route-service
-    environment:
-      - PORT=3006
-      - NODE_ENV=development
-      - SERVICE_NAME=route-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    ports:
-      - "3006:3006"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/route-service:/app
-      - /app/node_modules
-    command: npm run dev
-
-  # Notification Service
-  notification-service:
-    profiles: ["backend"]
-    build:
-      context: ./backend/notification-service
-      dockerfile: Dockerfile
-    container_name: baskit-notification-service
-    environment:
-      - PORT=3007
-      - NODE_ENV=development
-      - SERVICE_NAME=notification-service
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=baskit
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    ports:
-      - "3007:3007"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - baskit-network
-    volumes:
-      - ./backend/notification-service:/app
-      - /app/node_modules
-    command: npm run dev
-
-  # Nginx API Gateway (optional, for production)
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: baskit-nginx
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
-  #   depends_on:
-  #     - user-service
-  #     - product-service
-  #     - list-service
-  #   networks:
-  #     - baskit-network
-
-networks:
-  baskit-network:
-    driver: bridge
-
 volumes:
-  postgres_data:
-  redis_data:
+  baskit_db:

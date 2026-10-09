@@ -12,7 +12,8 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
 
-    # Discount data from the discount-scraper public API (read-only)
+    # Discount data from the discount-scraper public API (read-only).
+    # Longer prefix than /api/, so it wins for /api/discounts/.
     location /api/discounts/ {
         proxy_pass ${DISCOUNT_API_UPSTREAM}/api/public/v1/;
         proxy_http_version 1.1;
@@ -22,6 +23,19 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_connect_timeout 5s;
         proxy_read_timeout 30s;
+    }
+
+    # Baskit accounts and lists (baskit server)
+    location /api/ {
+        proxy_pass ${BASKIT_API_UPSTREAM}/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 30s;
+        client_max_body_size 1m;
     }
 
     # Never cache the entry points so new releases are picked up immediately
