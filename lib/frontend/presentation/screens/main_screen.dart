@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../backend/services/offer_search_service.dart';
+import '../controllers/shopping_list_controller.dart';
 import 'lists_screen.dart';
 import 'profile_screen.dart';
 import 'search_screen.dart';
@@ -7,8 +8,13 @@ import '../components/organisms/bottom_navigation.dart';
 
 class MainScreen extends StatefulWidget {
   final OfferSearchService offerSearchService;
+  final ShoppingListController shoppingListController;
 
-  const MainScreen({super.key, required this.offerSearchService});
+  const MainScreen({
+    super.key,
+    required this.offerSearchService,
+    required this.shoppingListController,
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -18,8 +24,11 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   late final List<Widget> _widgetOptions = <Widget>[
-    SearchScreen(service: widget.offerSearchService),
-    const ListsScreen(),
+    SearchScreen(
+      service: widget.offerSearchService,
+      listController: widget.shoppingListController,
+    ),
+    ListsScreen(controller: widget.shoppingListController),
     const ProfileScreen(),
   ];
 

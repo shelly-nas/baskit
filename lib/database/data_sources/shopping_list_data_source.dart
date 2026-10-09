@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import '../models/shopping_list_entity.dart';
+import 'key_value_store.dart';
 
 /// Abstract data source for shopping lists
 /// Defines the contract for data operations (local or remote)
@@ -30,183 +33,122 @@ abstract class ShoppingListDataSource {
 
 /// Local data source implementation (mock for now)
 /// In production, this would interact with SQLite, Hive, or similar
+/// Local data source that keeps all lists on the device as JSON.
+///
+/// Used when the user is not signed in. Every change writes the full set of
+/// lists, which is fine for the size of a household's shopping lists.
 class LocalShoppingListDataSource implements ShoppingListDataSource {
-  // Mock in-memory storage
-  final List<ShoppingListEntity> _lists = [];
+  static const String storageKey = 'baskit.shopping_lists.v1';
 
-  LocalShoppingListDataSource() {
-    _initializeMockData();
+  final KeyValueStore _store;
+  List<ShoppingListEntity>? _cache;
+
+  LocalShoppingListDataSource(this._store);
+
+  Future<List<ShoppingListEntity>> _load() async {
+    if (_cache != null) return _cache!;
+    final raw = await _store.read(storageKey);
+    if (raw == null || raw.isEmpty) {
+      _cache = [];
+    } else {
+      final decoded = jsonDecode(raw) as List<dynamic>;
+      _cache = decoded
+          .map((e) => ShoppingListEntity.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return _cache!;
   }
 
-  void _initializeMockData() {
-    // Initialize with sample data
-    _lists.addAll([
-      ShoppingListEntity(
-        id: '1',
-        name: 'Weekly Groceries',
-        description: 'Regular weekly shopping',
-        isShared: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-        updatedAt: DateTime.now(),
-        items: [
-          ListItemEntity(
-            id: '1',
-            name: 'Milk',
-            quantity: '2L',
-            category: 'Dairy',
-            isCompleted: true,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-          ListItemEntity(
-            id: '2',
-            name: 'Bread',
-            quantity: '2',
-            category: 'Bakery',
-            isCompleted: true,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-          ListItemEntity(
-            id: '3',
-            name: 'Apples',
-            quantity: '1kg',
-            category: 'Fruits',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-          ListItemEntity(
-            id: '4',
-            name: 'Chicken breast',
-            quantity: '500g',
-            category: 'Meat',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-        ],
-      ),
-      ShoppingListEntity(
-        id: '2',
-        name: 'Party Supplies',
-        description: 'Items for birthday party on Saturday',
-        isShared: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 5)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 1)),
-        items: [
-          ListItemEntity(
-            id: '5',
-            name: 'Chips',
-            quantity: '3 bags',
-            category: 'Snacks',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          ),
-          ListItemEntity(
-            id: '6',
-            name: 'Soft drinks',
-            quantity: '2L x 4',
-            category: 'Beverages',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          ),
-          ListItemEntity(
-            id: '7',
-            name: 'Paper plates',
-            quantity: '20 pieces',
-            category: 'Party',
-            isCompleted: false,
-            createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          ),
-        ],
-      ),
+  Future<void> _save(List<ShoppingListEntity> lists) async {
+    _cache = lists;
+    await _store.write(
+      storageKey,
+      jsonEncode(lists.map((list) => list.toJson()).toList()),
+    );
+  }
+
+  Future<ShoppingListEntity> _requireList(String id) async {
+    final lists = await _load();
+    return lists.firstWhere(
+      (list) => list.id == id,
+      orElse: () => throw StateError('List $id not found'),
+    );
+  }
+
+  Future<void> _replaceList(ShoppingListEntity updated) async {
+    final lists = await _load();
+    await _save([
+      for (final list in lists) list.id == updated.id ? updated : list,
     ]);
   }
 
   @override
   Future<List<ShoppingListEntity>> getAllLists() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-    return List.from(_lists);
+    final lists = await _load();
+    return List.unmodifiable(lists);
   }
 
   @override
   Future<ShoppingListEntity?> getListById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    try {
-      return _lists.firstWhere((list) => list.id == id);
-    } catch (e) {
-      return null;
+    final lists = await _load();
+    for (final list in lists) {
+      if (list.id == id) return list;
     }
+    return null;
   }
 
   @override
   Future<ShoppingListEntity> createList(ShoppingListEntity list) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    _lists.add(list);
+    final lists = await _load();
+    await _save([...lists, list]);
     return list;
   }
 
   @override
   Future<ShoppingListEntity> updateList(ShoppingListEntity list) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final index = _lists.indexWhere((l) => l.id == list.id);
-    if (index != -1) {
-      _lists[index] = list;
-      return list;
-    }
-    throw Exception('List not found');
+    await _requireList(list.id);
+    await _replaceList(list);
+    return list;
   }
 
   @override
   Future<void> deleteList(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    _lists.removeWhere((list) => list.id == id);
+    final lists = await _load();
+    await _save(lists.where((list) => list.id != id).toList());
   }
 
   @override
   Future<ListItemEntity> addItem(String listId, ListItemEntity item) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final listIndex = _lists.indexWhere((list) => list.id == listId);
-    if (listIndex != -1) {
-      final updatedItems = [..._lists[listIndex].items, item];
-      _lists[listIndex] = _lists[listIndex].copyWith(
-        items: updatedItems,
-        updatedAt: DateTime.now(),
-      );
-      return item;
-    }
-    throw Exception('List not found');
+    final list = await _requireList(listId);
+    await _replaceList(
+      list.copyWith(items: [...list.items, item], updatedAt: DateTime.now()),
+    );
+    return item;
   }
 
   @override
   Future<ListItemEntity> updateItem(String listId, ListItemEntity item) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final listIndex = _lists.indexWhere((list) => list.id == listId);
-    if (listIndex != -1) {
-      final items = _lists[listIndex].items;
-      final itemIndex = items.indexWhere((i) => i.id == item.id);
-      if (itemIndex != -1) {
-        items[itemIndex] = item;
-        _lists[listIndex] = _lists[listIndex].copyWith(
-          items: items,
-          updatedAt: DateTime.now(),
-        );
-        return item;
-      }
+    final list = await _requireList(listId);
+    if (!list.items.any((i) => i.id == item.id)) {
+      throw StateError('Item ${item.id} not found');
     }
-    throw Exception('Item not found');
+    await _replaceList(
+      list.copyWith(
+        items: [for (final i in list.items) i.id == item.id ? item : i],
+        updatedAt: DateTime.now(),
+      ),
+    );
+    return item;
   }
 
   @override
   Future<void> deleteItem(String listId, String itemId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final listIndex = _lists.indexWhere((list) => list.id == listId);
-    if (listIndex != -1) {
-      final updatedItems = _lists[listIndex].items
-          .where((item) => item.id != itemId)
-          .toList();
-      _lists[listIndex] = _lists[listIndex].copyWith(
-        items: updatedItems,
+    final list = await _requireList(listId);
+    await _replaceList(
+      list.copyWith(
+        items: list.items.where((i) => i.id != itemId).toList(),
         updatedAt: DateTime.now(),
-      );
-    }
+      ),
+    );
   }
 }

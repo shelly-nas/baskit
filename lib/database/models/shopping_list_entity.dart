@@ -25,7 +25,7 @@ class ShoppingListEntity {
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
-      isShared: json['is_shared'] as bool,
+      isShared: json['is_shared'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       items:
@@ -83,6 +83,9 @@ class ListItemEntity {
   final bool isCompleted;
   final DateTime createdAt;
 
+  /// Offer snapshot as stored JSON (see ListItemOffer); null for plain items.
+  final Map<String, dynamic>? offer;
+
   ListItemEntity({
     required this.id,
     required this.name,
@@ -90,6 +93,7 @@ class ListItemEntity {
     this.category,
     this.isCompleted = false,
     required this.createdAt,
+    this.offer,
   });
 
   /// Convert from JSON
@@ -101,6 +105,7 @@ class ListItemEntity {
       category: json['category'] as String?,
       isCompleted: json['is_completed'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
+      offer: json['offer'] as Map<String, dynamic>?,
     );
   }
 
@@ -113,6 +118,7 @@ class ListItemEntity {
       'category': category,
       'is_completed': isCompleted,
       'created_at': createdAt.toIso8601String(),
+      'offer': offer,
     };
   }
 
@@ -124,6 +130,7 @@ class ListItemEntity {
     String? category,
     bool? isCompleted,
     DateTime? createdAt,
+    Map<String, dynamic>? offer,
   }) {
     return ListItemEntity(
       id: id ?? this.id,
@@ -132,6 +139,7 @@ class ListItemEntity {
       category: category ?? this.category,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
+      offer: offer ?? this.offer,
     );
   }
 }

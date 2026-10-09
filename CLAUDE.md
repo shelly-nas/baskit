@@ -31,12 +31,19 @@ docker compose up --build -d          # web only, nginx on :8080
 - `lib/database/` - data sources (`DiscountApiDataSource` uses `package:http`), DTO parsing
   (`models/offer_dto.dart`) and repositories (`OfferRepository` interface, `ApiOfferRepository`).
 - `lib/backend/` - domain models (`models/offer.dart`) and services (`OfferSearchService`).
-- `lib/frontend/presentation/` - screens (`SearchScreen`, `ListsScreen`, `ProfileScreen`, tabbed in
+- `lib/frontend/presentation/` - screens (`SearchScreen`, `ListsScreen` + `ListDetailScreen`, `ProfileScreen`, tabbed in
   `MainScreen` with an `IndexedStack`) and components. `SearchScreen` gets its service through the
   constructor so tests can inject `test/support/fake_offer_repository.dart`.
 - `lib/di/dependency_injection.dart` - wires data sources, repositories and services; initialized
   in `main.dart`.
-- Shopping lists and profile still use mock data.
+- Shopping lists: `LocalShoppingListDataSource` stores all lists as JSON through a `KeyValueStore`
+  (`SharedPreferencesStore` in the app, `InMemoryStore` in tests); repository, use cases and
+  `ShoppingListService` sit on top. IDs are client generated UUIDs. A list item can carry a
+  `ListItemOffer` snapshot (supermarket, price, end date) when it was added from search.
+- `lib/frontend/presentation/controllers/shopping_list_controller.dart` - `ChangeNotifier` shared
+  by the Lists tab, `ListDetailScreen` and the Search tab (`add_to_list_sheet.dart`), so changes
+  show everywhere at once. Tests build it with `test/support/test_shopping_lists.dart`.
+- Profile still uses mock data.
 - `backend/` and `database/` hold the planned Node.js microservices; they are incomplete and
   only run with `docker compose --profile backend`.
 

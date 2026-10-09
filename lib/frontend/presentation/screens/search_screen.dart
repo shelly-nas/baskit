@@ -11,16 +11,22 @@ import '../components/atoms/app_text.dart';
 import '../components/molecules/filter_pill.dart';
 import '../components/molecules/search_field.dart';
 import '../components/organisms/offer_card.dart';
+import '../components/organisms/add_to_list_sheet.dart';
 import '../components/organisms/offer_details_sheet.dart';
+import '../controllers/shopping_list_controller.dart';
 
 /// Search engine over all current supermarket offers from the discount API.
 class SearchScreen extends StatefulWidget {
   final OfferSearchService service;
   final Duration debounce;
 
+  /// Enables "Add to list" on offers when set.
+  final ShoppingListController? listController;
+
   const SearchScreen({
     super.key,
     required this.service,
+    this.listController,
     this.debounce = const Duration(milliseconds: 350),
   });
 
@@ -172,6 +178,26 @@ class _SearchScreenState extends State<SearchScreen> {
         ? _query.copyWith(clearCategory: true)
         : _query.copyWith(category: category);
     _search();
+  }
+
+  Future<void> _openOffer(Offer offer) async {
+    final listController = widget.listController;
+    final addToList = await OfferDetailsSheet.show(
+      context,
+      offer,
+      canAddToList: listController != null,
+    );
+    if (!addToList || listController == null || !mounted) return;
+
+    final listName = await showAddToListSheet(
+      context,
+      controller: listController,
+      offer: offer,
+    );
+    if (listName == null || !mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text('Added to $listName')));
   }
 
   void _selectSort(OfferSort sort) {
@@ -396,10 +422,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: DesignTokens.spaceMedium),
           itemBuilder: (context, index) {
             final offer = _offers[index];
-            return OfferCard(
-              offer: offer,
-              onTap: () => OfferDetailsSheet.show(context, offer),
-            );
+            return OfferCard(offer: offer, onTap: () => _openOffer(offer));
           },
         ),
       ),

@@ -51,6 +51,14 @@ class ShoppingList {
     return grouped;
   }
 
+  /// Items that are linked to a supermarket offer
+  List<ListItem> get offerItems =>
+      items.where((item) => item.offer != null).toList();
+
+  /// Sum of the offer prices of all items that are linked to an offer
+  double get offerTotal =>
+      offerItems.fold(0.0, (sum, item) => sum + item.offer!.price);
+
   /// Get uncompleted items
   List<ListItem> get uncompletedItems =>
       items.where((item) => !item.isCompleted).toList();
@@ -91,6 +99,9 @@ class ListItem {
   final bool isCompleted;
   final DateTime createdAt;
 
+  /// The supermarket offer this item was added from, if any.
+  final ListItemOffer? offer;
+
   ListItem({
     required this.id,
     required this.name,
@@ -98,6 +109,7 @@ class ListItem {
     this.category,
     this.isCompleted = false,
     required this.createdAt,
+    this.offer,
   });
 
   /// Create a copy with updated fields
@@ -108,6 +120,8 @@ class ListItem {
     String? category,
     bool? isCompleted,
     DateTime? createdAt,
+    ListItemOffer? offer,
+    bool clearOffer = false,
   }) {
     return ListItem(
       id: id ?? this.id,
@@ -116,6 +130,7 @@ class ListItem {
       category: category ?? this.category,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
+      offer: clearOffer ? null : (offer ?? this.offer),
     );
   }
 
@@ -123,4 +138,28 @@ class ListItem {
   ListItem toggleCompleted() {
     return copyWith(isCompleted: !isCompleted);
   }
+}
+
+/// Snapshot of a supermarket offer stored on a list item, so the list still
+/// shows where and for how much an item was on offer when the offer is gone.
+class ListItemOffer {
+  final int productId;
+  final String supermarketKey;
+  final String supermarketName;
+  final double price;
+  final double? originalPrice;
+  final String? specialDiscount;
+  final DateTime expireDate;
+
+  const ListItemOffer({
+    required this.productId,
+    required this.supermarketKey,
+    required this.supermarketName,
+    required this.price,
+    this.originalPrice,
+    this.specialDiscount,
+    required this.expireDate,
+  });
+
+  bool isExpired([DateTime? now]) => expireDate.isBefore(now ?? DateTime.now());
 }

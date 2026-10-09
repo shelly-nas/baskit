@@ -1,3 +1,4 @@
+import '../database/data_sources/key_value_store.dart';
 import '../database/data_sources/shopping_list_data_source.dart';
 import '../database/repositories/shopping_list_repository.dart';
 import '../backend/use_cases/shopping_list_use_cases.dart';
@@ -38,9 +39,13 @@ class DependencyInjection {
   late final OfferSearchService _offerSearchService;
 
   /// Initialize all dependencies
-  void initialize() {
+  ///
+  /// [store] defaults to device storage; tests pass an [InMemoryStore].
+  void initialize({KeyValueStore? store}) {
     // Initialize data layer
-    _dataSource = LocalShoppingListDataSource();
+    _dataSource = LocalShoppingListDataSource(
+      store ?? SharedPreferencesStore(),
+    );
     _repository = ShoppingListRepository(_dataSource);
 
     // Initialize use cases

@@ -51,6 +51,7 @@ class ListItemMapper {
       category: entity.category,
       isCompleted: entity.isCompleted,
       createdAt: entity.createdAt,
+      offer: entity.offer == null ? null : offerFromJson(entity.offer!),
     );
   }
 
@@ -63,6 +64,31 @@ class ListItemMapper {
       category: domain.category,
       isCompleted: domain.isCompleted,
       createdAt: domain.createdAt,
+      offer: domain.offer == null ? null : offerToJson(domain.offer!),
     );
+  }
+
+  static ListItemOffer offerFromJson(Map<String, dynamic> json) {
+    return ListItemOffer(
+      productId: (json['product_id'] as num).toInt(),
+      supermarketKey: json['supermarket_key'] as String,
+      supermarketName: json['supermarket_name'] as String,
+      price: (json['price'] as num).toDouble(),
+      originalPrice: (json['original_price'] as num?)?.toDouble(),
+      specialDiscount: json['special_discount'] as String?,
+      expireDate: DateTime.parse(json['expire_date'] as String),
+    );
+  }
+
+  static Map<String, dynamic> offerToJson(ListItemOffer offer) {
+    return {
+      'product_id': offer.productId,
+      'supermarket_key': offer.supermarketKey,
+      'supermarket_name': offer.supermarketName,
+      'price': offer.price,
+      'original_price': offer.originalPrice,
+      'special_discount': offer.specialDiscount,
+      'expire_date': offer.expireDate.toUtc().toIso8601String(),
+    };
   }
 }

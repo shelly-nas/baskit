@@ -54,7 +54,7 @@ class ShoppingListService {
       throw ServiceException('List name cannot be empty');
     }
     return await _createListUseCase.execute(
-      name: name,
+      name: name.trim(),
       description: description,
       isShared: isShared,
     );
@@ -79,15 +79,17 @@ class ShoppingListService {
     required String name,
     String? quantity,
     String? category,
+    ListItemOffer? offer,
   }) async {
     if (name.trim().isEmpty) {
       throw ServiceException('Item name cannot be empty');
     }
     return await _addItemUseCase.execute(
       listId: listId,
-      name: name,
+      name: name.trim(),
       quantity: quantity,
       category: category,
+      offer: offer,
     );
   }
 

@@ -12,10 +12,23 @@ import '../atoms/app_text.dart';
 class OfferDetailsSheet extends StatelessWidget {
   final Offer offer;
 
-  const OfferDetailsSheet({super.key, required this.offer});
+  /// Shows an "Add to list" button when set. The sheet closes first and
+  /// [show] then completes with true, so the caller can open the list picker.
+  final bool canAddToList;
 
-  static Future<void> show(BuildContext context, Offer offer) {
-    return showModalBottomSheet<void>(
+  const OfferDetailsSheet({
+    super.key,
+    required this.offer,
+    this.canAddToList = false,
+  });
+
+  /// Returns true when the user chose "Add to list".
+  static Future<bool> show(
+    BuildContext context,
+    Offer offer, {
+    bool canAddToList = false,
+  }) async {
+    final addToList = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.card,
@@ -25,8 +38,10 @@ class OfferDetailsSheet extends StatelessWidget {
           top: Radius.circular(DesignTokens.radiusXLarge),
         ),
       ),
-      builder: (_) => OfferDetailsSheet(offer: offer),
+      builder: (_) =>
+          OfferDetailsSheet(offer: offer, canAddToList: canAddToList),
     );
+    return addToList ?? false;
   }
 
   @override
@@ -75,14 +90,31 @@ class OfferDetailsSheet extends StatelessWidget {
               ),
               const AppDivider(color: AppColors.border),
             ],
-            if (offer.productUrl != null) ...[
+            if (canAddToList) ...[
               const SizedBox(height: DesignTokens.space2XLarge),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
+                  icon: const Icon(CupertinoIcons.add),
+                  label: const Text('Add to list'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: DesignTokens.spaceXLarge,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(true),
+                ),
+              ),
+            ],
+            if (offer.productUrl != null) ...[
+              const SizedBox(height: DesignTokens.spaceLarge),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
                   icon: const Icon(CupertinoIcons.arrow_up_right_square),
                   label: Text('View at ${offer.supermarket.name}'),
-                  style: ElevatedButton.styleFrom(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.foreground,
                     padding: const EdgeInsets.symmetric(
                       vertical: DesignTokens.spaceXLarge,
                     ),
