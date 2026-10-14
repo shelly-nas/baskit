@@ -41,5 +41,7 @@ jobs:
       db_user: baskit
       db_name: baskit
       init_sql: database/init.sql
-      seed_sql: ''
+      # The acc demo data: must apply to init.sql and be a no-op the second time.
+      seed_sql: database/seed-demo.sql
+      seed_check_table: users
       migrations_directory: server/migrations

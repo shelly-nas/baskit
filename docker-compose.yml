@@ -17,6 +17,9 @@ services:
       - "5434:5432"
     volumes:
       - baskit_db:/var/lib/postgresql/data
+      # Demo accounts and lists (password: baskit-demo) on a fresh volume.
+      # Never part of the database image, so never in production.
+      - ./database/seed-demo.sql:/docker-entrypoint-initdb.d/02-seed-demo.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-baskit} -d ${DB_NAME:-baskit}"]
       interval: 10s

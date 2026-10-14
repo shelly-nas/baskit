@@ -63,7 +63,7 @@ database/            init.sql (first schema) and the database image
 
    ```bash
    cp .env.example .env    # set ADMIN_EMAILS to your email to become admin
-   docker compose up --build -d db server
+   docker compose up --build -d db server   # a fresh volume gets the demo accounts (password baskit-demo)
    ```
 
 3. Run the app against both:
@@ -109,6 +109,13 @@ The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. ng
 
 - `.github/workflows/ci.yml`: `flutter analyze` and `flutter test`, plus the shared shelly-nas
   Node + Postgres CI for `server/` (typecheck, `database/init.sql`, migrations twice, server tests).
+- `.github/workflows/acc.yml` deploys every pull request to the acceptance environment
+  `baskit-acc.shelly-nas.nl` (`docker-compose.acc.yml`, `/volume1/docker/baskit-acc`) with images
+  tagged `acc-<commit>`. Its database is rebuilt on every deploy from `database/init.sql` plus the
+  demo data in `database/seed-demo.sql`, and torn down when the pull request closes. Demo
+  accounts: `admin@baskit.demo` (admin), `anna@baskit.demo`, `bram@baskit.demo` (shares a list with
+  Anna), `cees@baskit.demo` (disabled); password `baskit-demo`. Production never gets demo data:
+  the database image only contains `init.sql`, and its data directory is persistent.
 - `.github/workflows/deploy.yml` runs on every push to `main`: builds `baskit-web`, `baskit-server`
   and `baskit-db` on the NAS runner, pushes them and redeploys `docker-compose.prod.yml` into
   `/volume1/docker/baskit`.
@@ -122,6 +129,7 @@ Required repository settings (Settings, Secrets and variables, Actions):
 | `DB_PASSWORD` | secret | Baskit database password |
 | `JWT_SECRET` | secret | 32+ random characters |
 | `ADMIN_EMAILS` | variable | admin account emails |
+| `JWT_SECRET_ACC` | secret, optional | separate token secret for acc (falls back to `JWT_SECRET`) |
 | `DB_NAME`, `DB_USER`, `TZ` | variables, optional | default `baskit`, `baskit`, `Europe/Amsterdam` |
 
 On the NAS, `/volume1/docker/baskit/data/postgres` must exist and be owned by uid 70. The

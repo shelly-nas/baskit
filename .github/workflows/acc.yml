@@ -1,0 +1,110 @@
+name: Deploy to Acceptance
+
+# Every pull request to main is built and deployed to baskit-acc.shelly-nas.nl,
+# so the change can be tried in the running app before it is merged. There is
+# one acc environment: the last pull request pushed is the one on it. "Run
+# workflow" redeploys any branch by hand.
+#
+# Acc gets a fresh database on every deploy - database/init.sql plus the demo
+# accounts and lists from database/seed-demo.sql - and never production data.
+# Production keeps its own persistent database; nothing here touches it.
+#
+# When the pull request is merged or closed, acc is torn down - but only if it
+# still runs that pull request.
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, closed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push supersedes a deploy in progress; acc only ever shows one branch.
+# A teardown never cancels a deploy: it waits its turn.
+concurrency:
+  group: acc-deploy
+  cancel-in-progress: ${{ github.event.action != 'closed' }}
+
+jobs:
+  prepare:
+    name: Decide whether to deploy
+    runs-on: ubuntu-latest
+    # Pull requests from forks never reach the self-hosted runner.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.action != 'closed' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - id: tag
+        run: echo "tag=acc-${{ github.event.pull_request.head.sha || github.sha }}" >> "$GITHUB_OUTPUT"
+
+  build-web:
+    name: Build and Push Web
+    needs: prepare
+    uses: shelly-nas/shared-workflows/.github/workflows/build-push-image.yml@main
+    with:
+      registry: ${{ vars.REGISTRY_URL }}
+      image_tag: ${{ vars.REGISTRY_URL }}/baskit-web:${{ needs.prepare.outputs.tag }}
+      context: .
+    secrets:
+      registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+
+  build-server:
+    name: Build and Push Server
+    needs: prepare
+    uses: shelly-nas/shared-workflows/.github/workflows/build-push-image.yml@main
+    with:
+      registry: ${{ vars.REGISTRY_URL }}
+      image_tag: ${{ vars.REGISTRY_URL }}/baskit-server:${{ needs.prepare.outputs.tag }}
+      context: ./server
+    secrets:
+      registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+
+  build-db:
+    name: Build and Push Database
+    needs: prepare
+    uses: shelly-nas/shared-workflows/.github/workflows/build-push-image.yml@main
+    with:
+      registry: ${{ vars.REGISTRY_URL }}
+      image_tag: ${{ vars.REGISTRY_URL }}/baskit-db:${{ needs.prepare.outputs.tag }}
+      context: ./database
+    secrets:
+      registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+
+  deploy-acc:
+    name: Deploy to Acceptance
+    needs: [prepare, build-web, build-server, build-db]
+    uses: shelly-nas/shared-workflows/.github/workflows/deploy-acceptance.yml@main
+    with:
+      registry: ${{ vars.REGISTRY_URL }}
+      deploy_directory: /volume1/docker/baskit-acc
+      compose_file: docker-compose.acc.yml
+      image_tag: ${{ needs.prepare.outputs.tag }}
+      demo_seed_file: database/seed-demo.sql
+    secrets:
+      registry_username: ${{ vars.REGISTRY_USERNAME }}
+      registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+      # Acc has its own JWT secret when JWT_SECRET_ACC is set, so an acc
+      # sign-in can never be valid on production.
+      env_file_content: |
+        DB_NAME=${{ vars.DB_NAME || 'baskit' }}
+        DB_USER=${{ vars.DB_USER || 'baskit' }}
+        DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+        JWT_SECRET=${{ secrets.JWT_SECRET_ACC || secrets.JWT_SECRET }}
+        ADMIN_EMAILS=admin@baskit.demo
+        TZ=${{ vars.TZ || 'Europe/Amsterdam' }}
+
+  teardown-acc:
+    name: Tear down acc
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: shelly-nas/shared-workflows/.github/workflows/teardown-acceptance.yml@main
+    with:
+      acc_directory: /volume1/docker/baskit-acc
+      commit: ${{ github.event.pull_request.head.sha }}

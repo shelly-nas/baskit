@@ -1,0 +1,81 @@
+# Acceptance stack: baskit-acc.shelly-nas.nl.
+#
+# Deployed by .github/workflows/acc.yml for every pull request, next to
+# production but separate from it: its own directory (/volume1/docker/
+# baskit-acc), container names, Traefik router and database. The last pull
+# request deployed wins.
+#
+# The images are the ones production would get, tagged acc-<commit>. The
+# database is rebuilt on every deploy: an empty data directory runs init.sql
+# from the image, then the workflow loads database/seed-demo.sql (demo
+# accounts and lists). No production data reaches acc. Discounts come from the
+# production discount-scraper API, which is read-only.
+#
+# Keep this file in step with docker-compose.prod.yml; the only differences
+# should be names, host and this header.
+services:
+  db:
+    image: ${REGISTRY}/baskit-db:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: baskit-acc-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-baskit}
+      POSTGRES_USER: ${DB_USER:-baskit}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      # Emptied by the acc deploy on every run. Owned by uid 70.
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-baskit} -d ${DB_NAME:-baskit}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  server:
+    image: ${REGISTRY}/baskit-server:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: baskit-acc-server
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-baskit}
+      DB_USER: ${DB_USER:-baskit}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SERVER_PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      TZ: ${TZ:-Europe/Amsterdam}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  web:
+    image: ${REGISTRY}/baskit-web:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: baskit-acc-web
+    restart: always
+    environment:
+      DISCOUNT_API_UPSTREAM: ${DISCOUNT_API_UPSTREAM:-http://discount-scraper-api:3001}
+      BASKIT_API_UPSTREAM: http://server:3000
+    depends_on:
+      - server
+    networks:
+      - shelly-network
+      - default
+    labels:
+      - "traefik.enable=true"
+      # Two networks: tell Traefik which one to use, or it may answer 504.
+      - "traefik.docker.network=shelly-network"
+      - "traefik.http.routers.baskit-acc.rule=Host(`baskit-acc.shelly-nas.nl`)"
+      - "traefik.http.routers.baskit-acc.entrypoints=web"
+      - "traefik.http.services.baskit-acc.loadbalancer.server.port=80"
+
+networks:
+  shelly-network:
+    external: true

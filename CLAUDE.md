@@ -71,7 +71,11 @@ Postgres (`helpers.resetDatabase` applies `database/init.sql` + migrations and t
 
 CI (`.github/workflows/ci.yml`): `flutter analyze` (must be clean, infos included) and `flutter test`
 with Flutter 3.44.0 (same as the Dockerfile build image), and the shared `ci-node-postgres.yml` for
-`server/`. Deploy (`.github/workflows/deploy.yml`): every push to `main` builds `baskit-web`,
+`server/` (which also applies `database/seed-demo.sql` twice to check it is idempotent). Acc
+(`.github/workflows/acc.yml`): every pull request is deployed to `baskit-acc.shelly-nas.nl`
+(`docker-compose.acc.yml`) with a fresh database: `init.sql` + `database/seed-demo.sql` (demo
+accounts, password `baskit-demo`; guarded no-op when accounts exist; never in the db image, so never
+in production). Deploy (`.github/workflows/deploy.yml`): every push to `main` builds `baskit-web`,
 `baskit-server`, `baskit-db` and deploys via `shelly-nas/shared-workflows`. Commit messages follow
 Conventional Commits.
 
