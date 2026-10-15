@@ -97,6 +97,7 @@ jobs:
         DB_PASSWORD=${{ secrets.DB_PASSWORD }}
         JWT_SECRET=${{ secrets.JWT_SECRET_ACC || secrets.JWT_SECRET }}
         ADMIN_EMAILS=admin@baskit.demo
+        DISCOUNT_API_UPSTREAM=${{ vars.DISCOUNT_API_UPSTREAM_ACC || 'http://discount-scraper-acc-api:3001' }}
         TZ=${{ vars.TZ || 'Europe/Amsterdam' }}
 
   teardown-acc:

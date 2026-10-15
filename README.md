@@ -114,7 +114,8 @@ The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. ng
   tagged `acc-<commit>`. Its database is rebuilt on every deploy from `database/init.sql` plus the
   demo data in `database/seed-demo.sql`, and torn down when the pull request closes. Demo
   accounts: `admin@baskit.demo` (admin), `anna@baskit.demo`, `bram@baskit.demo` (shares a list with
-  Anna), `cees@baskit.demo` (disabled); password `baskit-demo`. Production never gets demo data:
+  Anna), `cees@baskit.demo` (disabled); password `baskit-demo`. Offers come from the discount-scraper acc stack (`discount-scraper-acc-api`, override with the
+  variable `DISCOUNT_API_UPSTREAM_ACC`). Production never gets demo data:
   the database image only contains `init.sql`, and its data directory is persistent.
 - `.github/workflows/deploy.yml` runs on every push to `main`: builds `baskit-web`, `baskit-server`
   and `baskit-db` on the NAS runner, pushes them and redeploys `docker-compose.prod.yml` into
