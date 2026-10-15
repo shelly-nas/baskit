@@ -89,13 +89,13 @@ jobs:
     secrets:
       registry_username: ${{ vars.REGISTRY_USERNAME }}
       registry_password: ${{ secrets.REGISTRY_PASSWORD }}
-      # Acc has its own JWT secret when JWT_SECRET_ACC is set, so an acc
+      # Acc has its own token secret when JWT_TOKEN_ACC is set, so an acc
       # sign-in can never be valid on production.
       env_file_content: |
         DB_NAME=${{ vars.DB_NAME || 'baskit' }}
         DB_USER=${{ vars.DB_USER || 'baskit' }}
         DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-        JWT_SECRET=${{ secrets.JWT_SECRET_ACC || secrets.JWT_SECRET }}
+        JWT_SECRET=${{ secrets.JWT_TOKEN_ACC || vars.JWT_TOKEN_ACC || secrets.JWT_TOKEN || vars.JWT_TOKEN }}
         ADMIN_EMAILS=admin@baskit.demo
         DISCOUNT_API_UPSTREAM=${{ vars.DISCOUNT_API_UPSTREAM_ACC || 'http://discount-scraper-acc-api:3001' }}
         TZ=${{ vars.TZ || 'Europe/Amsterdam' }}

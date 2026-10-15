@@ -128,9 +128,9 @@ Required repository settings (Settings, Secrets and variables, Actions):
 | `REGISTRY_URL`, `REGISTRY_USERNAME` | variables | NAS registry |
 | `REGISTRY_PASSWORD` | secret | registry password |
 | `DB_PASSWORD` | secret | Baskit database password |
-| `JWT_SECRET` | secret | 32+ random characters |
+| `JWT_TOKEN` | secret | 32+ random characters; passed to the server as `JWT_SECRET` |
 | `ADMIN_EMAILS` | variable | admin account emails |
-| `JWT_SECRET_ACC` | secret, optional | separate token secret for acc (falls back to `JWT_SECRET`) |
+| `JWT_TOKEN_ACC` | secret, optional | separate token secret for acc (falls back to `JWT_TOKEN`) |
 | `DB_NAME`, `DB_USER`, `TZ` | variables, optional | default `baskit`, `baskit`, `Europe/Amsterdam` |
 
 On the NAS, `/volume1/docker/baskit/data/postgres` must exist and be owned by uid 70. The

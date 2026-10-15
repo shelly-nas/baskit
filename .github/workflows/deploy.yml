@@ -58,6 +58,6 @@ jobs:
         DB_NAME=${{ vars.DB_NAME || 'baskit' }}
         DB_USER=${{ vars.DB_USER || 'baskit' }}
         DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-        JWT_SECRET=${{ secrets.JWT_SECRET }}
+        JWT_SECRET=${{ secrets.JWT_TOKEN || vars.JWT_TOKEN }}
         ADMIN_EMAILS=${{ vars.ADMIN_EMAILS }}
         TZ=${{ vars.TZ || 'Europe/Amsterdam' }}
