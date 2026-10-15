@@ -80,7 +80,9 @@ in production). Deploy (`.github/workflows/deploy.yml`): every push to `main` bu
 Conventional Commits.
 
 `Dockerfile` (Flutter build + nginx), `deploy/nginx.conf.template` (`/api/discounts/` to
-`${DISCOUNT_API_UPSTREAM}/api/public/v1/`, `/api/` to `${BASKIT_API_UPSTREAM}/api/`),
+`${DISCOUNT_API_UPSTREAM}/api/public/v1/`, resolved per request through Docker DNS so the web container
+starts while the discount-scraper is down; `deploy/05-discount-upstream.envsh` swaps an `/etc/hosts`-only
+host such as `host.docker.internal` for its IP, `/api/` to `${BASKIT_API_UPSTREAM}/api/`),
 `server/Dockerfile`, `database/Dockerfile`, `docker-compose.yml` (dev: db, server, web) and
 `docker-compose.prod.yml` (NAS: db bind mount `./data/postgres`, `shelly-network`, Traefik host
 `baskit.shelly-nas.nl`).

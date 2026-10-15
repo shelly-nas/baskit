@@ -27,6 +27,7 @@ ENV DISCOUNT_API_UPSTREAM=http://discount-scraper-api:3001
 ENV BASKIT_API_UPSTREAM=http://server:3000
 
 COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY --chmod=755 deploy/05-discount-upstream.envsh /docker-entrypoint.d/05-discount-upstream.envsh
 COPY --from=build /app/build/web /usr/share/nginx/html
 
 EXPOSE 80

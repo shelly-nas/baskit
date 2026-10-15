@@ -1,0 +1,16 @@
+#!/bin/sh
+# Sourced by the nginx image entrypoint before the templates are rendered.
+#
+# nginx resolves the discount API per request through Docker's DNS (see the
+# /api/discounts/ location), so the web container keeps running while the
+# discount-scraper stack is down or redeploying. Docker's DNS does not know
+# names that only exist in /etc/hosts (extra_hosts such as
+# host.docker.internal in local development), so such a host is replaced by
+# its address here.
+discount_host=$(echo "$DISCOUNT_API_UPSTREAM" | sed -E 's#^[a-zA-Z]+://([^:/]+).*#\1#')
+discount_ip=$(awk -v h="$discount_host" '$1 !~ /^#/ { for (i = 2; i <= NF; i++) if ($i == h) { print $1; exit } }' /etc/hosts)
+if [ -n "$discount_ip" ]; then
+  DISCOUNT_API_UPSTREAM=$(echo "$DISCOUNT_API_UPSTREAM" | sed "s#//$discount_host#//$discount_ip#")
+  export DISCOUNT_API_UPSTREAM
+  echo "05-discount-upstream.envsh: using $DISCOUNT_API_UPSTREAM (from /etc/hosts)"
+fi
