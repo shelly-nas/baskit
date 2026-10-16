@@ -9,6 +9,15 @@ class ShoppingListEntity {
   final DateTime updatedAt;
   final List<ListItemEntity> items;
 
+  /// Server lists only: 'owner' or 'editor' for the signed-in user.
+  final String? role;
+
+  /// Server lists only: {id, display_name, email}.
+  final Map<String, dynamic>? owner;
+
+  /// Server lists only: people the list is shared with.
+  final List<Map<String, dynamic>> members;
+
   ShoppingListEntity({
     required this.id,
     required this.name,
@@ -17,6 +26,9 @@ class ShoppingListEntity {
     required this.createdAt,
     required this.updatedAt,
     required this.items,
+    this.role,
+    this.owner,
+    this.members = const [],
   });
 
   /// Convert from JSON (e.g., from API or local database)
@@ -25,7 +37,7 @@ class ShoppingListEntity {
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
-      isShared: json['is_shared'] as bool,
+      isShared: json['is_shared'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       items:
@@ -35,6 +47,13 @@ class ShoppingListEntity {
               )
               .toList() ??
           [],
+      role: json['role'] as String?,
+      owner: json['owner'] as Map<String, dynamic>?,
+      members:
+          (json['members'] as List<dynamic>?)
+              ?.cast<Map<String, dynamic>>()
+              .toList() ??
+          const [],
     );
   }
 
@@ -48,6 +67,9 @@ class ShoppingListEntity {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'items': items.map((item) => item.toJson()).toList(),
+      if (role != null) 'role': role,
+      if (owner != null) 'owner': owner,
+      if (members.isNotEmpty) 'members': members,
     };
   }
 
@@ -69,6 +91,9 @@ class ShoppingListEntity {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       items: items ?? this.items,
+      role: role,
+      owner: owner,
+      members: members,
     );
   }
 }
@@ -83,6 +108,9 @@ class ListItemEntity {
   final bool isCompleted;
   final DateTime createdAt;
 
+  /// Offer snapshot as stored JSON (see ListItemOffer); null for plain items.
+  final Map<String, dynamic>? offer;
+
   ListItemEntity({
     required this.id,
     required this.name,
@@ -90,6 +118,7 @@ class ListItemEntity {
     this.category,
     this.isCompleted = false,
     required this.createdAt,
+    this.offer,
   });
 
   /// Convert from JSON
@@ -101,6 +130,7 @@ class ListItemEntity {
       category: json['category'] as String?,
       isCompleted: json['is_completed'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
+      offer: json['offer'] as Map<String, dynamic>?,
     );
   }
 
@@ -113,6 +143,7 @@ class ListItemEntity {
       'category': category,
       'is_completed': isCompleted,
       'created_at': createdAt.toIso8601String(),
+      'offer': offer,
     };
   }
 
@@ -124,6 +155,7 @@ class ListItemEntity {
     String? category,
     bool? isCompleted,
     DateTime? createdAt,
+    Map<String, dynamic>? offer,
   }) {
     return ListItemEntity(
       id: id ?? this.id,
@@ -132,6 +164,7 @@ class ListItemEntity {
       category: category ?? this.category,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
+      offer: offer ?? this.offer,
     );
   }
 }

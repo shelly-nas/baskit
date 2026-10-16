@@ -50,3 +50,8 @@ ios/
 /ios/Pods/
 /ios/Runner.xcworkspace/xcuserdata/
 /ios/Runner.xcodeproj/xcuserdata/
+
+# Baskit server
+server/node_modules/
+server/dist/
+server/.env

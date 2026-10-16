@@ -1,5 +1,11 @@
+import 'package:uuid/uuid.dart';
+
 import '../models/shopping_list.dart';
 import '../../database/repositories/shopping_list_repository.dart';
+
+// Client generated UUIDs, so lists created offline can later be synced to the
+// Baskit server without renumbering.
+const _uuid = Uuid();
 
 /// Use case for retrieving all shopping lists
 class GetAllListsUseCase {
@@ -36,8 +42,7 @@ class CreateListUseCase {
   }) async {
     final now = DateTime.now();
     final newList = ShoppingList(
-      id: DateTime.now().millisecondsSinceEpoch
-          .toString(), // Simple ID generation
+      id: _uuid.v4(),
       name: name,
       description: description,
       isShared: isShared,
@@ -84,14 +89,16 @@ class AddItemUseCase {
     required String name,
     String? quantity,
     String? category,
+    ListItemOffer? offer,
   }) async {
     final newItem = ListItem(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: _uuid.v4(),
       name: name,
       quantity: quantity,
       category: category,
       isCompleted: false,
       createdAt: DateTime.now(),
+      offer: offer,
     );
 
     return await _repository.addItem(listId, newItem);

@@ -1,0 +1,74 @@
+# Production: Baskit on the NAS next to the supermarket-scraper stack.
+#
+# The schema is created by database/init.sql on the first start of an empty
+# data directory; later changes come from server/migrations, applied by the
+# server on startup. The supermarket-scraper API joins shelly-network, so nginx
+# can reach it by container name.
+services:
+  db:
+    image: ${REGISTRY}/baskit-db:${IMAGE_TAG:-latest}
+    container_name: baskit-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-baskit}
+      POSTGRES_USER: ${DB_USER:-baskit}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required in production}
+    volumes:
+      # Bind mount: survives `docker compose down -v`. Must be owned by uid 70.
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-baskit} -d ${DB_NAME:-baskit}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  server:
+    image: ${REGISTRY}/baskit-server:${IMAGE_TAG:-latest}
+    container_name: baskit-server
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-baskit}
+      DB_USER: ${DB_USER:-baskit}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SERVER_PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required in production}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      TZ: ${TZ:-Europe/Amsterdam}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  web:
+    image: ${REGISTRY}/baskit-web:${IMAGE_TAG:-latest}
+    container_name: baskit-web
+    restart: always
+    environment:
+      DISCOUNT_API_UPSTREAM: ${DISCOUNT_API_UPSTREAM:-http://supermarket-scraper-api:3001}
+      BASKIT_API_UPSTREAM: http://server:3000
+    depends_on:
+      - server
+    ports:
+      - "8091:80"
+    networks:
+      - shelly-network
+      - default
+    labels:
+      - "traefik.enable=true"
+      # Two networks: tell Traefik which one to use, or it may answer 504.
+      - "traefik.docker.network=shelly-network"
+      - "traefik.http.routers.baskit.rule=Host(`baskit.shelly-nas.nl`)"
+      - "traefik.http.routers.baskit.entrypoints=web"
+      - "traefik.http.services.baskit.loadbalancer.server.port=80"
+
+networks:
+  shelly-network:
+    external: true

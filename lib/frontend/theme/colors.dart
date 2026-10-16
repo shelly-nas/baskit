@@ -33,4 +33,32 @@ class AppColors {
   static const Color secondaryBackground = Color(0xFFF7F6F3);
   static const Color hover = Color(0xFFF1F1EF);
   static const Color subtle = Color(0xFFEDECE8);
+
+  // Offers
+  static const Color success = Color(0xFF0F7B6C);
+  static const Color successBackground = Color(0xFFDDEDEA);
+  static const Color warning = Color(0xFFD9730D);
+  static const Color warningBackground = Color(0xFFFAEBDD);
+
+  /// Brand accent per supermarket key (as returned by the discount API).
+  static Color supermarket(String key) {
+    switch (key) {
+      case 'albert-heijn':
+        return const Color(0xFF00A0E2);
+      case 'aldi':
+        return const Color(0xFF1E3B8B);
+      case 'dirk':
+        return const Color(0xFFE30613);
+      case 'hoogvliet':
+        return const Color(0xFF0067B1);
+      case 'jumbo':
+        return const Color(0xFFEEB717);
+      case 'lidl':
+        return const Color(0xFF0050AA);
+      case 'plus':
+        return const Color(0xFF6FAE2E);
+      default:
+        return mutedForeground;
+    }
+  }
 }

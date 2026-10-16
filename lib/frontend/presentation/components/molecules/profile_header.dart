@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../atoms/app_avatar.dart';
