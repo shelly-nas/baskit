@@ -5,7 +5,7 @@
 -- the server applies on startup.
 --
 -- Supermarket products and prices are not stored here: they come from the
--- discount-scraper public API.
+-- supermarket-scraper public API.
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

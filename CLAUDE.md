@@ -27,7 +27,7 @@ npm test                               # needs DB_* env of a test database (it i
 ## Architecture
 
 - Two backends, neither database is read by the app directly:
-  - **discount-scraper** (`shelly-nas/discount-scraper`): offers, catalog prices and list price
+  - **supermarket-scraper** (`shelly-nas/supermarket-scraper`): offers, catalog prices and list price
     comparison through its read-only public API `/api/public/v1` (`/supermarkets`, `/categories`,
     `/search`, `/products/:id`, `POST /compare`). If data is missing, extend that API first.
   - **Baskit server** (`server/`): accounts, synced lists and sharing under `/api`.
@@ -81,7 +81,7 @@ Conventional Commits.
 
 `Dockerfile` (Flutter build + nginx), `deploy/nginx.conf.template` (`/api/discounts/` to
 `${DISCOUNT_API_UPSTREAM}/api/public/v1/`, resolved per request through Docker DNS so the web container
-starts while the discount-scraper is down; `deploy/05-discount-upstream.envsh` swaps an `/etc/hosts`-only
+starts while the supermarket-scraper is down; `deploy/05-discount-upstream.envsh` swaps an `/etc/hosts`-only
 host such as `host.docker.internal` for its IP, `/api/` to `${BASKIT_API_UPSTREAM}/api/`),
 `server/Dockerfile`, `database/Dockerfile`, `docker-compose.yml` (dev: db, server, web) and
 `docker-compose.prod.yml` (NAS: db bind mount `./data/postgres`, `shelly-network`, Traefik host

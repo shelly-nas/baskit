@@ -12,11 +12,11 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
 
-    # Discount data from the discount-scraper public API (read-only).
+    # Discount data from the supermarket-scraper public API (read-only).
     # Longer prefix than /api/, so it wins for /api/discounts/.
     location /api/discounts/ {
         # Resolved per request through Docker's DNS, not once at startup: the
-        # discount-scraper runs in another stack and may be (re)deploying, and
+        # supermarket-scraper runs in another stack and may be (re)deploying, and
         # nginx would otherwise refuse to start while it is unreachable.
         resolver 127.0.0.11 valid=10s ipv6=off;
         set $discount_api ${DISCOUNT_API_UPSTREAM};

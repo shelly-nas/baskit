@@ -6,14 +6,14 @@ It is a Flutter app (web first, also built for iOS and Android) with a Notion st
 ## How it fits together
 
 ```
-supermarkets --> discount-scraper (scrapers + Postgres + admin UI)
+supermarkets --> supermarket-scraper (scrapers + Postgres + admin UI)
                         |
                         |  /api/public/v1   (read-only: offers, catalog, compare)
                         v
    Baskit web / mobile app  <-- /api -->  Baskit server (accounts, lists) --> Postgres
 ```
 
-- **[discount-scraper](https://github.com/shelly-nas/discount-scraper)** owns all supermarket
+- **[supermarket-scraper](https://github.com/shelly-nas/supermarket-scraper)** owns all supermarket
   data: weekly offers and the full catalog at regular prices, with its own management UI.
 - **Baskit server** (`server/`) owns accounts and synced, shared shopping lists.
 - **Baskit app** (`lib/`) talks to both. It never reads either database directly.
@@ -53,10 +53,10 @@ database/            init.sql (first schema) and the database image
 
 ## Running locally
 
-1. Start the discount-scraper stack (API on `http://localhost:3001`):
+1. Start the supermarket-scraper stack (API on `http://localhost:3001`):
 
    ```bash
-   cd ../discount-scraper && docker compose up --build -d
+   cd ../supermarket-scraper && docker compose up --build -d
    ```
 
 2. Start the Baskit server and database:
@@ -114,7 +114,7 @@ The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. ng
   tagged `acc-<commit>`. Its database is rebuilt on every deploy from `database/init.sql` plus the
   demo data in `database/seed-demo.sql`, and torn down when the pull request closes. Demo
   accounts: `admin@baskit.demo` (admin), `anna@baskit.demo`, `bram@baskit.demo` (shares a list with
-  Anna), `cees@baskit.demo` (disabled); password `baskit-demo`. Offers come from the discount-scraper acc stack (`discount-scraper-acc-api`, override with the
+  Anna), `cees@baskit.demo` (disabled); password `baskit-demo`. Offers come from the supermarket-scraper acc stack (`supermarket-scraper-acc-api`, override with the
   variable `DISCOUNT_API_UPSTREAM_ACC`). Production never gets demo data:
   the database image only contains `init.sql`, and its data directory is persistent.
 - `.github/workflows/deploy.yml` runs on every push to `main`: builds `baskit-web`, `baskit-server`
@@ -134,5 +134,5 @@ Required repository settings (Settings, Secrets and variables, Actions):
 | `DB_NAME`, `DB_USER`, `TZ` | variables, optional | default `baskit`, `baskit`, `Europe/Amsterdam` |
 
 On the NAS, `/volume1/docker/baskit/data/postgres` must exist and be owned by uid 70. The
-discount-scraper API must be deployed with its `shelly-network` change, otherwise nginx cannot
-resolve `discount-scraper-api`.
+supermarket-scraper API must be deployed with its `shelly-network` change, otherwise nginx cannot
+resolve `supermarket-scraper-api`.

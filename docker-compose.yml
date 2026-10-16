@@ -1,5 +1,5 @@
 # Local development: Baskit web on http://localhost:8080 with its server and
-# database. Discounts come from the discount-scraper project, which must run
+# database. Discounts come from the supermarket-scraper project, which must run
 # separately (its API on port 3001).
 #   cp .env.example .env
 #   docker compose up --build -d

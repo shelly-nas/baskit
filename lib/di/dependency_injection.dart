@@ -52,7 +52,7 @@ class AppDependencies {
   }) {
     final storage = store ?? SharedPreferencesStore();
 
-    // Offers and prices come from the discount-scraper public API.
+    // Offers and prices come from the supermarket-scraper public API.
     final offers =
         offerRepository ??
         ApiOfferRepository(

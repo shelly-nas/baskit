@@ -41,7 +41,7 @@ INSERT INTO list_members (list_id, user_id, added_at) VALUES
 
 -- Offer snapshots use the same JSON shape as the app (ListItemOffer). The
 -- product ids are illustrative; acc reads live offers from the production
--- discount-scraper API, so these may no longer exist there.
+-- supermarket-scraper API, so these may no longer exist there.
 INSERT INTO list_items (id, list_id, name, quantity, category, is_completed, offer, created_at) VALUES
   ('20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'Halfvolle melk 1L', '2', 'Zuivel', false,
    jsonb_build_object('product_id', 1, 'supermarket_key', 'dirk', 'supermarket_name', 'Dirk', 'price', 0.79,

@@ -6,7 +6,7 @@ import '../../backend/models/offer.dart';
 import '../../backend/models/price_comparison.dart';
 import '../models/offer_dto.dart';
 
-/// Remote data source for the discount-scraper public API.
+/// Remote data source for the supermarket-scraper public API.
 class DiscountApiDataSource {
   final Uri _baseUri;
   final http.Client _client;

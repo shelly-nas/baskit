@@ -1,7 +1,7 @@
 import '../../backend/models/offer.dart';
 import '../../backend/models/price_comparison.dart';
 
-/// JSON parsing for the discount-scraper public API (`/api/public/v1`).
+/// JSON parsing for the supermarket-scraper public API (`/api/public/v1`).
 class OfferDto {
   static Supermarket supermarketFromJson(Map<String, dynamic> json) {
     return Supermarket(

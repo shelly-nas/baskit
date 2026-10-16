@@ -3,7 +3,7 @@
 #
 # nginx resolves the discount API per request through Docker's DNS (see the
 # /api/discounts/ location), so the web container keeps running while the
-# discount-scraper stack is down or redeploying. Docker's DNS does not know
+# supermarket-scraper stack is down or redeploying. Docker's DNS does not know
 # names that only exist in /etc/hosts (extra_hosts such as
 # host.docker.internal in local development), so such a host is replaced by
 # its address here.

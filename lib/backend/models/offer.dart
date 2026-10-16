@@ -1,4 +1,4 @@
-// Domain models for supermarket offers coming from the discount-scraper API.
+// Domain models for supermarket offers coming from the supermarket-scraper API.
 
 class Supermarket {
   final String key;

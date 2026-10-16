@@ -9,7 +9,7 @@
 # database is rebuilt on every deploy: an empty data directory runs init.sql
 # from the image, then the workflow loads database/seed-demo.sql (demo
 # accounts and lists). No production data reaches acc. Discounts come from the
-# discount-scraper acc stack (discount-scraper-acc-api on shelly-network), so
+# supermarket-scraper acc stack (supermarket-scraper-acc-api on shelly-network), so
 # both apps can be tried together; set DISCOUNT_API_UPSTREAM (repository
 # variable DISCOUNT_API_UPSTREAM_ACC) to use production instead.
 #
@@ -63,7 +63,7 @@ services:
     container_name: baskit-acc-web
     restart: always
     environment:
-      DISCOUNT_API_UPSTREAM: ${DISCOUNT_API_UPSTREAM:-http://discount-scraper-acc-api:3001}
+      DISCOUNT_API_UPSTREAM: ${DISCOUNT_API_UPSTREAM:-http://supermarket-scraper-acc-api:3001}
       BASKIT_API_UPSTREAM: http://server:3000
     depends_on:
       - server

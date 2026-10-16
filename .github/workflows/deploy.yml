@@ -1,7 +1,7 @@
 name: Baskit Build, Push & Deploy
 
 # Every push to main builds the images on the NAS runner, pushes them to the
-# registry and redeploys the production stack (same flow as discount-scraper).
+# registry and redeploys the production stack (same flow as supermarket-scraper).
 on:
   push:
     branches:

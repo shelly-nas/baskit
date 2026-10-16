@@ -1,8 +1,8 @@
 /// Build-time configuration, set with `--dart-define`.
 ///
-/// DISCOUNT_API_URL points to the public API of the discount-scraper backend
+/// DISCOUNT_API_URL points to the public API of the supermarket-scraper backend
 /// (`/api/public/v1`). The default `/api/discounts` is a relative path that
-/// the Baskit nginx container proxies to the discount-scraper API, so the web
+/// the Baskit nginx container proxies to the supermarket-scraper API, so the web
 /// build works without CORS. Mobile builds and `flutter run -d chrome` need an
 /// absolute URL, e.g.
 /// `--dart-define=DISCOUNT_API_URL=http://localhost:3001/api/public/v1`.
