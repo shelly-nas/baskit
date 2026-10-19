@@ -9,6 +9,16 @@ class ShoppingList {
   final DateTime updatedAt;
   final List<ListItem> items;
 
+  /// Whether the signed-in user owns the list. Lists on the device (signed
+  /// out) are always owned.
+  final bool isOwner;
+
+  /// Owner of a synced list; null for lists on the device.
+  final ListPerson? owner;
+
+  /// People a synced list is shared with (not including the owner).
+  final List<ListPerson> members;
+
   ShoppingList({
     required this.id,
     required this.name,
@@ -17,6 +27,9 @@ class ShoppingList {
     required this.createdAt,
     required this.updatedAt,
     required this.items,
+    this.isOwner = true,
+    this.owner,
+    this.members = const [],
   });
 
   /// Get the total number of items
@@ -51,6 +64,14 @@ class ShoppingList {
     return grouped;
   }
 
+  /// Items that are linked to a supermarket offer
+  List<ListItem> get offerItems =>
+      items.where((item) => item.offer != null).toList();
+
+  /// Sum of the offer prices of all items that are linked to an offer
+  double get offerTotal =>
+      offerItems.fold(0.0, (sum, item) => sum + item.offer!.price);
+
   /// Get uncompleted items
   List<ListItem> get uncompletedItems =>
       items.where((item) => !item.isCompleted).toList();
@@ -77,6 +98,9 @@ class ShoppingList {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       items: items ?? this.items,
+      isOwner: isOwner,
+      owner: owner,
+      members: members,
     );
   }
 }
@@ -91,6 +115,9 @@ class ListItem {
   final bool isCompleted;
   final DateTime createdAt;
 
+  /// The supermarket offer this item was added from, if any.
+  final ListItemOffer? offer;
+
   ListItem({
     required this.id,
     required this.name,
@@ -98,6 +125,7 @@ class ListItem {
     this.category,
     this.isCompleted = false,
     required this.createdAt,
+    this.offer,
   });
 
   /// Create a copy with updated fields
@@ -108,6 +136,8 @@ class ListItem {
     String? category,
     bool? isCompleted,
     DateTime? createdAt,
+    ListItemOffer? offer,
+    bool clearOffer = false,
   }) {
     return ListItem(
       id: id ?? this.id,
@@ -116,6 +146,7 @@ class ListItem {
       category: category ?? this.category,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
+      offer: clearOffer ? null : (offer ?? this.offer),
     );
   }
 
@@ -123,4 +154,37 @@ class ListItem {
   ListItem toggleCompleted() {
     return copyWith(isCompleted: !isCompleted);
   }
+}
+
+/// Snapshot of a supermarket offer stored on a list item, so the list still
+/// shows where and for how much an item was on offer when the offer is gone.
+class ListItemOffer {
+  final int productId;
+  final String supermarketKey;
+  final String supermarketName;
+  final double price;
+  final double? originalPrice;
+  final String? specialDiscount;
+  final DateTime expireDate;
+
+  const ListItemOffer({
+    required this.productId,
+    required this.supermarketKey,
+    required this.supermarketName,
+    required this.price,
+    this.originalPrice,
+    this.specialDiscount,
+    required this.expireDate,
+  });
+
+  bool isExpired([DateTime? now]) => expireDate.isBefore(now ?? DateTime.now());
+}
+
+/// Someone a list belongs to or is shared with.
+class ListPerson {
+  final String id;
+  final String displayName;
+  final String? email;
+
+  const ListPerson({required this.id, required this.displayName, this.email});
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../../../backend/models/shopping_list.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
-import '../../models/shopping_list.dart';
+import '../../../utils/formatters.dart';
 import '../atoms/app_progress_bar.dart';
+import '../atoms/app_text.dart';
 import '../atoms/spacing.dart';
 import '../molecules/list_card_header.dart';
 import '../molecules/list_card_info.dart';
@@ -11,8 +13,14 @@ import '../molecules/list_card_info.dart';
 class ShoppingListCardComponent extends StatelessWidget {
   final ShoppingList list;
   final VoidCallback? onTap;
+  final Widget? trailing;
 
-  const ShoppingListCardComponent({super.key, required this.list, this.onTap});
+  const ShoppingListCardComponent({
+    super.key,
+    required this.list,
+    this.onTap,
+    this.trailing,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,18 +37,42 @@ class ShoppingListCardComponent extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap ?? () {},
+          onTap: onTap,
+          hoverColor: AppColors.hover,
           borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
           child: Padding(
             padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ListCardHeader(name: list.name, isShared: list.isShared),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ListCardHeader(
+                        name: list.name,
+                        isShared: list.isShared,
+                      ),
+                    ),
+                    if (trailing != null) trailing!,
+                  ],
+                ),
                 const VerticalSpace(DesignTokens.spaceSmall),
-                ListCardInfo(
-                  completedItems: list.completedItems,
-                  totalItems: list.itemCount,
+                Row(
+                  children: [
+                    Expanded(
+                      child: ListCardInfo(
+                        completedItems: list.completedItemsCount,
+                        totalItems: list.itemCount,
+                      ),
+                    ),
+                    if (list.offerItems.isNotEmpty)
+                      AppText(
+                        '${list.offerItems.length} on offer, '
+                        '${Formatters.price(list.offerTotal)}',
+                        fontSize: 12,
+                        color: AppColors.mutedForeground,
+                      ),
+                  ],
                 ),
                 const VerticalSpace(DesignTokens.spaceLarge),
                 AppProgressBar(

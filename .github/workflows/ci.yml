@@ -1,0 +1,47 @@
+name: CI
+
+# Runs on every push and pull request so problems surface before main.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch supersedes the run in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter:
+    name: Analyze and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Keep in sync with the build image in the Dockerfile.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.0
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  # Server: typecheck, schema (database/init.sql), migrations twice and the
+  # server tests against Postgres - the shared shelly-nas CI.
+  server:
+    name: Server
+    uses: shelly-nas/shared-workflows/.github/workflows/ci-node-postgres.yml@main
+    with:
+      typecheck_projects: '["server"]'
+      client_directory: ''
+      server_directory: server
+      db_user: baskit
+      db_name: baskit
+      init_sql: database/init.sql
+      # The acc demo data: must apply to init.sql and be a no-op the second time.
+      seed_sql: database/seed-demo.sql
+      seed_check_table: users
+      migrations_directory: server/migrations

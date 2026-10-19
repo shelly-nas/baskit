@@ -1,6 +1,7 @@
 import '../../backend/models/shopping_list.dart';
 import '../data_sources/shopping_list_data_source.dart';
 import '../mappers/shopping_list_mapper.dart';
+import '../data_sources/baskit_api_client.dart';
 
 /// Shopping List Repository
 /// Abstracts data access and provides domain models to the business logic layer
@@ -15,6 +16,8 @@ class ShoppingListRepository {
       final entities = await _dataSource.getAllLists();
       return ShoppingListMapper.toDomainList(entities);
     } catch (e) {
+      // Server errors carry a message meant for the user.
+      if (e is BaskitApiException) rethrow;
       throw RepositoryException('Failed to fetch shopping lists: $e');
     }
   }
@@ -26,6 +29,8 @@ class ShoppingListRepository {
       if (entity == null) return null;
       return ShoppingListMapper.toDomain(entity);
     } catch (e) {
+      // Server errors carry a message meant for the user.
+      if (e is BaskitApiException) rethrow;
       throw RepositoryException('Failed to fetch shopping list: $e');
     }
   }
@@ -37,6 +42,8 @@ class ShoppingListRepository {
       final created = await _dataSource.createList(entity);
       return ShoppingListMapper.toDomain(created);
     } catch (e) {
+      // Server errors carry a message meant for the user.
+      if (e is BaskitApiException) rethrow;
       throw RepositoryException('Failed to create shopping list: $e');
     }
   }
@@ -48,6 +55,8 @@ class ShoppingListRepository {
       final updated = await _dataSource.updateList(entity);
       return ShoppingListMapper.toDomain(updated);
     } catch (e) {
+      // Server errors carry a message meant for the user.
+      if (e is BaskitApiException) rethrow;
       throw RepositoryException('Failed to update shopping list: $e');
     }
   }
@@ -57,6 +66,8 @@ class ShoppingListRepository {
     try {
       await _dataSource.deleteList(id);
     } catch (e) {
+      // Server errors carry a message meant for the user.
+      if (e is BaskitApiException) rethrow;
       throw RepositoryException('Failed to delete shopping list: $e');
     }
   }
@@ -68,6 +79,8 @@ class ShoppingListRepository {
       final created = await _dataSource.addItem(listId, entity);
       return ListItemMapper.toDomain(created);
     } catch (e) {
+      // Server errors carry a message meant for the user.
+      if (e is BaskitApiException) rethrow;
       throw RepositoryException('Failed to add item: $e');
     }
   }
@@ -79,6 +92,8 @@ class ShoppingListRepository {
       final updated = await _dataSource.updateItem(listId, entity);
       return ListItemMapper.toDomain(updated);
     } catch (e) {
+      // Server errors carry a message meant for the user.
+      if (e is BaskitApiException) rethrow;
       throw RepositoryException('Failed to update item: $e');
     }
   }
@@ -88,6 +103,8 @@ class ShoppingListRepository {
     try {
       await _dataSource.deleteItem(listId, itemId);
     } catch (e) {
+      // Server errors carry a message meant for the user.
+      if (e is BaskitApiException) rethrow;
       throw RepositoryException('Failed to delete item: $e');
     }
   }

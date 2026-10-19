@@ -19,11 +19,15 @@ class ListCardHeader extends StatelessWidget {
         Expanded(
           child: Row(
             children: [
-              AppText(
-                name,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.foreground,
+              Flexible(
+                child: AppText(
+                  name,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.foreground,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               if (isShared) ...[
                 const HorizontalSpace.medium(),
