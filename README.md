@@ -49,6 +49,8 @@ server/              Baskit server: Express + TypeScript + Postgres
   src/               routes, managers (SQL), middleware (auth, errors, rate limit)
   migrations/        NNN_*.sql schema changes, applied on startup
 database/            init.sql (first schema) and the database image
+docs/                functional design, business case, architecture
+  features/          detailed specs per functional requirement (FR-001 to FR-005)
 ```
 
 ## Running locally
