@@ -20,8 +20,8 @@ export const config = {
   port: parseInt(process.env.SERVER_PORT || "3000", 10),
   isProduction,
   jwtSecret: jwtSecret(),
-  /** How long a sign-in lasts. */
-  tokenTtl: process.env.TOKEN_TTL || "30d",
+  /** How long a sign-in lasts. Long on purpose: users stay signed in on a device. */
+  tokenTtl: process.env.TOKEN_TTL || "365d",
   /** Accounts with these emails get the admin role when they register or sign in. */
   adminEmails: (process.env.ADMIN_EMAILS || "")
     .split(",")
