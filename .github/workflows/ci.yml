@@ -33,7 +33,7 @@ jobs:
   # server tests against Postgres - the shared shelly-nas CI.
   server:
     name: Server
-    uses: shelly-nas/shared-workflows/.github/workflows/ci-node-postgres.yml@claude/coverage
+    uses: shelly-nas/shared-workflows/.github/workflows/ci-node-postgres.yml@main
     with:
       typecheck_projects: '["server"]'
       client_directory: ''
