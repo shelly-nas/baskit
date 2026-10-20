@@ -128,16 +128,6 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
         );
         if (name != null) await _controller.renameList(list.id, name);
       case _DetailAction.share:
-        if (!_controller.isSynced) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                content: Text('Sign in on the Profile tab to share lists.'),
-              ),
-            );
-          return;
-        }
         await showShareListSheet(
           context,
           controller: _controller,

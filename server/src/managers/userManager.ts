@@ -6,6 +6,9 @@ import { badRequest, HttpError, notFound } from "../middleware/errors";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
 const BCRYPT_ROUNDS = 10;
+/** Consecutive failed sign-ins that lock an account, and for how long. */
+const MAX_FAILED_LOGINS = 10;
+const LOCK_MINUTES = 15;
 
 export interface UserJson {
   id: string;
@@ -81,17 +84,32 @@ export async function login(body: any): Promise<UserJson> {
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   const password = typeof body?.password === "string" ? body.password : "";
   const result = await dbContext.query(
-    `SELECT ${USER_COLUMNS}, password_hash FROM users WHERE LOWER(email) = $1`,
+    `SELECT ${USER_COLUMNS}, password_hash, locked_until FROM users WHERE LOWER(email) = $1`,
     [email]
   );
   const row = result.rows[0];
+  // Locked accounts are refused before the password is checked, so guessing
+  // on stays useless until the lock expires.
+  if (row?.locked_until && new Date(row.locked_until) > new Date()) {
+    throw new HttpError(429, `Too many failed attempts, try again in ${LOCK_MINUTES} minutes`);
+  }
   // Same message whether the email or the password is wrong.
   const valid = row ? await bcrypt.compare(password, row.password_hash) : false;
+  if (row && !valid) {
+    await dbContext.query(
+      `UPDATE users SET
+         failed_login_count = CASE WHEN failed_login_count + 1 >= $2 THEN 0 ELSE failed_login_count + 1 END,
+         locked_until = CASE WHEN failed_login_count + 1 >= $2
+           THEN now() + make_interval(mins => $3) ELSE locked_until END
+       WHERE id = $1`,
+      [row.id, MAX_FAILED_LOGINS, LOCK_MINUTES]
+    );
+  }
   if (!row || !valid) throw new HttpError(401, "Email or password is incorrect");
   if (!row.is_active) throw new HttpError(403, "This account has been disabled");
 
   const updated = await dbContext.query(
-    `UPDATE users SET last_login_at = now(),
+    `UPDATE users SET last_login_at = now(), failed_login_count = 0, locked_until = NULL,
        role = CASE WHEN $2 THEN 'admin' ELSE role END
      WHERE id = $1 RETURNING ${USER_COLUMNS}`,
     [row.id, config.adminEmails.includes(email)]
@@ -121,6 +139,17 @@ export async function updateMe(id: string, body: any): Promise<UserJson> {
     await dbContext.query("UPDATE users SET password_hash = $2 WHERE id = $1", [id, hash]);
   }
   return getUser(id);
+}
+
+/**
+ * Deletes the signed-in user after checking their password. Their own lists
+ * go with them; lists shared with them lose them as a member (both cascade).
+ */
+export async function deleteMe(id: string, body: any): Promise<void> {
+  const current = await dbContext.query("SELECT password_hash FROM users WHERE id = $1", [id]);
+  const ok = await bcrypt.compare(String(body?.password ?? ""), current.rows[0].password_hash);
+  if (!ok) throw badRequest("Password is incorrect");
+  await dbContext.query("DELETE FROM users WHERE id = $1", [id]);
 }
 
 export async function listUsers(): Promise<(UserJson & { list_count: number })[]> {

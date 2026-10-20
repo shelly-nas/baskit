@@ -11,7 +11,9 @@ class FakeBaskitServer {
   final Map<String, String> passwords = {};
   final Map<String, Map<String, dynamic>> lists = {}; // id -> list json
   final List<String> requests = [];
-  String? currentEmail;
+
+  /// When true every request fails as if the server cannot be reached.
+  bool offline = false;
 
   BaskitApiClient client() => BaskitApiClient(
     baseUri: Uri.parse('https://baskit.test/api'),
@@ -40,6 +42,7 @@ class FakeBaskitServer {
   Future<http.Response> _handle(http.Request request) async {
     final path = request.url.path.replaceFirst('/api/', '');
     requests.add('${request.method} $path');
+    if (offline) throw http.ClientException('offline', request.url);
     final body = request.body.isEmpty ? null : jsonDecode(request.body);
     final token = request.headers['Authorization']?.replaceFirst('Bearer ', '');
 
@@ -67,20 +70,43 @@ class FakeBaskitServer {
     }
     final me = users[email]!;
 
+    if (path == 'auth/me' && request.method == 'DELETE') {
+      if (passwords[email] != body['password']) {
+        return _json({'error': 'Password is incorrect'}, 400);
+      }
+      users.remove(email);
+      passwords.remove(email);
+      return http.Response('', 204);
+    }
     if (path == 'auth/me') return _json(me);
     if (path == 'lists' && request.method == 'GET') {
       return _json(lists.values.toList());
     }
-    if (path == 'lists/import') {
-      for (final list in (body['lists'] as List)) {
-        lists[list['id'] as String] = {
-          ...(list as Map<String, dynamic>),
-          'role': 'owner',
-          'owner': {'id': me['id'], 'display_name': me['display_name']},
-          'members': <Map<String, dynamic>>[],
-        };
-      }
-      return _json({'imported': (body['lists'] as List).length});
+    if (path == 'lists' && request.method == 'POST') {
+      final now = DateTime.now().toUtc().toIso8601String();
+      final list = lists[body['id'] as String] = {
+        'id': body['id'],
+        'name': body['name'],
+        'is_shared': false,
+        'created_at': now,
+        'updated_at': now,
+        'items': <Map<String, dynamic>>[],
+        'role': 'owner',
+        'owner': {'id': me['id'], 'display_name': me['display_name']},
+        'members': <Map<String, dynamic>>[],
+      };
+      return _json(list, 201);
+    }
+    final listMatch = RegExp(r'^lists/([^/]+)$').firstMatch(path);
+    if (listMatch != null && request.method == 'GET') {
+      final list = lists[listMatch.group(1)];
+      return list == null ? _json({'error': 'Not found'}, 404) : _json(list);
+    }
+    final itemsMatch = RegExp(r'^lists/([^/]+)/items$').firstMatch(path);
+    if (itemsMatch != null && request.method == 'POST') {
+      final item = Map<String, dynamic>.from(body as Map);
+      (lists[itemsMatch.group(1)]!['items'] as List).add(item);
+      return _json(item, 201);
     }
     final membersMatch = RegExp(
       r'^lists/([^/]+)/members(?:/(.+))?$',

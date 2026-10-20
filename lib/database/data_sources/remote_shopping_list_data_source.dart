@@ -66,10 +66,4 @@ class RemoteShoppingListDataSource implements ShoppingListDataSource {
   /// Removes a member; pass "me" to leave a list shared with you.
   Future<void> removeMember(String listId, String memberId) =>
       _api.delete('lists/$listId/members/$memberId');
-
-  /// Uploads lists that were made on the device before signing in.
-  Future<void> importLists(List<ShoppingListEntity> lists) => _api.post(
-    'lists/import',
-    {'lists': lists.map((list) => list.toJson()).toList()},
-  );
 }

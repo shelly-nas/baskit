@@ -66,6 +66,12 @@ class AuthRepository {
     return UserAccount.fromJson(json);
   }
 
+  /// Deletes the account after the server checked [password].
+  Future<void> deleteAccount(String password) async {
+    await _api.delete('auth/me', {'password': password});
+    await signOut();
+  }
+
   Future<void> signOut() async {
     _api.token = null;
     await _store.delete(tokenKey);
