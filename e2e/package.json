@@ -1,0 +1,14 @@
+{
+  "name": "baskit-e2e",
+  "private": true,
+  "description": "End-to-end and UAT scenarios for Baskit, written in Gherkin",
+  "scripts": {
+    "test": "bddgen && playwright test",
+    "test:headed": "bddgen && playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "playwright-bdd": "9.2.1"
+  }
+}

@@ -22,6 +22,8 @@ export const config = {
   jwtSecret: jwtSecret(),
   /** How long a sign-in lasts. Long on purpose: users stay signed in on a device. */
   tokenTtl: process.env.TOKEN_TTL || "365d",
+  /** Sign-in and register attempts per client IP per 15 minutes. Acc raises it for the E2E run. */
+  authRateLimit: parseInt(process.env.AUTH_RATE_LIMIT || "20", 10),
   /** Accounts with these emails get the admin role when they register or sign in. */
   adminEmails: (process.env.ADMIN_EMAILS || "")
     .split(",")

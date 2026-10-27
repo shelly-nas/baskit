@@ -31,6 +31,7 @@ class ListHeader extends StatelessWidget {
         ),
         if (showAddButton)
           IconButton(
+            tooltip: 'New list',
             icon: const AppIcon(
               CupertinoIcons.add_circled_solid,
               size: DesignTokens.iconXLarge,

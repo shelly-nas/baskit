@@ -16,6 +16,8 @@ Module map of the app, the server and the deployment: [docs/ARCHITECTURE.md](doc
   `shelly-nas/supermarket-scraper`). Accounts and lists come from the Baskit server under `/api`.
 - **Schema:** `database/init.sql` is the first schema; every later change is a new
   `server/migrations/NNN_*.sql`.
+- **Scenarios:** when a feature changes, update or add its Gherkin scenario in `e2e/features/`. Give every
+  icon-only button a `tooltip`: the scenarios find widgets by their accessible label.
 - `flutter analyze` must be clean, infos included. Flutter 3.44.0, the same as the Dockerfile build image.
 - **After adding, removing or renaming a module, or moving a responsibility**, update its section of
   `docs/ARCHITECTURE.md` (and `README.md` when it describes it). Change this file only when a rule or command changes.
@@ -37,6 +39,8 @@ docker compose up --build -d          # db + server (:3002) + web (nginx :8080)
 
 cd server && npm ci && npm run build
 npm test                               # needs DB_* env of a test database (it is reset)
+
+cd e2e && npm ci && npm test           # Gherkin scenarios against acc; BASE_URL=... for another Baskit
 ```
 
 ## Where things are
@@ -50,3 +54,4 @@ npm test                               # needs DB_* env of a test database (it i
 | `lib/frontend/presentation/` | Controllers and screens |
 | `server/src/` | `routes/`, `managers/` (SQL), `middleware/`, `context/` (db, migrations) |
 | `deploy/`, `docker-compose*.yml`, `.github/workflows/` | nginx, compose and CI/acc/deploy |
+| `e2e/` | Gherkin scenarios (`features/`) and their Playwright steps (`steps/`) |
