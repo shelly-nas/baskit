@@ -16,6 +16,15 @@ function jwtSecret(): string {
   return crypto.randomBytes(48).toString("hex");
 }
 
+/** A positive whole number from an env variable; a wrong value stops the server instead of being ignored. */
+export function positiveInt(name: string, value: string | undefined, fallback: number): number {
+  if (value === undefined || value === "") return fallback;
+  if (!/^[1-9]\d*$/.test(value)) {
+    throw new Error(`${name} must be a positive whole number (got "${value}")`);
+  }
+  return Number(value);
+}
+
 export const config = {
   port: parseInt(process.env.SERVER_PORT || "3000", 10),
   isProduction,
@@ -23,7 +32,7 @@ export const config = {
   /** How long a sign-in lasts. Long on purpose: users stay signed in on a device. */
   tokenTtl: process.env.TOKEN_TTL || "365d",
   /** Sign-in and register attempts per client IP per 15 minutes. Acc raises it for the E2E run. */
-  authRateLimit: parseInt(process.env.AUTH_RATE_LIMIT || "20", 10),
+  authRateLimit: positiveInt("AUTH_RATE_LIMIT", process.env.AUTH_RATE_LIMIT, 20),
   /** Accounts with these emails get the admin role when they register or sign in. */
   adminEmails: (process.env.ADMIN_EMAILS || "")
     .split(",")

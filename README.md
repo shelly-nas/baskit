@@ -157,6 +157,7 @@ Required repository settings (Settings, Secrets and variables, Actions):
 | `DB_PASSWORD` | secret | Baskit database password |
 | `JWT_TOKEN` | secret | 32+ random characters; passed to the server as `JWT_SECRET` |
 | `ADMIN_EMAILS` | variable | admin account emails |
+| `AUTH_RATE_LIMIT` | variable | optional, sign-in attempts per IP per 15 minutes in production (default 20) |
 | `JWT_TOKEN_ACC` | secret, optional | separate token secret for acc (falls back to `JWT_TOKEN`) |
 | `DB_NAME`, `DB_USER`, `TZ` | variables, optional | default `baskit`, `baskit`, `Europe/Amsterdam` |
 
