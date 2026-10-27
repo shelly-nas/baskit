@@ -5,10 +5,13 @@
   "scripts": {
     "test": "bddgen && playwright test",
     "test:headed": "bddgen && playwright test --headed",
-    "report": "playwright show-report"
+    "report": "playwright show-report reports/playwright",
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
-    "playwright-bdd": "9.2.1"
+    "@types/node": "22.19.1",
+    "playwright-bdd": "9.2.1",
+    "typescript": "5.9.3"
   }
 }

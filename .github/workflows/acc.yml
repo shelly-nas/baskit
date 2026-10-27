@@ -97,6 +97,7 @@ jobs:
         DB_PASSWORD=${{ secrets.DB_PASSWORD }}
         JWT_SECRET=${{ secrets.JWT_TOKEN_ACC || vars.JWT_TOKEN_ACC || secrets.JWT_TOKEN || vars.JWT_TOKEN }}
         ADMIN_EMAILS=admin@baskit.demo
+        AUTH_RATE_LIMIT=1000
         DISCOUNT_API_UPSTREAM=${{ vars.DISCOUNT_API_UPSTREAM_ACC || 'http://supermarket-scraper-acc-api:3001' }}
         TZ=${{ vars.TZ || 'Europe/Amsterdam' }}
 
@@ -129,7 +130,7 @@ jobs:
           docker create --name "$CONTAINER" --network shelly-network --ipc=host \
             -e CI=1 -e BASE_URL=http://baskit-acc-web -w /e2e \
             mcr.microsoft.com/playwright:v1.63.0-noble \
-            sh -c "npm ci --no-audit --no-fund && npm test"
+            sh -c "npm ci --no-audit --no-fund && npm run typecheck && npm test"
           docker cp e2e/. "$CONTAINER:/e2e"
           docker start -a "$CONTAINER"
 
