@@ -27,8 +27,10 @@ supermarkets --> supermarket-scraper (scrapers + Postgres + admin UI)
 | Shopping lists: create, rename, delete; add, check off and remove items; quantities | Working |
 | Add an offer from search to a list (keeps supermarket, price and end date) | Working |
 | Compare what a list costs at each supermarket (offers and regular catalog prices) | Working, live data |
-| Accounts: register, sign in, change name and password | Working |
-| Lists on the device when signed out; synced to the account when signed in (device lists are uploaded once) | Working |
+| Accounts: the app starts on sign-in; register, sign in, change name and password, delete account | Working |
+| Stay signed in on a device (token valid for a year, account checked on every request) | Working |
+| Account lockout for 15 minutes after 10 failed sign-ins | Working |
+| Lists synced to the account | Working |
 | Share a list with other accounts by email; members edit, the owner manages sharing | Working |
 | Admin: usage numbers, make admin, disable accounts | Working |
 
@@ -43,7 +45,7 @@ lib/
     presentation/
       controllers/   ChangeNotifiers shared by screens (lists, auth)
       components/    atoms, molecules, organisms
-      screens/       search, lists, list detail, compare, profile, admin
+      screens/       auth gate, sign-in, search, lists, list detail, compare, profile, admin
   di/                dependency wiring (AppDependencies)
 server/              Baskit server: Express + TypeScript + Postgres
   src/               routes, managers (SQL), middleware (auth, errors, rate limit)
@@ -103,7 +105,7 @@ The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. ng
 | `DB_NAME`, `DB_USER`, `DB_PASSWORD` | db, server | Database |
 | `JWT_SECRET` | server | Signs sign-in tokens; required (32+ characters) in production |
 | `ADMIN_EMAILS` | server | Comma separated; these accounts get the admin role |
-| `TOKEN_TTL` | server | How long a sign-in lasts, default `30d` |
+| `TOKEN_TTL` | server | How long a sign-in lasts, default `365d` |
 
 ### CI and deployment
 

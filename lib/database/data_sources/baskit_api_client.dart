@@ -12,6 +12,10 @@ class BaskitApiClient {
   /// Current sign-in token; set by the auth repository.
   String? token;
 
+  /// Called when the server rejects [token] (expired, account disabled or
+  /// deleted), so the app can return to the sign-in screen.
+  void Function()? onUnauthorized;
+
   BaskitApiClient({
     required Uri baseUri,
     http.Client? client,
@@ -27,7 +31,8 @@ class BaskitApiClient {
       _send('POST', path, body);
   Future<dynamic> patch(String path, [Object? body]) =>
       _send('PATCH', path, body);
-  Future<dynamic> delete(String path) => _send('DELETE', path);
+  Future<dynamic> delete(String path, [Object? body]) =>
+      _send('DELETE', path, body);
 
   Future<dynamic> _send(String method, String path, [Object? body]) async {
     final request = http.Request(method, _baseUri.resolve(path));
@@ -54,6 +59,10 @@ class BaskitApiClient {
     final decoded = text.isEmpty ? null : _tryDecode(text);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return decoded;
+    }
+    if (response.statusCode == 401 &&
+        request.headers['Authorization'] != null) {
+      onUnauthorized?.call();
     }
     final message = decoded is Map<String, dynamic>
         ? decoded['error'] as String?

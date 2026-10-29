@@ -44,4 +44,14 @@ router.patch(
   })
 );
 
+router.delete(
+  "/me",
+  requireAuth,
+  limited,
+  handle(async (req, res) => {
+    await users.deleteMe(req.user!.id, req.body);
+    res.status(204).end();
+  })
+);
+
 export default router;

@@ -8,14 +8,16 @@ import '../../../database/data_sources/remote_shopping_list_data_source.dart';
 /// Holds the user's shopping lists for the UI.
 ///
 /// One instance is shared by the Lists tab and the Search tab, so an offer
-/// added from search shows up in the list immediately. It works on the lists
-/// stored on the device until the user signs in; then [useService] switches it
-/// to the lists on the Baskit server (own and shared).
+/// added from search shows up in the list immediately. The lists live on the
+/// Baskit server (own and shared); [AuthController] loads them after signing
+/// in and calls [reset] when signing out.
 class ShoppingListController extends ChangeNotifier {
-  ShoppingListService _service;
-  RemoteShoppingListDataSource? _remote;
+  final ShoppingListService _service;
+  final RemoteShoppingListDataSource? _remote;
 
-  ShoppingListController(this._service);
+  /// [remote] enables sharing; tests without a server leave it out.
+  ShoppingListController(this._service, {RemoteShoppingListDataSource? remote})
+    : _remote = remote;
 
   List<ShoppingList> _lists = [];
   bool _isLoading = false;
@@ -30,9 +32,6 @@ class ShoppingListController extends ChangeNotifier {
   bool get hasLoaded => _hasLoaded;
   String? get error => _error;
 
-  /// True when lists are stored on the server, so they can be shared.
-  bool get isSynced => _remote != null;
-
   ShoppingList? listById(String id) {
     for (final list in _lists) {
       if (list.id == id) return list;
@@ -40,17 +39,12 @@ class ShoppingListController extends ChangeNotifier {
     return null;
   }
 
-  /// Switches between device storage (remote null) and the server.
-  Future<void> useService(
-    ShoppingListService service, {
-    RemoteShoppingListDataSource? remote,
-  }) async {
-    _service = service;
-    _remote = remote;
+  /// Forgets the lists of the previous account.
+  void reset() {
     _lists = [];
     _hasLoaded = false;
+    _error = null;
     notifyListeners();
-    await load();
   }
 
   Future<void> load() async {
@@ -146,7 +140,7 @@ class ShoppingListController extends ChangeNotifier {
 
   RemoteShoppingListDataSource _requireRemote() {
     final remote = _remote;
-    if (remote == null) throw StateError('Sign in to share lists');
+    if (remote == null) throw StateError('Sharing is not available');
     return remote;
   }
 
