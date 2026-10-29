@@ -51,6 +51,7 @@ server/              Baskit server: Express + TypeScript + Postgres
   src/               routes, managers (SQL), middleware (auth, errors, rate limit)
   migrations/        NNN_*.sql schema changes, applied on startup
 database/            init.sql (first schema) and the database image
+e2e/                 Gherkin scenarios (features/) and their Playwright steps (steps/)
 ```
 
 ## Running locally
@@ -92,6 +93,26 @@ DB_HOST=localhost DB_PORT=5434 DB_NAME=baskit DB_USER=baskit DB_PASSWORD=baskit 
 
 The server tests reset the database they run against; use a test database.
 
+### Scenarios (E2E and UAT)
+
+The functional scenarios live in `e2e/features/*.feature`, written in Gherkin (Given / When /
+Then) so they read as plain English, one file per feature and tagged with its requirement
+(`@FR-001` ...). [playwright-bdd](https://vitalets.github.io/playwright-bdd/) turns them into
+Playwright tests; the step implementations are in `e2e/steps/`. They drive the real web app in
+Chromium against a running Baskit with the demo data, by default acc:
+
+```bash
+cd e2e && npm ci && npx playwright install chromium
+npm test                                   # against http://baskit-acc.shelly-nas.nl
+BASE_URL=http://localhost:8080 npm test    # against docker compose
+```
+
+Every run writes a readable report of the scenarios to `e2e/reports/scenarios.html` (and the
+Playwright report with traces of failures to `e2e/reports/playwright`). Each scenario creates its
+own accounts (`e2e-...@baskit.test`), so it can run any number of times on the same database.
+Flutter draws the app on a canvas; the steps switch on its accessibility tree and find buttons and
+fields by their label, so a button without a label (an icon without `tooltip`) cannot be tested.
+
 ## Docker and deployment
 
 The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. nginx proxies
@@ -106,6 +127,7 @@ The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. ng
 | `JWT_SECRET` | server | Signs sign-in tokens; required (32+ characters) in production |
 | `ADMIN_EMAILS` | server | Comma separated; these accounts get the admin role |
 | `TOKEN_TTL` | server | How long a sign-in lasts, default `365d` |
+| `AUTH_RATE_LIMIT` | server | Sign-in and register attempts per IP per 15 minutes, default `20` |
 
 ### CI and deployment
 
@@ -119,6 +141,9 @@ The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. ng
   Anna), `cees@baskit.demo` (disabled); password `baskit-demo`. Offers come from the supermarket-scraper acc stack (`supermarket-scraper-acc-api`, override with the
   variable `DISCOUNT_API_UPSTREAM_ACC`). Production never gets demo data:
   the database image only contains `init.sql`, and its data directory is persistent.
+  After the deploy, the job `E2E scenarios on acc` runs the scenarios in `e2e/` against the fresh
+  acc, in a Playwright container on `shelly-network`; the reports are attached to the run as the
+  artifact `e2e-reports`. Acc allows more sign-in attempts (`AUTH_RATE_LIMIT`) for this run.
 - `.github/workflows/deploy.yml` runs on every push to `main`: builds `baskit-web`, `baskit-server`
   and `baskit-db` on the NAS runner, pushes them and redeploys `docker-compose.prod.yml` into
   `/volume1/docker/baskit`.
@@ -132,6 +157,7 @@ Required repository settings (Settings, Secrets and variables, Actions):
 | `DB_PASSWORD` | secret | Baskit database password |
 | `JWT_TOKEN` | secret | 32+ random characters; passed to the server as `JWT_SECRET` |
 | `ADMIN_EMAILS` | variable | admin account emails |
+| `AUTH_RATE_LIMIT` | variable | optional, sign-in attempts per IP per 15 minutes in production (default 20) |
 | `JWT_TOKEN_ACC` | secret, optional | separate token secret for acc (falls back to `JWT_TOKEN`) |
 | `DB_NAME`, `DB_USER`, `TZ` | variables, optional | default `baskit`, `baskit`, `Europe/Amsterdam` |
 

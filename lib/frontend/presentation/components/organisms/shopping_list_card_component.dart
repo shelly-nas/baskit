@@ -75,10 +75,15 @@ class ShoppingListCardComponent extends StatelessWidget {
                   ],
                 ),
                 const VerticalSpace(DesignTokens.spaceLarge),
-                AppProgressBar(
-                  value: list.completionPercentage,
-                  backgroundColor: AppColors.secondary,
-                  valueColor: AppColors.primary,
+                // The "x/y items completed" text above already says this; as
+                // a progress bar it made screen readers announce the whole
+                // card as one instead of as a button.
+                ExcludeSemantics(
+                  child: AppProgressBar(
+                    value: list.completionPercentage,
+                    backgroundColor: AppColors.secondary,
+                    valueColor: AppColors.primary,
+                  ),
                 ),
               ],
             ),
