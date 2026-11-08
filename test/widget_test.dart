@@ -5,8 +5,10 @@ import 'package:baskit/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/fake_baskit_server.dart';
 import 'support/fake_offer_repository.dart';
 import 'package:baskit/database/data_sources/key_value_store.dart';
+import 'package:baskit/database/repositories/auth_repository.dart';
 import 'package:baskit/di/dependency_injection.dart';
 
 void main() {
@@ -27,15 +29,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('app opens on the search tab', (tester) async {
-    await tester.pumpWidget(
-      BaskitApp(
-        dependencies: AppDependencies.create(
-          store: InMemoryStore(),
-          offerRepository: repository,
-        ),
-      ),
+  testWidgets('signed in, the app opens on the search tab', (tester) async {
+    final server = FakeBaskitServer()..addUser('jelle@example.com', 'Jelle');
+    final store = InMemoryStore()
+      ..values[AuthRepository.tokenKey] = 'token-jelle@example.com';
+    final dependencies = AppDependencies.create(
+      store: store,
+      baskitApi: server.client(),
+      offerRepository: repository,
     );
+    await dependencies.authController.restore();
+    await tester.pumpWidget(BaskitApp(dependencies: dependencies));
     await tester.pumpAndSettle();
 
     expect(

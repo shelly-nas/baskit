@@ -1,56 +1,70 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../backend/models/shopping_list.dart';
 import '../../../backend/models/user_account.dart';
-import '../../../backend/services/shopping_list_service.dart';
 import '../../../database/data_sources/baskit_api_client.dart';
-import '../../../database/data_sources/remote_shopping_list_data_source.dart';
-import '../../../database/data_sources/shopping_list_data_source.dart';
-import '../../../database/mappers/shopping_list_mapper.dart';
 import '../../../database/repositories/auth_repository.dart';
 import 'shopping_list_controller.dart';
 
-/// The signed-in account, and which lists the app shows.
+/// Where the app is in signing in; decides which screen the app shows.
+enum AuthStatus {
+  /// Checking the stored token on start.
+  restoring,
+
+  /// No (valid) token: the sign-in screen.
+  signedOut,
+
+  /// The server could not be reached on start; the token is kept.
+  unreachable,
+
+  /// Signed in: the app itself.
+  signedIn,
+}
+
+/// The signed-in account. The app needs one: lists live on the server.
 ///
-/// Signed out, lists live on the device. Signing in uploads those lists to the
-/// account (once) and switches to the lists on the server, including lists
-/// shared with the user. Signing out switches back to the (now empty) device.
+/// The token stays on the device until the user signs out or the server
+/// rejects it, so a user stays signed in between visits.
 class AuthController extends ChangeNotifier {
   final AuthRepository _repository;
   final ShoppingListController _lists;
-  final ShoppingListService _deviceService;
-  final ShoppingListDataSource _deviceStore;
-  final ShoppingListService _accountService;
-  final RemoteShoppingListDataSource _accountStore;
 
   AuthController({
     required AuthRepository repository,
     required ShoppingListController lists,
-    required ShoppingListService deviceService,
-    required ShoppingListDataSource deviceStore,
-    required ShoppingListService accountService,
-    required RemoteShoppingListDataSource accountStore,
   }) : _repository = repository,
-       _lists = lists,
-       _deviceService = deviceService,
-       _deviceStore = deviceStore,
-       _accountService = accountService,
-       _accountStore = accountStore;
+       _lists = lists;
 
+  AuthStatus _status = AuthStatus.restoring;
   UserAccount? _user;
   bool _isBusy = false;
+  String? _restoreError;
 
+  AuthStatus get status => _status;
   UserAccount? get user => _user;
   bool get isSignedIn => _user != null;
   bool get isBusy => _isBusy;
 
+  /// Why the stored session could not be checked ([AuthStatus.unreachable]).
+  String? get restoreError => _restoreError;
+
   /// Restores the stored session on app start.
   Future<void> restore() async {
+    _setStatus(AuthStatus.restoring);
     try {
       final user = await _repository.restore();
-      if (user != null) await _enterAccount(user);
-    } on BaskitApiException {
-      // Offline or expired: continue signed out with the device lists.
+      if (user == null) {
+        _setStatus(AuthStatus.signedOut);
+      } else {
+        await _enterAccount(user);
+      }
+    } on BaskitApiException catch (e) {
+      if (e.isUnauthorized) {
+        // The repository already dropped the rejected token.
+        _setStatus(AuthStatus.signedOut);
+      } else {
+        _restoreError = e.message;
+        _setStatus(AuthStatus.unreachable);
+      }
     }
   }
 
@@ -68,10 +82,21 @@ class AuthController extends ChangeNotifier {
 
   Future<void> signOut() => _busy(() async {
     await _repository.signOut();
-    _user = null;
-    notifyListeners();
-    await _lists.useService(_deviceService);
+    _leaveAccount();
   });
+
+  /// Throws [BaskitApiException] when the password is wrong.
+  Future<void> deleteAccount(String password) => _busy(() async {
+    await _repository.deleteAccount(password);
+    _leaveAccount();
+  });
+
+  /// The server rejected the token during use: back to the sign-in screen.
+  Future<void> handleUnauthorized() async {
+    if (_status != AuthStatus.signedIn) return;
+    await _repository.signOut();
+    _leaveAccount();
+  }
 
   Future<void> updateProfile({
     String? displayName,
@@ -89,30 +114,20 @@ class AuthController extends ChangeNotifier {
 
   Future<void> _enterAccount(UserAccount user) async {
     _user = user;
-    notifyListeners();
-    await _uploadDeviceLists();
-    await _lists.useService(_accountService, remote: _accountStore);
+    _restoreError = null;
+    _setStatus(AuthStatus.signedIn);
+    await _lists.load();
   }
 
-  /// Moves lists made while signed out into the account. They are only
-  /// removed from the device after the upload succeeded.
-  Future<void> _uploadDeviceLists() async {
-    final deviceLists = await _deviceStore.getAllLists();
-    if (deviceLists.isEmpty) return;
-    try {
-      await _accountStore.importLists(deviceLists);
-      for (final list in deviceLists) {
-        await _deviceStore.deleteList(list.id);
-      }
-      final names = deviceLists
-          .map((l) => ShoppingListMapper.toDomain(l))
-          .map((ShoppingList l) => l.name)
-          .join(', ');
-      _lists.messages.value = 'Moved to your account: $names';
-    } on BaskitApiException catch (e) {
-      _lists.messages.value =
-          'Lists on this device were not uploaded: ${e.message}';
-    }
+  void _leaveAccount() {
+    _user = null;
+    _lists.reset();
+    _setStatus(AuthStatus.signedOut);
+  }
+
+  void _setStatus(AuthStatus status) {
+    _status = status;
+    notifyListeners();
   }
 
   Future<void> _busy(Future<void> Function() action) async {

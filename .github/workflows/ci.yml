@@ -45,3 +45,5 @@ jobs:
       seed_sql: database/seed-demo.sql
       seed_check_table: users
       migrations_directory: server/migrations
+      # Coverage minimum in %, grown towards the 80% standard (skill `testen`).
+      server_coverage_threshold: '76'

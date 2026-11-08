@@ -31,12 +31,11 @@ abstract class ShoppingListDataSource {
   Future<void> deleteItem(String listId, String itemId);
 }
 
-/// Local data source implementation (mock for now)
-/// In production, this would interact with SQLite, Hive, or similar
-/// Local data source that keeps all lists on the device as JSON.
+/// Data source that keeps all lists as JSON in a [KeyValueStore].
 ///
-/// Used when the user is not signed in. Every change writes the full set of
-/// lists, which is fine for the size of a household's shopping lists.
+/// The app keeps lists on the Baskit server; tests use this as a list backend
+/// without a server. Every change writes the full set of lists, which is fine
+/// for the size of a household's shopping lists.
 class LocalShoppingListDataSource implements ShoppingListDataSource {
   static const String storageKey = 'baskit.shopping_lists.v1';
 

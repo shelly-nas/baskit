@@ -59,26 +59,26 @@ class AppDependencies {
           DiscountApiDataSource(baseUri: AppConfig.discountApiBaseUri),
         );
 
-    // Lists: on the device when signed out, on the Baskit server when signed in.
+    // Accounts and lists live on the Baskit server; the device keeps only the
+    // sign-in token.
     final api =
         baskitApi ?? BaskitApiClient(baseUri: AppConfig.baskitApiBaseUri);
-    final deviceStore = LocalShoppingListDataSource(storage);
-    final accountStore = RemoteShoppingListDataSource(api);
-    final deviceService = buildShoppingListService(deviceStore);
-    final lists = ShoppingListController(deviceService);
+    final remoteLists = RemoteShoppingListDataSource(api);
+    final lists = ShoppingListController(
+      buildShoppingListService(remoteLists),
+      remote: remoteLists,
+    );
+    final auth = AuthController(
+      repository: AuthRepository(api, storage),
+      lists: lists,
+    );
+    api.onUnauthorized = auth.handleUnauthorized;
 
     return AppDependencies._(
       offerSearchService: OfferSearchService(offers),
       priceComparisonService: PriceComparisonService(offers),
       shoppingListController: lists,
-      authController: AuthController(
-        repository: AuthRepository(api, storage),
-        lists: lists,
-        deviceService: deviceService,
-        deviceStore: deviceStore,
-        accountService: buildShoppingListService(accountStore),
-        accountStore: accountStore,
-      ),
+      authController: auth,
     );
   }
 }

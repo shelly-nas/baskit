@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'di/dependency_injection.dart';
-import 'frontend/presentation/screens/main_screen.dart';
+import 'frontend/presentation/screens/auth_gate.dart';
 import 'frontend/theme/theme.dart';
 
 void main() {
   final dependencies = AppDependencies.create();
-  // Signed in before? Switch to the account's lists in the background.
+  // Signed in before? The stored token is checked while a loader shows.
   dependencies.authController.restore();
   runApp(BaskitApp(dependencies: dependencies));
 }
@@ -21,7 +21,7 @@ class BaskitApp extends StatelessWidget {
     return MaterialApp(
       title: 'Baskit - Smart Shopping Lists',
       theme: AppTheme.lightTheme,
-      home: MainScreen(dependencies: dependencies),
+      home: AuthGate(dependencies: dependencies),
       debugShowCheckedModeBanner: false,
     );
   }
