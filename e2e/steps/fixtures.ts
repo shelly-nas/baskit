@@ -120,11 +120,17 @@ export class Baskit {
     await expect(this.text("Find the best offers across all supermarkets")).toBeAttached();
   }
 
-  /** Go to a tab, leaving a screen opened on top of the tabs (a list, the users overview). */
+  /**
+   * Go to a tab, first leaving a screen opened on top of the tabs (a list,
+   * the users overview; never more than one deep). Wait until that screen is
+   * gone: during the slide-out its Back button is still there but not
+   * clickable.
+   */
   async tab(name: "Search" | "Lists" | "Profile"): Promise<void> {
     const back = this.button("Back");
-    while ((await back.count()) > 0) {
-      await back.first().click();
+    if ((await back.count()) > 0) {
+      await back.click();
+      await expect(back).toHaveCount(0);
     }
     await this.button(name).click();
   }
