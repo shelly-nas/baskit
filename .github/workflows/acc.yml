@@ -97,8 +97,57 @@ jobs:
         DB_PASSWORD=${{ secrets.DB_PASSWORD }}
         JWT_SECRET=${{ secrets.JWT_TOKEN_ACC || vars.JWT_TOKEN_ACC || secrets.JWT_TOKEN || vars.JWT_TOKEN }}
         ADMIN_EMAILS=admin@baskit.demo
+        AUTH_RATE_LIMIT=1000
         DISCOUNT_API_UPSTREAM=${{ vars.DISCOUNT_API_UPSTREAM_ACC || 'http://supermarket-scraper-acc-api:3001' }}
         TZ=${{ vars.TZ || 'Europe/Amsterdam' }}
+
+  # The Gherkin scenarios in e2e/features run against the fresh acc. Playwright
+  # runs in a container on shelly-network and reaches the web container by
+  # name, so it does not depend on DNS or Traefik. Files go in and out with
+  # docker cp: the runner may itself run in a container, so a bind mount of
+  # the workspace would point at the wrong path.
+  e2e-acc:
+    name: E2E scenarios on acc
+    needs: deploy-acc
+    runs-on: shelly
+    env:
+      CONTAINER: baskit-acc-e2e-${{ github.run_id }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Wait for acc
+        run: |
+          for i in $(seq 1 30); do
+            if docker run --rm --network shelly-network curlimages/curl:8.11.1 \
+                 -fsS -m 5 http://baskit-acc-web/api/health; then exit 0; fi
+            sleep 5
+          done
+          echo "acc did not become healthy"; exit 1
+
+      - name: Run scenarios
+        run: |
+          docker create --name "$CONTAINER" --network shelly-network --ipc=host \
+            -e CI=1 -e BASE_URL=http://baskit-acc-web -w /e2e \
+            mcr.microsoft.com/playwright:v1.63.0-noble \
+            sh -c "npm ci --no-audit --no-fund && npm run typecheck && npm test"
+          docker cp e2e/. "$CONTAINER:/e2e"
+          docker start -a "$CONTAINER"
+
+      - name: Collect reports
+        if: always()
+        run: |
+          rm -rf e2e-reports
+          docker cp "$CONTAINER:/e2e/reports" e2e-reports || true
+          docker rm -f "$CONTAINER" || true
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports
+          path: e2e-reports
+          if-no-files-found: ignore
 
   teardown-acc:
     name: Tear down acc
