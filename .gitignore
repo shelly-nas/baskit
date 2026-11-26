@@ -58,3 +58,9 @@ server/.env
 
 # flutter test --coverage
 /coverage/
+
+# E2E scenarios (e2e/): dependencies, generated tests and reports
+e2e/node_modules/
+e2e/.features-gen/
+e2e/reports/
+e2e/test-results/
