@@ -55,3 +55,6 @@ ios/
 server/node_modules/
 server/dist/
 server/.env
+
+# flutter test --coverage
+/coverage/
