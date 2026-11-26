@@ -24,11 +24,22 @@ When("I add {string} to the list", async ({ baskit }, item: string) => {
 Given(
   "I have a list called {string} with {string}",
   async ({ baskit, world }, name: string, item: string) => {
-    await baskit.createList(world.current!, name, [item]);
+    world.lists.set(name, await baskit.createList(world.current!, name, [item]));
     // The app loads the lists at start; open it again to see the new one.
     await baskit.reopen();
   },
 );
+
+When(
+  "{string} is added to the list {string} on another device",
+  async ({ baskit, world }, item: string, list: string) => {
+    await baskit.addItem(world.current!, world.lists.get(list)!, item);
+  },
+);
+
+Then("I see {string} within {int} seconds", async ({ baskit }, text: string, seconds: number) => {
+  await expect(baskit.text(text)).toBeAttached({ timeout: seconds * 1000 });
+});
 
 When("I open the list {string}", async ({ baskit }, name: string) => {
   await baskit.openList(name);

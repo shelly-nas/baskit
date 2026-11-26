@@ -13,6 +13,8 @@ export type Account = { name: string; email: string; password: string; token?: s
 export class World {
   accounts = new Map<string, Account>();
   current?: Account;
+  /** Lists made through the API, by name: their ids. */
+  lists = new Map<string, string>();
 }
 
 export const test = base.extend<{ world: World; baskit: Baskit }>({
@@ -183,15 +185,20 @@ export class Baskit {
     return this.request.post("/api/auth/login", { data: { email, password } });
   }
 
-  async createList(account: Account, name: string, items: string[]): Promise<void> {
+  /** Returns the new list's id. */
+  async createList(account: Account, name: string, items: string[]): Promise<string> {
     const headers = { Authorization: `Bearer ${account.token}` };
     const res = await this.request.post("/api/lists", { headers, data: { name } });
     expect(res.status(), await res.text()).toBe(201);
     const list = await res.json();
-    for (const item of items) {
-      const added = await this.request.post(`/api/lists/${list.id}/items`, { headers, data: { name: item } });
-      expect(added.status(), await added.text()).toBe(201);
-    }
+    for (const item of items) await this.addItem(account, list.id, item);
+    return list.id;
+  }
+
+  async addItem(account: Account, listId: string, name: string): Promise<void> {
+    const headers = { Authorization: `Bearer ${account.token}` };
+    const res = await this.request.post(`/api/lists/${listId}/items`, { headers, data: { name } });
+    expect(res.status(), await res.text()).toBe(201);
   }
 
   /** The sign-in token the app keeps in the browser (shared_preferences). */
