@@ -48,11 +48,23 @@ class OfflineShoppingListDataSource implements ShoppingListDataSource {
 
   List<Map<String, dynamic>>? _outbox;
 
+  /// Operations run one after another: the auto refresh and a change by the
+  /// user must not send the same queued change twice.
+  Future<void> _previous = Future.value();
+
+  Future<T> _oneAtATime<T>(Future<T> Function() operation) {
+    final result = _previous.then((_) => operation());
+    _previous = result.then<void>((_) {}, onError: (_) {});
+    return result;
+  }
+
   OfflineShoppingListDataSource(this._remote, this._store, {this.onRejected})
     : _copy = LocalShoppingListDataSource(_store, key: cacheKey);
 
   @override
-  Future<List<ShoppingListEntity>> getAllLists() async {
+  Future<List<ShoppingListEntity>> getAllLists() => _oneAtATime(_getAllLists);
+
+  Future<List<ShoppingListEntity>> _getAllLists() async {
     if (await _sendQueued()) {
       try {
         final lists = await _remote.getAllLists();
@@ -68,7 +80,10 @@ class OfflineShoppingListDataSource implements ShoppingListDataSource {
   }
 
   @override
-  Future<ShoppingListEntity?> getListById(String id) async {
+  Future<ShoppingListEntity?> getListById(String id) =>
+      _oneAtATime(() => _getListById(id));
+
+  Future<ShoppingListEntity?> _getListById(String id) async {
     if ((await _queue()).isEmpty) {
       try {
         final list = await _remote.getListById(id);
@@ -127,7 +142,9 @@ class OfflineShoppingListDataSource implements ShoppingListDataSource {
 
   /// Forgets the device copy and unsent changes; on sign-out, so the next
   /// account on this device starts clean.
-  Future<void> clear() async {
+  Future<void> clear() => _oneAtATime(_clear);
+
+  Future<void> _clear() async {
     _outbox = [];
     await _store.delete(outboxKey);
     await _copy.clear();
@@ -137,6 +154,12 @@ class OfflineShoppingListDataSource implements ShoppingListDataSource {
   /// Sends a change to the server, or, when it cannot be reached or earlier
   /// changes are still waiting, applies it to the device copy and queues it.
   Future<T> _change<T>(
+    Map<String, dynamic> change, {
+    required Future<T> Function() remote,
+    required Future<T> Function() local,
+  }) => _oneAtATime(() => _apply(change, remote: remote, local: local));
+
+  Future<T> _apply<T>(
     Map<String, dynamic> change, {
     required Future<T> Function() remote,
     required Future<T> Function() local,

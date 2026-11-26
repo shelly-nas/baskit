@@ -139,6 +139,28 @@ void main() {
     expect(source.status.value.pending, 0);
   });
 
+  test('the queue is sent once, also when two fetches overlap', () async {
+    final source = device();
+    await source.createList(newList('l1', 'Weekend'));
+    await source.addItem('l1', newItem('i1', 'Coffee'));
+    await source.getAllLists();
+
+    server.offline = true;
+    await source.deleteItem('l1', 'i1');
+
+    server.offline = false;
+    final before = server.requests.length;
+    await Future.wait([source.getAllLists(), source.getAllLists()]);
+
+    expect(rejected, isEmpty);
+    expect(
+      server.requests
+          .skip(before)
+          .where((r) => r == 'DELETE lists/l1/items/i1'),
+      hasLength(1),
+    );
+  });
+
   test('online, a refused change is an error as before', () async {
     final source = device();
     await expectLater(
