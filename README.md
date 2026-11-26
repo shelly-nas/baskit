@@ -32,6 +32,7 @@ supermarkets --> supermarket-scraper (scrapers + Postgres + admin UI)
 | Account lockout for 15 minutes after 10 failed sign-ins | Working |
 | Lists synced to the account | Working |
 | Share a list with other accounts by email; members edit, the owner manages sharing | Working |
+| Shared lists stay current: refreshed every 10 seconds while the app is open, and on pull-down | Working |
 | Admin: usage numbers, make admin, disable accounts | Working |
 
 ## Project structure

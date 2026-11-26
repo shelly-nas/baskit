@@ -245,41 +245,46 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
               ),
             ],
           ),
-          body: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: _maxContentWidth),
-              child: ListView(
-                padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
-                children: [
-                  if (list.offerItems.isNotEmpty) _buildOfferSummary(list),
-                  _buildNewItemField(),
-                  const SizedBox(height: DesignTokens.spaceMedium),
-                  for (final item in list.uncompletedItems)
-                    if (!_dismissedIds.contains(item.id)) _buildRow(item),
-                  if (list.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(DesignTokens.space2XLarge),
-                      child: AppText(
-                        'This list is empty. Type an item above, or add '
-                        'offers from the Search tab.',
-                        fontSize: 14,
-                        color: AppColors.mutedForeground,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  if (list.completedItems.isNotEmpty) ...[
-                    const SizedBox(height: DesignTokens.space2XLarge),
-                    AppText(
-                      'Completed (${list.completedItems.length})',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.mutedForeground,
-                    ),
-                    const SizedBox(height: DesignTokens.spaceSmall),
-                    for (final item in list.completedItems)
+          // Pull down to fetch what others changed in a shared list.
+          body: RefreshIndicator(
+            onRefresh: _controller.refresh,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
+                  children: [
+                    if (list.offerItems.isNotEmpty) _buildOfferSummary(list),
+                    _buildNewItemField(),
+                    const SizedBox(height: DesignTokens.spaceMedium),
+                    for (final item in list.uncompletedItems)
                       if (!_dismissedIds.contains(item.id)) _buildRow(item),
+                    if (list.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(DesignTokens.space2XLarge),
+                        child: AppText(
+                          'This list is empty. Type an item above, or add '
+                          'offers from the Search tab.',
+                          fontSize: 14,
+                          color: AppColors.mutedForeground,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    if (list.completedItems.isNotEmpty) ...[
+                      const SizedBox(height: DesignTokens.space2XLarge),
+                      AppText(
+                        'Completed (${list.completedItems.length})',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.mutedForeground,
+                      ),
+                      const SizedBox(height: DesignTokens.spaceSmall),
+                      for (final item in list.completedItems)
+                        if (!_dismissedIds.contains(item.id)) _buildRow(item),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),

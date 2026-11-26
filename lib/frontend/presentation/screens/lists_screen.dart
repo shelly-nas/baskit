@@ -125,6 +125,8 @@ class _ListsScreenState extends State<ListsScreen> {
             );
           } else {
             body = ListView.builder(
+              // Scrollable even when the lists fit, so pull-to-refresh works.
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
               itemCount: lists.length,
               itemBuilder: (context, index) {
@@ -160,11 +162,20 @@ class _ListsScreenState extends State<ListsScreen> {
               },
             );
           }
-          return Center(
+          final content = Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: _maxContentWidth),
               child: body,
             ),
+          );
+          if (!_controller.hasLoaded) return content;
+          // Pull down to fetch changes made on another device or by people
+          // the list is shared with; after an error it loads again.
+          return RefreshIndicator(
+            onRefresh: _controller.error != null
+                ? _controller.load
+                : _controller.refresh,
+            child: content,
           );
         },
       ),
@@ -187,6 +198,19 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Scrollable, so the screen can be pulled down to refresh.
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: _content(),
+        ),
+      ),
+    );
+  }
+
+  Widget _content() {
     return Padding(
       padding: const EdgeInsets.all(DesignTokens.space3XLarge),
       child: Column(

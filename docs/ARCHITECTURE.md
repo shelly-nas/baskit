@@ -29,13 +29,17 @@ Update the section of a module when you add, remove or rename it, or when its re
   or until the server rejects it, so users stay signed in between visits (FR-001).
 - `lib/frontend/presentation/controllers/` - `ShoppingListController` (one instance for all tabs,
   server lists; `reset` on sign-out; failures go to `messages`, shown as a snack bar by
-  `MainScreen`) and `AuthController` (`AuthStatus` restoring / signedOut / unreachable / signedIn;
+  `MainScreen`; `refresh` fetches the lists in the background without loader or message and
+  drops its answer when a change was saved meanwhile; `startAutoRefresh` / `stopAutoRefresh`
+  run it every 10 seconds) and `AuthController` (`AuthStatus` restoring / signedOut / unreachable / signedIn;
   restore, sign in/up/out, delete account, `handleUnauthorized`; loads the lists on sign-in).
 - Screens: `AuthGate` (home: loader while restoring, retry when unreachable, `SignInScreen`
   (sign in / create account) or `MainScreen` keyed by user), `SearchScreen`, `ListsScreen`,
   `ListDetailScreen` (share sheet, leave, compare), `PriceComparisonScreen`, `ProfileScreen`
   (account, delete account), `AdminScreen` (admins only), tabbed in `MainScreen` with an
-  `IndexedStack`.
+  `IndexedStack`. `MainScreen` runs the auto refresh while the app is in the foreground (app
+  lifecycle; stopped when hidden or paused, refreshed at once on resume); `ListsScreen` and
+  `ListDetailScreen` also refresh on pull-down.
 - List item IDs and list IDs are client generated UUIDs, also on the server.
 
 ### Server (`server/`)
