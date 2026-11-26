@@ -82,20 +82,20 @@ class AuthController extends ChangeNotifier {
 
   Future<void> signOut() => _busy(() async {
     await _repository.signOut();
-    _leaveAccount();
+    await _leaveAccount();
   });
 
   /// Throws [BaskitApiException] when the password is wrong.
   Future<void> deleteAccount(String password) => _busy(() async {
     await _repository.deleteAccount(password);
-    _leaveAccount();
+    await _leaveAccount();
   });
 
   /// The server rejected the token during use: back to the sign-in screen.
   Future<void> handleUnauthorized() async {
     if (_status != AuthStatus.signedIn) return;
     await _repository.signOut();
-    _leaveAccount();
+    await _leaveAccount();
   }
 
   Future<void> updateProfile({
@@ -119,10 +119,10 @@ class AuthController extends ChangeNotifier {
     await _lists.load();
   }
 
-  void _leaveAccount() {
+  Future<void> _leaveAccount() async {
     _user = null;
-    _lists.reset();
     _setStatus(AuthStatus.signedOut);
+    await _lists.reset();
   }
 
   void _setStatus(AuthStatus status) {

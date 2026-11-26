@@ -107,15 +107,37 @@ class FakeBaskitServer {
       return _json(list, 201);
     }
     final listMatch = RegExp(r'^lists/([^/]+)$').firstMatch(path);
-    if (listMatch != null && request.method == 'GET') {
+    if (listMatch != null) {
       final list = lists[listMatch.group(1)];
-      return list == null ? _json({'error': 'Not found'}, 404) : _json(list);
+      if (list == null) return _json({'error': 'List not found'}, 404);
+      if (request.method == 'PATCH') list['name'] = body['name'];
+      if (request.method == 'DELETE') {
+        lists.remove(listMatch.group(1));
+        return http.Response('', 204);
+      }
+      return _json(list);
     }
-    final itemsMatch = RegExp(r'^lists/([^/]+)/items$').firstMatch(path);
-    if (itemsMatch != null && request.method == 'POST') {
-      final item = Map<String, dynamic>.from(body as Map);
-      (lists[itemsMatch.group(1)]!['items'] as List).add(item);
-      return _json(item, 201);
+    final itemsMatch = RegExp(
+      r'^lists/([^/]+)/items(?:/(.+))?$',
+    ).firstMatch(path);
+    if (itemsMatch != null) {
+      final list = lists[itemsMatch.group(1)];
+      if (list == null) return _json({'error': 'List not found'}, 404);
+      final items = (list['items'] as List).cast<Map<String, dynamic>>();
+      if (request.method == 'POST') {
+        final item = Map<String, dynamic>.from(body as Map);
+        items.removeWhere((i) => i['id'] == item['id']);
+        items.add(item);
+        return _json(item, 201);
+      }
+      final index = items.indexWhere((i) => i['id'] == itemsMatch.group(2));
+      if (index < 0) return _json({'error': 'Item not found'}, 404);
+      if (request.method == 'DELETE') {
+        items.removeAt(index);
+        return http.Response('', 204);
+      }
+      items[index] = {...items[index], ...(body as Map<String, dynamic>)};
+      return _json(items[index]);
     }
     final membersMatch = RegExp(
       r'^lists/([^/]+)/members(?:/(.+))?$',

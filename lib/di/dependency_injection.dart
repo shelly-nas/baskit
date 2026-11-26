@@ -6,6 +6,7 @@ import '../config/app_config.dart';
 import '../database/data_sources/baskit_api_client.dart';
 import '../database/data_sources/discount_api_data_source.dart';
 import '../database/data_sources/key_value_store.dart';
+import '../database/data_sources/offline_shopping_list_data_source.dart';
 import '../database/data_sources/remote_shopping_list_data_source.dart';
 import '../database/data_sources/shopping_list_data_source.dart';
 import '../database/repositories/auth_repository.dart';
@@ -59,14 +60,21 @@ class AppDependencies {
           DiscountApiDataSource(baseUri: AppConfig.discountApiBaseUri),
         );
 
-    // Accounts and lists live on the Baskit server; the device keeps only the
-    // sign-in token.
+    // Accounts and lists live on the Baskit server. The device keeps the
+    // sign-in, a copy of the lists and changes made without a connection.
     final api =
         baskitApi ?? BaskitApiClient(baseUri: AppConfig.baskitApiBaseUri);
     final remoteLists = RemoteShoppingListDataSource(api);
-    final lists = ShoppingListController(
-      buildShoppingListService(remoteLists),
+    late final ShoppingListController lists;
+    final offlineLists = OfflineShoppingListDataSource(
+      remoteLists,
+      storage,
+      onRejected: (message) => lists.reportRejected(message),
+    );
+    lists = ShoppingListController(
+      buildShoppingListService(offlineLists),
       remote: remoteLists,
+      offline: offlineLists,
     );
     final auth = AuthController(
       repository: AuthRepository(api, storage),

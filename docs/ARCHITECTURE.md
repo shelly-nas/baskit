@@ -18,17 +18,23 @@ Update the section of a module when you add, remove or rename it, or when its re
   `buildShoppingListService(dataSource)` builds the list service stack on any data source.
 - `lib/database/` - `DiscountApiDataSource` (discount API), `BaskitApiClient` (Baskit server, bearer
   token, `onUnauthorized` when the server rejects it, `BaskitApiException` with a user-facing
-  message), `RemoteShoppingListDataSource` (server lists + sharing), `LocalShoppingListDataSource`
-  (lists as JSON in a `KeyValueStore`; only used by tests as a list backend without a server),
-  `AuthRepository` (sign-in, token storage in `SharedPreferencesStore` / `InMemoryStore`, delete
-  account, admin calls), DTO parsing in `models/`.
+  message), `RemoteShoppingListDataSource` (server lists + sharing), `OfflineShoppingListDataSource`
+  (FR-007, wraps the remote source: keeps a copy of the lists on the device, applies changes made
+  without a connection (status 0 or 5xx) to that copy and queues them in `baskit.lists.outbox.v1`;
+  the queue is sent in order before the next fetch, a change the server refuses is dropped and
+  reported through `onRejected`; `status` is a `SyncStatus` (offline, pending); `clear` on
+  sign-out), `LocalShoppingListDataSource` (lists as JSON in a `KeyValueStore`: the device copy for
+  the offline source, and a list backend without a server in tests), `AuthRepository` (sign-in,
+  token and the last user JSON in `SharedPreferencesStore` / `InMemoryStore`, so `restore` works
+  without a connection; delete account, admin calls), DTO parsing in `models/`.
 - `lib/backend/` - domain models (`offer.dart`, `shopping_list.dart` incl. `ListItemOffer`,
   `ListPerson`, `isOwner`; `price_comparison.dart`; `user_account.dart`) and services
   (`OfferSearchService`, `ShoppingListService` + use cases, `PriceComparisonService`).
 - An account is required: there is no signed-out mode. The token stays on the device until sign-out
   or until the server rejects it, so users stay signed in between visits (FR-001).
 - `lib/frontend/presentation/controllers/` - `ShoppingListController` (one instance for all tabs,
-  server lists; `reset` on sign-out; failures go to `messages`, shown as a snack bar by
+  server lists; `reset` on sign-out, also clears the device copy; `syncStatus` and
+  `reportRejected` for offline changes; failures go to `messages`, shown as a snack bar by
   `MainScreen`; `refresh` fetches the lists in the background without loader or message and
   drops its answer when a change was saved meanwhile; `startAutoRefresh` / `stopAutoRefresh`
   run it every 10 seconds) and `AuthController` (`AuthStatus` restoring / signedOut / unreachable / signedIn;
@@ -38,8 +44,9 @@ Update the section of a module when you add, remove or rename it, or when its re
   `ListDetailScreen` (share sheet, leave, compare), `PriceComparisonScreen`, `ProfileScreen`
   (account, delete account), `AdminScreen` (admins only), tabbed in `MainScreen` with an
   `IndexedStack`. `MainScreen` runs the auto refresh while the app is in the foreground (app
-  lifecycle; stopped when hidden or paused, refreshed at once on resume); `ListsScreen` and
-  `ListDetailScreen` also refresh on pull-down.
+  lifecycle; stopped when hidden or paused, refreshed at once on resume) and shows an
+  `OfflineBanner` (offline, or changes waiting); `ListsScreen` and `ListDetailScreen` also
+  refresh on pull-down.
 - List item IDs and list IDs are client generated UUIDs, also on the server.
 
 ### Server (`server/`)
