@@ -42,7 +42,8 @@ Update the section of a module when you add, remove or rename it, or when its re
 
 Express + TypeScript + pg, FinanceApp layout. `src/app.ts` (`createApp`), `src/index.ts` (runs
 migrations, listens on `SERVER_PORT`), `src/config.ts` (`JWT_SECRET` required in production,
-`ADMIN_EMAILS`, `TOKEN_TTL` default `365d`), `src/context/` (`dbContext`, `migrations.runMigrations` for
+`ADMIN_EMAILS`, `TOKEN_TTL` default `365d`, `AUTH_RATE_LIMIT` sign-in attempts per IP per 15 minutes,
+default 20), `src/context/` (`dbContext`, `migrations.runMigrations` for
 `server/migrations/NNN_*.sql`), `src/middleware/` (`requireAuth` re-reads the user per request,
 `requireAdmin`, `rateLimit` on password endpoints, `HttpError` + `errorHandler`),
 `src/managers/` (SQL: `userManager` incl. account lockout after 10 failed sign-ins for 15 minutes
@@ -71,3 +72,16 @@ host such as `host.docker.internal` for its IP, `/api/` to `${BASKIT_API_UPSTREA
 `server/Dockerfile`, `database/Dockerfile`, `docker-compose.yml` (dev: db, server, web) and
 `docker-compose.prod.yml` (NAS: db bind mount `./data/postgres`, `shelly-network`, Traefik host
 `baskit.shelly-nas.nl`).
+
+## E2E and UAT scenarios (`e2e/`)
+
+Gherkin scenarios in `e2e/features/*.feature` (English, one file per feature, tagged `@FR-00x`), steps
+in `e2e/steps/` (`fixtures.ts`: the `Baskit` page driver and a `World` per scenario; `account.steps.ts`,
+`lists.steps.ts`), run by playwright-bdd 9.2.1 and Playwright 1.63.0 against `BASE_URL` (default acc).
+The steps switch on Flutter's accessibility tree (`flt-semantics-placeholder`) and find widgets by role
+and label; Flutter ignores synthetic key presses, so `Baskit.type` sets the field and sends an `input`
+event. Scenarios create their own `e2e-*@baskit.test` accounts through the API. Reports:
+`e2e/reports/scenarios.html` (readable) and `e2e/reports/playwright`. The `acc.yml` job `e2e-acc`
+runs them after every acc deploy in a Playwright container on `shelly-network`
+(`http://baskit-acc-web`) and uploads the reports as artifact `e2e-reports`; acc sets
+`AUTH_RATE_LIMIT` high for that run.
