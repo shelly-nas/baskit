@@ -92,6 +92,40 @@ class FakeBaskitServer {
       return http.Response('', 204);
     }
     if (path == 'auth/me') return _json(me);
+    if (path.startsWith('admin/') && me['role'] != 'admin') {
+      return _json({'error': 'Admins only'}, 403);
+    }
+    if (path == 'admin/stats') {
+      return _json({
+        'users': users.length,
+        'active_users': users.values
+            .where((u) => u['is_active'] == true)
+            .length,
+        'users_last_30_days': users.length,
+        'lists': lists.length,
+        'shared_lists': lists.values
+            .where((l) => l['is_shared'] == true)
+            .length,
+        'items': lists.values.fold<int>(
+          0,
+          (n, l) => n + (l['items'] as List).length,
+        ),
+      });
+    }
+    if (path == 'admin/users') {
+      return _json([
+        for (final user in users.values) {...user, 'list_count': 0},
+      ]);
+    }
+    final adminUser = RegExp(r'^admin/users/(.+)$').firstMatch(path);
+    if (adminUser != null && request.method == 'PATCH') {
+      final user = users.values.firstWhere(
+        (u) => u['id'] == adminUser.group(1),
+      );
+      if (body['role'] != null) user['role'] = body['role'];
+      if (body['isActive'] != null) user['is_active'] = body['isActive'];
+      return _json({...user, 'list_count': 0});
+    }
     if (path == 'favorites' && request.method == 'GET') {
       final all = favorites.values.toList()
         ..sort(

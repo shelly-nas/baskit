@@ -79,7 +79,7 @@ Postgres (`helpers.resetDatabase` applies `database/init.sql` + migrations and t
 
 ## Deployment
 
-CI (`.github/workflows/ci.yml`): `flutter analyze` (must be clean, infos included) and `flutter test`
+CI (`.github/workflows/ci.yml`): `flutter analyze` (must be clean, infos included) and `flutter test --coverage` (line coverage at least 80%, checked on `coverage/lcov.info`)
 with Flutter 3.44.0 (same as the Dockerfile build image), and the shared `ci-node-postgres.yml` for
 `server/` (which also applies `database/seed-demo.sql` twice to check it is idempotent). Acc
 (`.github/workflows/acc.yml`): every pull request is deployed to `baskit-acc.shelly-nas.nl`

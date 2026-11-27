@@ -137,7 +137,7 @@ The root `Dockerfile` builds the Flutter web bundle and serves it with nginx. ng
 
 ### CI and deployment
 
-- `.github/workflows/ci.yml`: `flutter analyze` and `flutter test`, plus the shared shelly-nas
+- `.github/workflows/ci.yml`: `flutter analyze` and `flutter test --coverage` (at least 80% of the lines), plus the shared shelly-nas
   Node + Postgres CI for `server/` (typecheck, `database/init.sql`, migrations twice, server tests).
 - `.github/workflows/acc.yml` deploys every pull request to the acceptance environment
   `baskit-acc.shelly-nas.nl` (`docker-compose.acc.yml`, `/volume1/docker/baskit-acc`) with images
