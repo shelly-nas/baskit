@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "theme_color": "#E2433B",
+    "theme_color": "#111111",
     "description": "Shopping lists with the offers of all supermarkets.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
