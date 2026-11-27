@@ -11,13 +11,18 @@ import '../components/organisms/logout_button.dart';
 import '../components/organisms/user_info_section.dart';
 import '../components/organisms/version_display.dart';
 import '../controllers/auth_controller.dart';
+import '../controllers/favorites_controller.dart';
 import '../dialogs/text_input_dialog.dart';
 import 'admin_screen.dart';
+import 'favorites_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final AuthController auth;
 
-  const ProfileScreen({super.key, required this.auth});
+  /// Adds the "Favorites" entry when set.
+  final FavoritesController? favorites;
+
+  const ProfileScreen({super.key, required this.auth, this.favorites});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +40,7 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
               // Signing out swaps this screen for the sign-in screen.
               child: auth.isSignedIn
-                  ? _AccountView(auth: auth)
+                  ? _AccountView(auth: auth, favorites: favorites)
                   : const SizedBox.shrink(),
             ),
           ),
@@ -47,8 +52,9 @@ class ProfileScreen extends StatelessWidget {
 
 class _AccountView extends StatelessWidget {
   final AuthController auth;
+  final FavoritesController? favorites;
 
-  const _AccountView({required this.auth});
+  const _AccountView({required this.auth, this.favorites});
 
   void _show(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
@@ -143,6 +149,20 @@ class _AccountView extends StatelessWidget {
           label: 'Change password',
           onTap: () => _changePassword(context),
         ),
+        if (favorites != null) ...[
+          const VerticalSpace(32),
+          const SectionHeader(title: 'SHOPPING'),
+          const VerticalSpace(12),
+          MenuItem(
+            icon: CupertinoIcons.star,
+            label: 'Favorites',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => FavoritesScreen(favorites: favorites!),
+              ),
+            ),
+          ),
+        ],
         if (user.isAdmin) ...[
           const VerticalSpace(32),
           const SectionHeader(title: 'ADMIN'),
