@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../backend/models/shopping_list.dart';
+import '../../../backend/services/item_suggestion_service.dart';
 import '../../../backend/services/price_comparison_service.dart';
 import '../../theme/colors.dart';
 import '../../theme/design_tokens.dart';
@@ -18,10 +19,14 @@ class ListsScreen extends StatefulWidget {
   final ShoppingListController controller;
   final PriceComparisonService? comparisonService;
 
+  /// Suggests items while typing in a list.
+  final ItemSuggestionService? suggestions;
+
   const ListsScreen({
     super.key,
     required this.controller,
     this.comparisonService,
+    this.suggestions,
   });
 
   @override
@@ -58,6 +63,7 @@ class _ListsScreenState extends State<ListsScreen> {
           controller: _controller,
           listId: list.id,
           comparisonService: widget.comparisonService,
+          suggestions: widget.suggestions,
         ),
       ),
     );

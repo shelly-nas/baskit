@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../backend/models/offer.dart';
 import '../../../backend/models/shopping_list.dart';
+import '../../../backend/services/item_suggestion_service.dart';
 import '../../../backend/services/price_comparison_service.dart';
 import '../../theme/colors.dart';
 import '../../theme/design_tokens.dart';
 import '../../utils/formatters.dart';
 import '../components/atoms/app_icon.dart';
 import '../components/atoms/app_text.dart';
+import '../components/organisms/item_suggestions_panel.dart';
 import '../components/organisms/list_item_row.dart';
 import '../components/organisms/share_list_sheet.dart';
 import '../controllers/shopping_list_controller.dart';
@@ -25,11 +30,15 @@ class ListDetailScreen extends StatefulWidget {
   /// Enables "Compare prices" when set.
   final PriceComparisonService? comparisonService;
 
+  /// Suggests items while typing when set.
+  final ItemSuggestionService? suggestions;
+
   const ListDetailScreen({
     super.key,
     required this.controller,
     required this.listId,
     this.comparisonService,
+    this.suggestions,
   });
 
   @override
@@ -45,10 +54,21 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
   // Swiped away items are hidden at once; the controller removes them async.
   final Set<String> _dismissedIds = {};
 
+  ItemSuggestions _suggestions = const ItemSuggestions();
+  Timer? _suggestTimer;
+  int _suggestRequest = 0;
+
   ShoppingListController get _controller => widget.controller;
 
   @override
+  void initState() {
+    super.initState();
+    _newItemController.addListener(_onNewItemChanged);
+  }
+
+  @override
   void dispose() {
+    _suggestTimer?.cancel();
     _newItemController.dispose();
     _newItemFocus.dispose();
     super.dispose();
@@ -57,9 +77,51 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
   Future<void> _addItem() async {
     final name = _newItemController.text.trim();
     if (name.isEmpty) return;
-    _newItemController.clear();
+    _clearNewItem();
     await _controller.addItem(widget.listId, name);
     _newItemFocus.requestFocus();
+  }
+
+  Future<void> _addSuggestedName(String name) async {
+    _clearNewItem();
+    await _controller.addItem(widget.listId, name);
+  }
+
+  Future<void> _addSuggestedOffer(Offer offer) async {
+    _clearNewItem();
+    await _controller.addOffer(widget.listId, offer);
+  }
+
+  void _clearNewItem() {
+    _newItemController.clear();
+    _suggestTimer?.cancel();
+    _suggestRequest++;
+    setState(() => _suggestions = const ItemSuggestions());
+  }
+
+  /// Asks for suggestions shortly after the user stops typing; an answer to
+  /// older text is dropped.
+  void _onNewItemChanged() {
+    final service = widget.suggestions;
+    if (service == null) return;
+    _suggestTimer?.cancel();
+    final text = _newItemController.text.trim();
+    if (text.isEmpty) {
+      if (!_suggestions.isEmpty) {
+        setState(() => _suggestions = const ItemSuggestions());
+      }
+      return;
+    }
+    _suggestTimer = Timer(const Duration(milliseconds: 250), () async {
+      final request = ++_suggestRequest;
+      final result = await service.suggest(
+        text,
+        known: _controller.lists,
+        openOn: _controller.listById(widget.listId),
+      );
+      if (!mounted || request != _suggestRequest) return;
+      setState(() => _suggestions = result);
+    });
   }
 
   Future<void> _onItemTap(ListItem item) async {
@@ -257,6 +319,12 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                   children: [
                     if (list.offerItems.isNotEmpty) _buildOfferSummary(list),
                     _buildNewItemField(),
+                    if (!_suggestions.isEmpty)
+                      ItemSuggestionsPanel(
+                        suggestions: _suggestions,
+                        onName: _addSuggestedName,
+                        onOffer: _addSuggestedOffer,
+                      ),
                     const SizedBox(height: DesignTokens.spaceMedium),
                     for (final item in list.uncompletedItems)
                       if (!_dismissedIds.contains(item.id)) _buildRow(item),

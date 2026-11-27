@@ -4,6 +4,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth";
 import listRoutes from "./routes/lists";
 import adminRoutes from "./routes/admin";
+import itemRoutes from "./routes/items";
 import { errorHandler } from "./middleware/errors";
 
 export function createApp(): express.Express {
@@ -20,6 +21,7 @@ export function createApp(): express.Express {
   app.use("/api/auth", authRoutes);
   app.use("/api/lists", listRoutes);
   app.use("/api/admin", adminRoutes);
+  app.use("/api/items", itemRoutes);
 
   app.use("/api", (req, res) => res.status(404).json({ error: "Not found" }));
   app.use(errorHandler);
