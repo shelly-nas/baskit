@@ -85,6 +85,22 @@ When("I tap the favorite {string}", async ({ baskit }, name: string) => {
   await baskit.button(`Add ${name}`).click();
 });
 
+// ---- In the shop ----
+
+Then("I see {string} above {string}", async ({ baskit }, upper: string, lower: string) => {
+  const top = async (text: string) => {
+    const box = await baskit.text(text).boundingBox();
+    expect(box, `"${text}" is on screen`).not.toBeNull();
+    return box!.y;
+  };
+  await expect(baskit.text(lower)).toBeAttached();
+  expect(await top(upper)).toBeLessThan(await top(lower));
+});
+
+When("I undo it", async ({ baskit }) => {
+  await baskit.button("Undo").click();
+});
+
 // ---- Offline ----
 
 When("the connection drops", async ({ baskit }) => {

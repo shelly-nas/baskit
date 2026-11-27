@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../../backend/models/offer.dart';
 import '../../../backend/models/shopping_list.dart';
 import '../../../backend/services/shopping_list_service.dart';
+import '../../../database/data_sources/key_value_store.dart';
 import '../../../database/data_sources/offline_shopping_list_data_source.dart';
 import '../../../database/data_sources/remote_shopping_list_data_source.dart';
 
@@ -25,8 +26,27 @@ class ShoppingListController extends ChangeNotifier {
     this._service, {
     RemoteShoppingListDataSource? remote,
     OfflineShoppingListDataSource? offline,
+    KeyValueStore? preferences,
   }) : _remote = remote,
-       _offline = offline;
+       _offline = offline,
+       _preferences = preferences;
+
+  final KeyValueStore? _preferences;
+
+  /// Device preference: open items grouped by shop section (FR-006).
+  static const String sortByLayoutKey = 'baskit.lists.sort_by_layout';
+
+  bool _sortByLayout = true;
+
+  /// Open items in the order of a walk through the shop (the default), or
+  /// in the order they were added.
+  bool get sortByLayout => _sortByLayout;
+
+  Future<void> setSortByLayout(bool value) async {
+    _sortByLayout = value;
+    notifyListeners();
+    await _preferences?.write(sortByLayoutKey, '$value');
+  }
 
   static const ValueListenable<SyncStatus> _alwaysOnline =
       _ConstantSyncStatus();
@@ -86,6 +106,8 @@ class ShoppingListController extends ChangeNotifier {
   }
 
   Future<void> load() async {
+    final sort = await _preferences?.read(sortByLayoutKey);
+    if (sort != null) _sortByLayout = sort == 'true';
     _isLoading = true;
     _error = null;
     notifyListeners();

@@ -83,6 +83,7 @@ class AppDependencies {
       buildShoppingListService(offlineLists),
       remote: remoteLists,
       offline: offlineLists,
+      preferences: storage,
     );
     final favorites = FavoritesController(
       FavoritesDataSource(api, storage),
