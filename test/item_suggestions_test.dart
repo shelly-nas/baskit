@@ -120,6 +120,31 @@ void main() {
       expect(find.widgetWithText(ListTile, 'Koffie'), findsNothing);
     });
 
+    testWidgets('switch off "Only offers" to add a product at its price', (
+      tester,
+    ) async {
+      final listId = await openList(tester);
+
+      await tester.enterText(find.byType(TextField), 'brood');
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
+      // No offer matches, but the switch is there.
+      expect(find.text('Volkoren brood'), findsNothing);
+      await tester.tap(find.widgetWithText(FilterChip, 'Only offers'));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Volkoren brood'));
+      await tester.pumpAndSettle();
+
+      final list = lists.listById(listId)!;
+      final item = list.items.single;
+      expect(item.name, 'Volkoren brood');
+      expect(item.offer?.price, 2.29);
+      expect(item.offer?.isOnOffer, isFalse);
+      // Not counted as "on offer" on the list.
+      expect(list.offerItems, isEmpty);
+    });
+
     testWidgets('tap an offer to add it with its price', (tester) async {
       final listId = await openList(tester);
 

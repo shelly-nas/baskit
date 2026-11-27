@@ -89,15 +89,56 @@ void main() {
     expect(first.supermarket.key, 'dirk');
     expect(first.originalPrice, 1.09);
     expect(first.unitPrice, '\u20AC0.79/l');
-    expect(first.discountPrice, 0.79);
+    expect(first.price, 0.79);
     expect(first.discountPercentage, 28);
     expect(first.savings, closeTo(0.30, 0.001));
 
     final second = page.items.last;
     expect(second.originalPrice, isNull);
-    expect(second.discountPrice, 1.0);
+    expect(second.price, 1.0);
     expect(second.specialDiscount, '2e halve prijs');
     expect(second.savings, isNull);
+  });
+
+  test('with "On offer" off, catalog products come at their price', () async {
+    late Uri requested;
+    final client = MockClient((request) async {
+      requested = request.url;
+      return http.Response(
+        jsonEncode({
+          'total': 1,
+          'offset': 0,
+          'items': [
+            {
+              'id': 9,
+              'name': 'Volkoren brood',
+              'category': 'Brood',
+              'supermarket': {'key': 'jumbo', 'name': 'Jumbo'},
+              'price': 2.29,
+              'discount': null,
+            },
+          ],
+        }),
+        200,
+        headers: {'content-type': 'application/json'},
+      );
+    });
+    final dataSource = DiscountApiDataSource(
+      baseUri: Uri.parse('https://example.com/api/discounts'),
+      client: client,
+    );
+
+    final page = await dataSource.search(
+      const OfferQuery(text: 'brood', offersOnly: false),
+    );
+
+    expect(requested.queryParameters['scope'], 'all');
+    final product = page.items.single;
+    expect(product.isOnOffer, isFalse);
+    expect(product.price, 2.29);
+    expect(product.expireDate, isNull);
+    expect(product.daysLeft(), isNull);
+    expect(product.savings, isNull);
   });
 
   test('supermarkets are parsed', () async {

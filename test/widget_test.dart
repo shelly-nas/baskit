@@ -66,7 +66,37 @@ void main() {
         )
         .map((t) => t.data)
         .toList();
-    expect(pills, ['Dirk', 'Jumbo', 'Aldi']);
+    expect(pills, ['On offer', 'Dirk', 'Jumbo', 'Aldi']);
+  });
+
+  testWidgets('switch off "On offer" to also find regular prices', (
+    tester,
+  ) async {
+    await pumpSearch(tester);
+    expect(repository.queries.last.offersOnly, isTrue);
+    expect(find.text('Volkoren brood'), findsNothing);
+
+    await tester.tap(find.text('On offer'));
+    await tester.pumpAndSettle();
+
+    expect(repository.queries.last.offersOnly, isFalse);
+    expect(find.text('5 products'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Volkoren brood'),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(CustomScrollView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(find.text('Volkoren brood'), findsOneWidget);
+    expect(find.text('Regular price'), findsWidgets);
+
+    await tester.tap(find.text('On offer'));
+    await tester.pumpAndSettle();
+    expect(find.text('3 offers'), findsOneWidget);
   });
 
   testWidgets('typing searches the API', (tester) async {

@@ -166,7 +166,7 @@ class ShoppingListController extends ChangeNotifier {
         productId: offer.productId,
         supermarketKey: offer.supermarket.key,
         supermarketName: offer.supermarket.name,
-        price: offer.discountPrice,
+        price: offer.price,
         originalPrice: offer.originalPrice,
         specialDiscount: offer.specialDiscount,
         expireDate: offer.expireDate,

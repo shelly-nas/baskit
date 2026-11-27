@@ -61,6 +61,8 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
   final Set<String> _dismissedIds = {};
 
   ItemSuggestions _suggestions = const ItemSuggestions();
+  bool _offersOnly = true;
+  bool _showSuggestions = false;
   Timer? _suggestTimer;
   int _suggestRequest = 0;
 
@@ -102,7 +104,15 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
     _newItemController.clear();
     _suggestTimer?.cancel();
     _suggestRequest++;
-    setState(() => _suggestions = const ItemSuggestions());
+    setState(() {
+      _suggestions = const ItemSuggestions();
+      _showSuggestions = false;
+    });
+  }
+
+  void _setOffersOnly(bool value) {
+    setState(() => _offersOnly = value);
+    _onNewItemChanged();
   }
 
   /// Asks for suggestions shortly after the user stops typing; an answer to
@@ -113,8 +123,11 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
     _suggestTimer?.cancel();
     final text = _newItemController.text.trim();
     if (text.isEmpty) {
-      if (!_suggestions.isEmpty) {
-        setState(() => _suggestions = const ItemSuggestions());
+      if (_showSuggestions) {
+        setState(() {
+          _suggestions = const ItemSuggestions();
+          _showSuggestions = false;
+        });
       }
       return;
     }
@@ -124,9 +137,14 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
         text,
         known: _controller.lists,
         openOn: _controller.listById(widget.listId),
+        offersOnly: _offersOnly,
       );
       if (!mounted || request != _suggestRequest) return;
-      setState(() => _suggestions = result);
+      setState(() {
+        _suggestions = result;
+        // Also without results, so "Only offers" can be switched off.
+        _showSuggestions = !result.isEmpty || text.length >= 2;
+      });
     });
   }
 
@@ -353,11 +371,13 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                         builder: (context, _) => _buildFavorites(list),
                       ),
                     _buildNewItemField(),
-                    if (!_suggestions.isEmpty)
+                    if (_showSuggestions)
                       ItemSuggestionsPanel(
                         suggestions: _suggestions,
                         onName: _addSuggestedName,
                         onOffer: _addSuggestedOffer,
+                        offersOnly: _offersOnly,
+                        onOffersOnlyChanged: _setOffersOnly,
                       ),
                     const SizedBox(height: DesignTokens.spaceMedium),
                     for (final item in list.uncompletedItems)

@@ -9,7 +9,8 @@ class ItemSuggestions {
   /// Items the user added before.
   final List<String> names;
 
-  /// Current offers that match the text.
+  /// Products that match the text: on offer, or also at their regular
+  /// price when the user switched off "Only offers".
   final List<Offer> offers;
 
   const ItemSuggestions({this.names = const [], this.offers = const []});
@@ -35,11 +36,13 @@ class ItemSuggestionService {
        _offers = offers;
 
   /// [known] are the user's lists (for the offline fallback); items still
-  /// open on [openOn] are left out.
+  /// open on [openOn] are left out. [offersOnly] limits the products to
+  /// current offers.
   Future<ItemSuggestions> suggest(
     String text, {
     required List<ShoppingList> known,
     ShoppingList? openOn,
+    bool offersOnly = true,
   }) async {
     final query = text.trim();
     if (query.isEmpty) return const ItemSuggestions();
@@ -49,7 +52,7 @@ class ItemSuggestionService {
     };
     final results = await Future.wait([
       _names(query, known),
-      _matchingOffers(query),
+      _matchingOffers(query, offersOnly),
     ]);
     final names = (results[0] as List<String>)
         .where((name) => !open.contains(name.trim().toLowerCase()))
@@ -89,11 +92,13 @@ class ItemSuggestionService {
     return names;
   }
 
-  Future<List<Offer>> _matchingOffers(String query) async {
+  Future<List<Offer>> _matchingOffers(String query, bool offersOnly) async {
     final offers = _offers;
     if (offers == null || query.length < 2) return const [];
     try {
-      final page = await offers.search(OfferQuery(text: query));
+      final page = await offers.search(
+        OfferQuery(text: query, offersOnly: offersOnly),
+      );
       return page.items.take(maxOffers).toList();
     } catch (_) {
       // Offers come from another service; without them the history remains.

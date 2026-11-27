@@ -22,10 +22,10 @@ supermarkets --> supermarket-scraper (scrapers + Postgres + admin UI)
 
 | Feature | Status |
 | ------- | ------ |
-| Search all current supermarket offers (text search, supermarket and category filters, sorting, paging) | Working, live data |
+| Search all current supermarket offers (text search, supermarket and category filters, sorting, paging); switch off "On offer" to also find products at their regular price | Working, live data |
 | Offer details with regular price, savings, deal text and link to the supermarket | Working, live data |
 | Shopping lists: create, rename, delete; add, check off and remove items; quantities | Working |
-| Add an offer from search to a list (keeps supermarket, price and end date) | Working |
+| Add an offer or product from search to a list (keeps supermarket, price and, for an offer, its end date) | Working |
 | Compare what a list costs at each supermarket (offers and regular catalog prices) | Working, live data |
 | Accounts: the app starts on sign-in; register, sign in, change name and password, delete account | Working |
 | Stay signed in on a device (token valid for a year, account checked on every request) | Working |

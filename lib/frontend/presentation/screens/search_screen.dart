@@ -164,6 +164,12 @@ class _SearchScreenState extends State<SearchScreen> {
     _search();
   }
 
+  /// Offers only (the default), or all products at their current price.
+  void _toggleOffersOnly() {
+    _query = _query.copyWith(offersOnly: !_query.offersOnly);
+    _search();
+  }
+
   void _toggleSupermarket(String key) {
     final keys = Set<String>.from(_query.supermarketKeys);
     if (!keys.remove(key)) keys.add(key);
@@ -274,11 +280,20 @@ class _SearchScreenState extends State<SearchScreen> {
       height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _supermarkets.length,
+        itemCount: _supermarkets.length + 1,
         separatorBuilder: (_, _) =>
             const SizedBox(width: DesignTokens.spaceMedium),
         itemBuilder: (context, index) {
-          final supermarket = _supermarkets[index];
+          if (index == 0) {
+            return Center(
+              child: FilterPill(
+                label: 'On offer',
+                isSelected: _query.offersOnly,
+                onTap: _toggleOffersOnly,
+              ),
+            );
+          }
+          final supermarket = _supermarkets[index - 1];
           return Center(
             child: FilterPill(
               label: supermarket.name,
@@ -330,7 +345,9 @@ class _SearchScreenState extends State<SearchScreen> {
           child: AppText(
             _isLoading && _offers.isEmpty
                 ? 'Searching...'
-                : '$_total ${_total == 1 ? 'offer' : 'offers'}',
+                : _query.offersOnly
+                ? '$_total ${_total == 1 ? 'offer' : 'offers'}'
+                : '$_total ${_total == 1 ? 'product' : 'products'}',
             fontSize: 13,
             color: AppColors.mutedForeground,
           ),
@@ -402,10 +419,11 @@ class _SearchScreenState extends State<SearchScreen> {
           hasScrollBody: false,
           child: _MessageState(
             icon: CupertinoIcons.search,
-            title: 'No offers found',
+            title: _query.offersOnly ? 'No offers found' : 'No products found',
             message: _query.text.isEmpty
-                ? 'There are no active offers for these filters.'
-                : 'No offers match "${_query.text}". Try another word or remove filters.',
+                ? 'There is nothing for these filters.'
+                : 'Nothing matches "${_query.text}". Try another word, '
+                      '${_query.offersOnly ? 'switch off "On offer"' : 'or remove filters'}.',
           ),
         ),
       ];

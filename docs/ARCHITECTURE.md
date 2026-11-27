@@ -16,7 +16,9 @@ Update the section of a module when you add, remove or rename it, or when its re
   offerRepository})` wires everything; tests pass an `InMemoryStore`, a `BaskitApiClient` over a
   `MockClient` (`test/support/fake_baskit_server.dart`) and `FakeOfferRepository`.
   `buildShoppingListService(dataSource)` builds the list service stack on any data source.
-- `lib/database/` - `DiscountApiDataSource` (discount API), `BaskitApiClient` (Baskit server, bearer
+- `lib/database/` - `DiscountApiDataSource` (discount API; `OfferQuery.offersOnly` false asks `/search?scope=all`,
+  which adds catalog products without `discount`: an `Offer` with `isOnOffer` false, its regular
+  `price` and no `expireDate`), `BaskitApiClient` (Baskit server, bearer
   token, `onUnauthorized` when the server rejects it, `BaskitApiException` with a user-facing
   message), `RemoteShoppingListDataSource` (server lists + sharing), `OfflineShoppingListDataSource`
   (FR-007, wraps the remote source: keeps a copy of the lists on the device, applies changes made
@@ -30,7 +32,8 @@ Update the section of a module when you add, remove or rename it, or when its re
 - `lib/backend/` - domain models (`offer.dart`, `shopping_list.dart` incl. `ListItemOffer`,
   `ListPerson`, `isOwner`; `price_comparison.dart`; `user_account.dart`) and services
   (`OfferSearchService`, `ShoppingListService` + use cases, `PriceComparisonService`,
-  `ItemSuggestionService`: while typing an item, the user's history from `ItemSuggestionDataSource`
+  `ItemSuggestionService`: while typing an item (with an "Only offers" switch, on by default), the
+  user's history from `ItemSuggestionDataSource`
   (`GET /api/items/suggestions`; offline: names on the lists) plus up to 3 matching offers; items
   still open on the list are left out; failures give fewer suggestions, not an error).
 - An account is required: there is no signed-out mode. The token stays on the device until sign-out

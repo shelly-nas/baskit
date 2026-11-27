@@ -16,11 +16,17 @@ class ItemSuggestionsPanel extends StatelessWidget {
   final ValueChanged<String> onName;
   final ValueChanged<Offer> onOffer;
 
+  /// Whether products are limited to offers; the user can switch it off.
+  final bool offersOnly;
+  final ValueChanged<bool> onOffersOnlyChanged;
+
   const ItemSuggestionsPanel({
     super.key,
     required this.suggestions,
     required this.onName,
     required this.onOffer,
+    required this.offersOnly,
+    required this.onOffersOnlyChanged,
   });
 
   @override
@@ -46,18 +52,34 @@ class ItemSuggestionsPanel extends StatelessWidget {
               title: Text(name),
               onTap: () => onName(name),
             ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: DesignTokens.spaceLarge,
+              vertical: DesignTokens.spaceSmall,
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: FilterChip(
+                label: const Text('Only offers'),
+                selected: offersOnly,
+                onSelected: onOffersOnlyChanged,
+              ),
+            ),
+          ),
           for (final offer in suggestions.offers)
             ListTile(
               dense: true,
-              leading: const AppIcon(
-                CupertinoIcons.tag,
+              leading: AppIcon(
+                offer.isOnOffer ? CupertinoIcons.tag : CupertinoIcons.cart,
                 size: DesignTokens.iconMedium,
-                color: AppColors.success,
+                color: offer.isOnOffer
+                    ? AppColors.success
+                    : AppColors.mutedForeground,
               ),
               title: Text(offer.name),
               subtitle: AppText(
                 '${offer.supermarket.name} - '
-                '${Formatters.price(offer.discountPrice)}',
+                '${Formatters.price(offer.price)}',
                 fontSize: 12,
                 color: AppColors.mutedForeground,
               ),
