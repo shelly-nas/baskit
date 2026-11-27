@@ -40,6 +40,7 @@ services:
       SERVER_PORT: 3000
       JWT_SECRET: ${JWT_SECRET:-development-only-secret-change-me-1234567890}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-20}
     ports:
       - "3002:3000"
     depends_on:

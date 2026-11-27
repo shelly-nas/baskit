@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { config } from "../config";
 import { requireAuth, signToken } from "../middleware/auth";
 import { handle } from "../middleware/errors";
 import { rateLimit } from "../middleware/rateLimit";
@@ -6,8 +7,8 @@ import * as users from "../managers/userManager";
 
 const router = Router();
 
-// 20 attempts per 15 minutes per IP for the endpoints that take a password.
-const limited = rateLimit(20, 15 * 60 * 1000);
+// 20 attempts (AUTH_RATE_LIMIT) per 15 minutes per IP for the endpoints that take a password.
+const limited = rateLimit(config.authRateLimit, 15 * 60 * 1000);
 
 router.post(
   "/register",
