@@ -36,13 +36,24 @@ class BaskitApp extends StatelessWidget {
           final show = sync.isOffline || sync.pending > 0;
           return Column(
             children: [
-              if (show) Material(child: OfflineBanner(pending: sync.pending)),
+              if (show)
+                Semantics(
+                  // Read out when it appears.
+                  liveRegion: true,
+                  child: Material(child: OfflineBanner(pending: sync.pending)),
+                ),
               Expanded(
-                // The banner already keeps clear of the status bar.
-                child: MediaQuery.removePadding(
-                  context: context,
-                  removeTop: show,
-                  child: screen ?? const SizedBox.shrink(),
+                // Its own semantics container: a route hides what was drawn
+                // before it in the accessibility tree, which would otherwise
+                // include the banner.
+                child: Semantics(
+                  container: true,
+                  // The banner already keeps clear of the status bar.
+                  child: MediaQuery.removePadding(
+                    context: context,
+                    removeTop: show,
+                    child: screen ?? const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ],
