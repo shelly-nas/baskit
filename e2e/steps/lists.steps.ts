@@ -155,8 +155,7 @@ Then(
 
 When("I share the list {string} with {string}", async ({ baskit, world }, list: string, name: string) => {
   await baskit.openList(list);
-  await baskit.button("List options").click();
-  await baskit.page.getByRole("menuitem", { name: "Share" }).or(baskit.button("Share")).first().click();
+  await baskit.button("Share list").click();
   await baskit.fill("Email address", world.accounts.get(name)!.email);
   await baskit.button("Share").last().click();
   await expect(baskit.text(name)).toBeAttached();

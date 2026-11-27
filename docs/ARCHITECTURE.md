@@ -54,9 +54,11 @@ Update the section of a module when you add, remove or rename it, or when its re
   run it every 10 seconds) and `AuthController` (`AuthStatus` restoring / signedOut / unreachable / signedIn;
   restore, sign in/up/out, delete account, `handleUnauthorized`; loads the lists on sign-in).
 - Screens: `AuthGate` (home: loader while restoring, retry when unreachable, `SignInScreen`
-  (sign in / create account) or `MainScreen` keyed by user), `SearchScreen` ("On offer" chip; `FavoriteDealsSection` "Your favorites on offer" above the
-  results while not searching), `ListsScreen`,
-  `ListDetailScreen` (share sheet, leave, compare; open items grouped by `StoreLayout` unless
+  (sign in / create account) or `MainScreen` keyed by user), `SearchScreen` ("On offer" chip; `FavoriteDealsSection`
+  "Your favorites on offer" above the results while not searching), `ListsScreen` ("Share" in a
+  list's menu for the owner),
+  `ListDetailScreen` (share sheet from the "Share list" button in the title bar or the list menu,
+  owners only; leave, compare; open items grouped by `StoreLayout` unless
   `ShoppingListController.sortByLayout` is off (device preference `baskit.lists.sort_by_layout`);
   "Undo" after checking off; `FavoritesBar` with the favorites not open on
   the list as one-tap chips (each its own button for screen readers); "Add to / Remove from
