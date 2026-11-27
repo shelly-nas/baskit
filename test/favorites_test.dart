@@ -111,12 +111,18 @@ void main() {
     }
 
     testWidgets('tap a favorite to put it on the list', (tester) async {
+      final semantics = tester.ensureSemantics();
       server.favorites['f1'] = {'id': 'f1', 'name': 'Melk', 'quantity': '2'};
       server.favorites['f2'] = {'id': 'f2', 'name': 'Brood', 'quantity': null};
       final listId = await openList(tester, ['Brood']);
 
-      // Brood is on the list already, so only Melk is offered.
+      // Brood is on the list already, so only Melk is offered; screen
+      // readers get a button.
       expect(find.widgetWithText(ActionChip, 'Brood'), findsNothing);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Add Melk')),
+        isSemantics(label: 'Add Melk', isButton: true, hasTapAction: true),
+      );
       await tester.tap(find.widgetWithText(ActionChip, 'Melk'));
       await tester.pumpAndSettle();
 
@@ -126,6 +132,7 @@ void main() {
           .firstWhere((i) => i.name == 'Melk');
       expect(melk.quantity, '2');
       expect(find.widgetWithText(ActionChip, 'Melk'), findsNothing);
+      semantics.dispose();
     });
 
     testWidgets('make an item on the list a favorite and undo it', (

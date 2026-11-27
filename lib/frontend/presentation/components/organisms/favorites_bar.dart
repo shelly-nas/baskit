@@ -33,16 +33,26 @@ class FavoritesBar extends StatelessWidget {
             runSpacing: DesignTokens.spaceSmall,
             children: [
               for (final favorite in favorites)
-                ActionChip(
-                  avatar: const AppIcon(
-                    CupertinoIcons.add,
-                    size: DesignTokens.iconSmall,
-                    color: AppColors.mutedForeground,
+                // A chip reads as a checkbox to screen readers; this is a
+                // button that puts the favorite on the list.
+                Semantics(
+                  // Its own node, not merged with the title or other chips.
+                  container: true,
+                  button: true,
+                  label: 'Add ${favorite.name}',
+                  onTap: () => onAdd(favorite),
+                  excludeSemantics: true,
+                  child: ActionChip(
+                    avatar: const AppIcon(
+                      CupertinoIcons.add,
+                      size: DesignTokens.iconSmall,
+                      color: AppColors.mutedForeground,
+                    ),
+                    label: Text(favorite.name),
+                    backgroundColor: AppColors.secondary,
+                    side: BorderSide.none,
+                    onPressed: () => onAdd(favorite),
                   ),
-                  label: Text(favorite.name),
-                  backgroundColor: AppColors.secondary,
-                  side: BorderSide.none,
-                  onPressed: () => onAdd(favorite),
                 ),
             ],
           ),

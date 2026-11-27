@@ -82,7 +82,7 @@ When("I make {string} a favorite", async ({ baskit }, item: string) => {
 });
 
 When("I tap the favorite {string}", async ({ baskit }, name: string) => {
-  await baskit.button(name).click();
+  await baskit.button(`Add ${name}`).click();
 });
 
 // ---- Offline ----
