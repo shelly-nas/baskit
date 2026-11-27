@@ -49,11 +49,15 @@ class OfflineShoppingListDataSource implements ShoppingListDataSource {
   List<Map<String, dynamic>>? _outbox;
 
   /// Operations run one after another: the auto refresh and a change by the
-  /// user must not send the same queued change twice.
-  Future<void> _previous = Future.value();
+  /// user must not send the same queued change twice. Null until the first
+  /// operation, so no future is made before the app (or a test) runs.
+  Future<void>? _previous;
 
   Future<T> _oneAtATime<T>(Future<T> Function() operation) {
-    final result = _previous.then((_) => operation());
+    final previous = _previous;
+    final result = previous == null
+        ? operation()
+        : previous.then((_) => operation());
     _previous = result.then<void>((_) {}, onError: (_) {});
     return result;
   }
