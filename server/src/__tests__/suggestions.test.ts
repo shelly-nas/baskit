@@ -40,8 +40,8 @@ test("items the user added before are suggested, most used first", async () => {
   // Starts with the text before contains it; same name in any case is one.
   assert.deepEqual(await suggest(user, "mel"), ["melk", "Halfvolle melk"]);
   assert.deepEqual(await suggest(user, "MELK"), ["melk", "Halfvolle melk"]);
-  // Without text: the most used items.
-  assert.deepEqual(await suggest(user, "", 2), ["melk", "Halfvolle melk"]);
+  // Without text: the most used items, the most recent first when equal.
+  assert.deepEqual(await suggest(user, "", 2), ["melk", "Brood"]);
 });
 
 test("the history stays when items are removed and counts a retried add once", async () => {

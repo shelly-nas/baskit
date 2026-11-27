@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import dbContext from "../context/dbContext";
 import { badRequest, forbidden, HttpError, notFound } from "../middleware/errors";
+import { recordAdded } from "./itemManager";
 
 // List and item JSON use the same snake_case shape the app stores locally
 // (ShoppingListEntity.toJson in the Flutter app), so it can parse either.
@@ -172,22 +173,29 @@ export async function deleteList(listId: string, userId: string): Promise<void> 
 export async function addItem(listId: string, userId: string, body: any) {
   await requireRole(listId, userId);
   const id = idOrNew(body?.id);
-  const result = await dbContext.query(
-    `INSERT INTO list_items (id, list_id, name, quantity, category, is_completed, offer, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8::timestamptz, now()))
-     ON CONFLICT (id) DO NOTHING
-     RETURNING *`,
-    [
-      id,
-      listId,
-      requiredText(body?.name, "Item name", 255),
-      optionalText(body?.quantity, "Quantity", 50),
-      optionalText(body?.category, "Category", 255),
-      Boolean(body?.is_completed ?? body?.isCompleted ?? false),
-      offerJson(body?.offer),
-      timestamp(body?.created_at),
-    ]
-  );
+  const name = requiredText(body?.name, "Item name", 255);
+  const values = [
+    id,
+    listId,
+    name,
+    optionalText(body?.quantity, "Quantity", 50),
+    optionalText(body?.category, "Category", 255),
+    Boolean(body?.is_completed ?? body?.isCompleted ?? false),
+    offerJson(body?.offer),
+    timestamp(body?.created_at),
+  ];
+  const result = await dbContext.transaction(async (client) => {
+    const inserted = await client.query(
+      `INSERT INTO list_items (id, list_id, name, quantity, category, is_completed, offer, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8::timestamptz, now()))
+       ON CONFLICT (id) DO NOTHING
+       RETURNING *`,
+      values
+    );
+    // Only a new item counts; a retried request adds nothing.
+    if (inserted.rows.length > 0) await recordAdded(client, userId, name);
+    return inserted;
+  });
   if (result.rows.length === 0) {
     // Same id again: fine when it is the same list (retried request).
     const existing = await dbContext.query("SELECT * FROM list_items WHERE id = $1 AND list_id = $2", [id, listId]);
