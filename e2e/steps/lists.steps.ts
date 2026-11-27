@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { Given, Then, When } from "./fixtures";
+import { escape, Given, Then, When } from "./fixtures";
 
 // ---- Lists and items ----
 
@@ -99,6 +99,29 @@ Then("I see {string} above {string}", async ({ baskit }, upper: string, lower: s
 
 When("I undo it", async ({ baskit }) => {
   await baskit.button("Undo").click();
+});
+
+// ---- Favorites on offer ----
+
+Given("a product on offer now is one of my favorites", async ({ baskit, world }) => {
+  const search = await baskit.request.get("/api/discounts/search?limit=1");
+  expect(search.status(), await search.text()).toBe(200);
+  const name: string = (await search.json()).items[0].name;
+  const res = await baskit.request.post("/api/favorites", {
+    headers: { Authorization: `Bearer ${world.current!.token}` },
+    data: { name },
+  });
+  expect(res.status(), await res.text()).toBe(201);
+  world.favoriteName = name;
+});
+
+When("I open Baskit again", async ({ baskit }) => {
+  await baskit.reopen();
+});
+
+Then("I see that favorite under {string}", async ({ baskit, world }, title: string) => {
+  await expect(baskit.text(title)).toBeAttached();
+  await expect(baskit.text(new RegExp(escape(world.favoriteName!)))).toBeAttached();
 });
 
 // ---- Offline ----

@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/colors.dart';
+import '../../../backend/models/favorite.dart';
 import '../../theme/design_tokens.dart';
+import '../../utils/formatters.dart';
 import '../components/atoms/app_icon.dart';
 import '../components/atoms/app_text.dart';
 import '../controllers/favorites_controller.dart';
@@ -31,6 +33,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (name.isEmpty) return;
     _name.clear();
     await widget.favorites.add(name);
+  }
+
+  /// The quantity, and where the favorite is on offer now (FR-010).
+  Widget? _subtitle(Favorite favorite) {
+    final deal = widget.favorites.dealFor(favorite.id);
+    final quantity = favorite.quantity;
+    if (deal == null) return quantity == null ? null : Text(quantity);
+    final offer = deal.offer;
+    return Text(
+      [
+        ?quantity,
+        'On offer at ${offer.supermarket.name}: '
+            '${Formatters.price(offer.price)} (${offer.name})',
+      ].join('  /  '),
+      style: const TextStyle(color: AppColors.success),
+    );
   }
 
   @override
@@ -90,9 +108,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text(favorite.name),
-                      subtitle: favorite.quantity == null
-                          ? null
-                          : Text(favorite.quantity!),
+                      subtitle: _subtitle(favorite),
                       trailing: IconButton(
                         tooltip: 'Remove ${favorite.name} from favorites',
                         onPressed: () => widget.favorites.remove(favorite.id),
