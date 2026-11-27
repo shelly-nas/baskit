@@ -6,6 +6,7 @@ import '../../../backend/models/offer.dart';
 import '../../../backend/models/shopping_list.dart';
 import '../../../backend/services/item_suggestion_service.dart';
 import '../../../backend/services/price_comparison_service.dart';
+import '../../../backend/services/store_layout.dart';
 import '../../theme/colors.dart';
 import '../../theme/design_tokens.dart';
 import '../../utils/formatters.dart';
@@ -20,7 +21,7 @@ import '../controllers/shopping_list_controller.dart';
 import '../dialogs/text_input_dialog.dart';
 import 'price_comparison_screen.dart';
 
-enum _DetailAction { rename, share, clearCompleted, delete, leave }
+enum _DetailAction { rename, share, sort, clearCompleted, delete, leave }
 
 enum _ItemAction { quantity, favorite, remove }
 
@@ -228,6 +229,8 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
 
   Future<void> _onAction(ShoppingList list, _DetailAction action) async {
     switch (action) {
+      case _DetailAction.sort:
+        await _controller.setSortByLayout(!_controller.sortByLayout);
       case _DetailAction.rename:
         final name = await showTextInputDialog(
           context,
@@ -336,6 +339,14 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                       value: _DetailAction.share,
                       child: Text('Share'),
                     ),
+                  PopupMenuItem(
+                    value: _DetailAction.sort,
+                    child: Text(
+                      _controller.sortByLayout
+                          ? 'Sort as added'
+                          : 'Sort by shop layout',
+                    ),
+                  ),
                   if (list.completedItems.isNotEmpty)
                     const PopupMenuItem(
                       value: _DetailAction.clearCompleted,
@@ -380,8 +391,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                         onOffersOnlyChanged: _setOffersOnly,
                       ),
                     const SizedBox(height: DesignTokens.spaceMedium),
-                    for (final item in list.uncompletedItems)
-                      if (!_dismissedIds.contains(item.id)) _buildRow(item),
+                    ..._buildOpenItems(list),
                     if (list.isEmpty)
                       const Padding(
                         padding: EdgeInsets.all(DesignTokens.space2XLarge),
@@ -527,9 +537,67 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
       },
       child: ListItemRow(
         item: item,
-        onToggle: () => _controller.toggleItem(widget.listId, item),
+        onToggle: () => _toggle(item),
         onTap: () => _onItemTap(item),
       ),
     );
+  }
+
+  /// Open items, grouped by shop section when the user sorts by layout.
+  List<Widget> _buildOpenItems(ShoppingList list) {
+    final open = list.uncompletedItems
+        .where((item) => !_dismissedIds.contains(item.id))
+        .toList();
+    if (!_controller.sortByLayout) {
+      return [for (final item in open) _buildRow(item)];
+    }
+    return [
+      for (final group in StoreLayout.group(open)) ...[
+        Padding(
+          padding: const EdgeInsets.only(
+            top: DesignTokens.spaceLarge,
+            bottom: DesignTokens.spaceSmall,
+          ),
+          child: Semantics(
+            header: true,
+            child: AppText(
+              group.section.label,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.mutedForeground,
+            ),
+          ),
+        ),
+        for (final item in group.items) _buildRow(item),
+      ],
+    ];
+  }
+
+  /// Checks an item off or on; checking off can be undone, for a wrong tap
+  /// in the shop.
+  Future<void> _toggle(ListItem item) async {
+    final messenger = ScaffoldMessenger.of(context);
+    await _controller.toggleItem(widget.listId, item);
+    if (item.isCompleted || !mounted) return;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Checked off ${item.name}'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () {
+              final now = _controller
+                  .listById(widget.listId)
+                  ?.items
+                  .where((i) => i.id == item.id)
+                  .firstOrNull;
+              if (now != null && now.isCompleted) {
+                _controller.toggleItem(widget.listId, now);
+              }
+            },
+          ),
+        ),
+      );
   }
 }

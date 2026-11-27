@@ -36,6 +36,7 @@ supermarkets --> supermarket-scraper (scrapers + Postgres + admin UI)
 | Offline: lists stay usable without a connection; changes are kept on the device and sent when back online | Working (web: the page itself must already be open) |
 | Suggestions while adding an item: items you added before (also after removing them) and matching offers | Working |
 | Favorites: items you buy often, put on a list with one tap; manage them in the profile | Working |
+| In the shop: open items grouped in the order of the shop (vegetables first, household last; or as added), undo a check-off | Working |
 | Admin: usage numbers, make admin, disable accounts | Working |
 
 ## Project structure

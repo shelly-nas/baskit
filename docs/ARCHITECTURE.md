@@ -32,6 +32,8 @@ Update the section of a module when you add, remove or rename it, or when its re
 - `lib/backend/` - domain models (`offer.dart`, `shopping_list.dart` incl. `ListItemOffer`,
   `ListPerson`, `isOwner`; `price_comparison.dart`; `user_account.dart`) and services
   (`OfferSearchService`, `ShoppingListService` + use cases, `PriceComparisonService`,
+  `StoreLayout` (FR-006): the `StoreSection` of an item from its supermarket category, else from Dutch
+  words in its name (longest match wins), and `group` for the order of a walk through the shop;
   `ItemSuggestionService`: while typing an item (with an "Only offers" switch, on by default), the
   user's history from `ItemSuggestionDataSource`
   (`GET /api/items/suggestions`; offline: names on the lists) plus up to 3 matching offers; items
@@ -50,7 +52,9 @@ Update the section of a module when you add, remove or rename it, or when its re
   restore, sign in/up/out, delete account, `handleUnauthorized`; loads the lists on sign-in).
 - Screens: `AuthGate` (home: loader while restoring, retry when unreachable, `SignInScreen`
   (sign in / create account) or `MainScreen` keyed by user), `SearchScreen`, `ListsScreen`,
-  `ListDetailScreen` (share sheet, leave, compare; `FavoritesBar` with the favorites not open on
+  `ListDetailScreen` (share sheet, leave, compare; open items grouped by `StoreLayout` unless
+  `ShoppingListController.sortByLayout` is off (device preference `baskit.lists.sort_by_layout`);
+  "Undo" after checking off; `FavoritesBar` with the favorites not open on
   the list as one-tap chips (each its own button for screen readers); "Add to / Remove from
   favorites" in the item sheet; `ItemSuggestionsPanel` under the add field, asked 250 ms after
   typing stops), `FavoritesScreen` (from the profile: add and remove favorites), `PriceComparisonScreen`, `ProfileScreen`
