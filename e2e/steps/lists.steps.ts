@@ -74,7 +74,8 @@ Then("I see that I am offline with {int} change(s) waiting", async ({ baskit }, 
 });
 
 Then("I no longer see that I am offline within {int} seconds", async ({ baskit }, seconds: number) => {
-  await expect(baskit.page.getByText(/^Offline:/)).toHaveCount(0, { timeout: seconds * 1000 });
+  // The same lookup as "I see that I am offline", so this cannot pass early.
+  await expect(baskit.text(/^Offline:/)).not.toBeAttached({ timeout: seconds * 1000 });
 });
 
 Then(

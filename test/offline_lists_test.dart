@@ -229,6 +229,7 @@ void main() {
   testWidgets('the app works offline and says so until all is sent', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
     store.values[AuthRepository.tokenKey] = 'token-jelle@example.com';
     final app = AppDependencies.create(
       store: store,
@@ -257,6 +258,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Add an item'), findsOneWidget);
     expect(find.textContaining('1 change waiting'), findsOneWidget);
+    // Screen readers (and the E2E scenarios) get it too: the open list's
+    // route must not hide the banner from the accessibility tree.
+    expect(find.bySemanticsLabel(RegExp('1 change waiting')), findsOneWidget);
 
     server.offline = false;
     await tester.pump(const Duration(seconds: 10));
@@ -266,6 +270,7 @@ void main() {
     expect(find.textContaining('Offline'), findsNothing);
     // The banner went away, the open list stayed open.
     expect(find.text('Add an item'), findsOneWidget);
+    semantics.dispose();
   });
 
   testWidgets('a change refused on sync is shown as a message', (tester) async {

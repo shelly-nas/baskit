@@ -113,7 +113,7 @@ Then("I see {string}", async ({ baskit }, text: string) => {
 Then("I do not see {string}", async ({ baskit }, text: string) => {
   // Wait until the screen is there, then check the text is absent.
   await expect(baskit.text("ACCOUNT")).toBeAttached();
-  await expect(baskit.page.getByText(text, { exact: true })).toHaveCount(0);
+  await expect(baskit.text(text)).not.toBeAttached();
 });
 
 Then("my profile shows the name {string}", async ({ baskit }, name: string) => {
