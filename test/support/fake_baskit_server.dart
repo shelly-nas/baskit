@@ -13,6 +13,11 @@ class FakeBaskitServer {
   final Map<String, Map<String, dynamic>> lists = {}; // id -> list json
   final List<String> requests = [];
 
+  /// How often each item name was added (lower case), like the server's
+  /// item history behind `GET items/suggestions`.
+  final Map<String, int> history = {};
+  final Map<String, String> _spelling = {};
+
   /// When true every request fails as if the server cannot be reached.
   bool offline = false;
 
@@ -84,6 +89,15 @@ class FakeBaskitServer {
       return http.Response('', 204);
     }
     if (path == 'auth/me') return _json(me);
+    if (path == 'items/suggestions') {
+      final q = (request.url.queryParameters['q'] ?? '').toLowerCase();
+      final matches = history.entries.where((e) => e.key.contains(q)).toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      return _json([
+        for (final e in matches)
+          {'name': _spelling[e.key], 'times_added': e.value},
+      ]);
+    }
     if (path == 'lists' && request.method == 'GET') {
       final answer = _json(lists.values.toList());
       final hold = holdNextListsRead;
@@ -126,6 +140,12 @@ class FakeBaskitServer {
       final items = (list['items'] as List).cast<Map<String, dynamic>>();
       if (request.method == 'POST') {
         final item = Map<String, dynamic>.from(body as Map);
+        if (!items.any((i) => i['id'] == item['id'])) {
+          final name = (item['name'] as String).trim();
+          final key = name.toLowerCase();
+          history[key] = (history[key] ?? 0) + 1;
+          _spelling[key] = name;
+        }
         items.removeWhere((i) => i['id'] == item['id']);
         items.add(item);
         return _json(item, 201);

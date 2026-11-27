@@ -1,3 +1,4 @@
+import '../backend/services/item_suggestion_service.dart';
 import '../backend/services/offer_search_service.dart';
 import '../backend/services/price_comparison_service.dart';
 import '../backend/services/shopping_list_service.dart';
@@ -5,6 +6,7 @@ import '../backend/use_cases/shopping_list_use_cases.dart';
 import '../config/app_config.dart';
 import '../database/data_sources/baskit_api_client.dart';
 import '../database/data_sources/discount_api_data_source.dart';
+import '../database/data_sources/item_suggestion_data_source.dart';
 import '../database/data_sources/key_value_store.dart';
 import '../database/data_sources/offline_shopping_list_data_source.dart';
 import '../database/data_sources/remote_shopping_list_data_source.dart';
@@ -35,12 +37,14 @@ ShoppingListService buildShoppingListService(ShoppingListDataSource source) {
 class AppDependencies {
   final OfferSearchService offerSearchService;
   final PriceComparisonService priceComparisonService;
+  final ItemSuggestionService itemSuggestionService;
   final ShoppingListController shoppingListController;
   final AuthController authController;
 
   AppDependencies._({
     required this.offerSearchService,
     required this.priceComparisonService,
+    required this.itemSuggestionService,
     required this.shoppingListController,
     required this.authController,
   });
@@ -82,8 +86,13 @@ class AppDependencies {
     );
     api.onUnauthorized = auth.handleUnauthorized;
 
+    final offerSearch = OfferSearchService(offers);
     return AppDependencies._(
-      offerSearchService: OfferSearchService(offers),
+      offerSearchService: offerSearch,
+      itemSuggestionService: ItemSuggestionService(
+        history: ItemSuggestionDataSource(api),
+        offers: offerSearch,
+      ),
       priceComparisonService: PriceComparisonService(offers),
       shoppingListController: lists,
       authController: auth,

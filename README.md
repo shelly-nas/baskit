@@ -34,6 +34,7 @@ supermarkets --> supermarket-scraper (scrapers + Postgres + admin UI)
 | Share a list with other accounts by email; members edit, the owner manages sharing | Working |
 | Shared lists stay current: refreshed every 10 seconds while the app is open, and on pull-down | Working |
 | Offline: lists stay usable without a connection; changes are kept on the device and sent when back online | Working (web: the page itself must already be open) |
+| Suggestions while adding an item: items you added before (also after removing them) and matching offers | Working |
 | Admin: usage numbers, make admin, disable accounts | Working |
 
 ## Project structure

@@ -22,3 +22,11 @@ Feature: Shopping lists
     When I sign out and sign in again
     And I open the list "Weekend"
     Then I see "Coffee"
+
+  Scenario: Add an item again from the suggestions
+    Given I have a list called "Weekend" with "Coffee"
+    And I open the list "Weekend"
+    When I check off "Coffee"
+    And I type "cof" to add an item
+    And I pick the suggestion "Coffee"
+    Then "Coffee" is on the list again, not checked off

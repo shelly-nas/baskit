@@ -29,7 +29,10 @@ Update the section of a module when you add, remove or rename it, or when its re
   without a connection; delete account, admin calls), DTO parsing in `models/`.
 - `lib/backend/` - domain models (`offer.dart`, `shopping_list.dart` incl. `ListItemOffer`,
   `ListPerson`, `isOwner`; `price_comparison.dart`; `user_account.dart`) and services
-  (`OfferSearchService`, `ShoppingListService` + use cases, `PriceComparisonService`).
+  (`OfferSearchService`, `ShoppingListService` + use cases, `PriceComparisonService`,
+  `ItemSuggestionService`: while typing an item, the user's history from `ItemSuggestionDataSource`
+  (`GET /api/items/suggestions`; offline: names on the lists) plus up to 3 matching offers; items
+  still open on the list are left out; failures give fewer suggestions, not an error).
 - An account is required: there is no signed-out mode. The token stays on the device until sign-out
   or until the server rejects it, so users stay signed in between visits (FR-001).
 - `lib/frontend/presentation/controllers/` - `ShoppingListController` (one instance for all tabs,
@@ -41,7 +44,8 @@ Update the section of a module when you add, remove or rename it, or when its re
   restore, sign in/up/out, delete account, `handleUnauthorized`; loads the lists on sign-in).
 - Screens: `AuthGate` (home: loader while restoring, retry when unreachable, `SignInScreen`
   (sign in / create account) or `MainScreen` keyed by user), `SearchScreen`, `ListsScreen`,
-  `ListDetailScreen` (share sheet, leave, compare), `PriceComparisonScreen`, `ProfileScreen`
+  `ListDetailScreen` (share sheet, leave, compare; `ItemSuggestionsPanel` under the add field,
+  asked 250 ms after typing stops), `PriceComparisonScreen`, `ProfileScreen`
   (account, delete account), `AdminScreen` (admins only), tabbed in `MainScreen` with an
   `IndexedStack`. `MainScreen` runs the auto refresh while the app is in the foreground (app
   lifecycle; stopped when hidden or paused, refreshed at once on resume) and shows an
@@ -57,9 +61,11 @@ migrations, listens on `SERVER_PORT`), `src/config.ts` (`JWT_SECRET` required in
 default 20), `src/context/` (`dbContext`, `migrations.runMigrations` for
 `server/migrations/NNN_*.sql`), `src/middleware/` (`requireAuth` re-reads the user per request,
 `requireAdmin`, `rateLimit` on password endpoints, `HttpError` + `errorHandler`),
-`src/managers/` (SQL: `userManager` incl. account lockout after 10 failed sign-ins for 15 minutes
+`src/managers/` (SQL: `itemManager` (item history per user in `item_history`, recorded in the
+same transaction as `listManager.addItem`; suggestions: starts-with first, then most added, then
+most recent), `userManager` incl. account lockout after 10 failed sign-ins for 15 minutes
 and `deleteMe`, `listManager` with owner/editor access checks),
-`src/routes/` (`/api/auth`, `/api/lists`, `/api/admin`). Lists JSON is snake_case, the same shape
+`src/routes/` (`/api/auth`, `/api/lists`, `/api/items`, `/api/admin`). Lists JSON is snake_case, the same shape
 the app stores on the device. Tests: `src/__tests__/*.test.ts` with `node --test` against a real
 Postgres (`helpers.resetDatabase` applies `database/init.sql` + migrations and truncates).
 `database/init.sql` is the first schema; every later change is a new migration file.

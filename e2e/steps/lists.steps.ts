@@ -59,6 +59,21 @@ Then("I see the list {string}", async ({ baskit }, name: string) => {
   await expect(baskit.listCard(name)).toBeAttached();
 });
 
+// ---- Suggestions ----
+
+When("I type {string} to add an item", async ({ baskit }, text: string) => {
+  await baskit.fill("Add an item", text);
+});
+
+When("I pick the suggestion {string}", async ({ baskit }, name: string) => {
+  await baskit.button(name).click();
+});
+
+Then("{string} is on the list again, not checked off", async ({ baskit }, item: string) => {
+  const open = baskit.page.getByRole("group", { name: item }).getByRole("checkbox", { name: "Mark as done" });
+  await expect(open).toHaveCount(1);
+});
+
 // ---- Offline ----
 
 When("the connection drops", async ({ baskit }) => {
