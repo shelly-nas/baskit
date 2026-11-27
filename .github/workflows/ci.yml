@@ -27,7 +27,17 @@ jobs:
 
       - run: flutter pub get
       - run: flutter analyze
-      - run: flutter test
+      - run: flutter test --coverage
+
+      # Line coverage minimum of the shelly-nas standard (skill `testen`).
+      - name: Coverage minimum (80%)
+        run: |
+          awk -F: '/^LF:/ { total += $2 } /^LH:/ { hit += $2 }
+            END {
+              pct = 100 * hit / total
+              printf "Flutter line coverage: %.1f%%\n", pct
+              if (pct < 80) { print "Below the 80% minimum"; exit 1 }
+            }' coverage/lcov.info
 
   # Server: typecheck, schema (database/init.sql), migrations twice and the
   # server tests against Postgres - the shared shelly-nas CI.
@@ -45,5 +55,6 @@ jobs:
       seed_sql: database/seed-demo.sql
       seed_check_table: users
       migrations_directory: server/migrations
-      # Coverage minimum in %, grown towards the 80% standard (skill `testen`).
+      # Coverage minimum in %, grown towards the 80% standard (skill `testen`);
+      # it applies to lines, branches and functions, and branches are at ~76%.
       server_coverage_threshold: '76'
