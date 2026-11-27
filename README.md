@@ -57,6 +57,7 @@ server/              Baskit server: Express + TypeScript + Postgres
   src/               routes, managers (SQL), middleware (auth, errors, rate limit)
   migrations/        NNN_*.sql schema changes, applied on startup
 database/            init.sql (first schema) and the database image
+assets/images/       app images (the logo)
 docs/                functional design, business case, architecture
   features/          detailed specs per functional requirement (FR-001 to FR-005)
 e2e/                 Gherkin scenarios (features/) and their Playwright steps (steps/)
@@ -172,3 +173,9 @@ Required repository settings (Settings, Secrets and variables, Actions):
 On the NAS, `/volume1/docker/baskit/data/postgres` must exist and be owned by uid 70. The
 supermarket-scraper API must be deployed with its `shelly-network` change, otherwise nginx cannot
 resolve `supermarket-scraper-api`.
+
+## Credits
+
+The logo (`web/favicon.*`, `web/icons/`, `assets/images/logo.png`) uses the tag shape of
+[Font Awesome Free](https://fontawesome.com/license/free), licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
