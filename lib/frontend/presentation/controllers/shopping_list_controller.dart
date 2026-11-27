@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../../backend/models/offer.dart';
 import '../../../backend/models/shopping_list.dart';
 import '../../../backend/services/shopping_list_service.dart';
+import '../../../database/data_sources/offline_shopping_list_data_source.dart';
 import '../../../database/data_sources/remote_shopping_list_data_source.dart';
 
 /// Holds the user's shopping lists for the UI.
@@ -16,10 +17,23 @@ import '../../../database/data_sources/remote_shopping_list_data_source.dart';
 class ShoppingListController extends ChangeNotifier {
   final ShoppingListService _service;
   final RemoteShoppingListDataSource? _remote;
+  final OfflineShoppingListDataSource? _offline;
 
-  /// [remote] enables sharing; tests without a server leave it out.
-  ShoppingListController(this._service, {RemoteShoppingListDataSource? remote})
-    : _remote = remote;
+  /// [remote] enables sharing and [offline] the device copy of the lists;
+  /// tests without a server leave them out.
+  ShoppingListController(
+    this._service, {
+    RemoteShoppingListDataSource? remote,
+    OfflineShoppingListDataSource? offline,
+  }) : _remote = remote,
+       _offline = offline;
+
+  static const ValueListenable<SyncStatus> _alwaysOnline =
+      _ConstantSyncStatus();
+
+  /// Offline, and how many changes wait to be sent; shown as a banner.
+  ValueListenable<SyncStatus> get syncStatus =>
+      _offline?.status ?? _alwaysOnline;
 
   List<ShoppingList> _lists = [];
   bool _isLoading = false;
@@ -47,13 +61,22 @@ class ShoppingListController extends ChangeNotifier {
     return null;
   }
 
-  /// Forgets the lists of the previous account.
-  void reset() {
+  /// Forgets the lists of the previous account, also the copy and unsent
+  /// changes on this device.
+  Future<void> reset() async {
     stopAutoRefresh();
     _lists = [];
     _hasLoaded = false;
     _error = null;
     notifyListeners();
+    await _offline?.clear();
+  }
+
+  /// A change made offline that the server refused when it was sent (for
+  /// example because the list was deleted meanwhile).
+  void reportRejected(String reason) {
+    messages.value = null;
+    messages.value = 'A change was not saved: $reason';
   }
 
   Future<void> load() async {
@@ -233,4 +256,17 @@ class ShoppingListController extends ChangeNotifier {
     messages.dispose();
     super.dispose();
   }
+}
+
+class _ConstantSyncStatus implements ValueListenable<SyncStatus> {
+  const _ConstantSyncStatus();
+
+  @override
+  SyncStatus get value => const SyncStatus();
+
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
 }

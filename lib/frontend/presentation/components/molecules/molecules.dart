@@ -10,3 +10,4 @@ export 'profile_header.dart';
 export 'section_header.dart';
 export 'filter_pill.dart';
 export 'search_field.dart';
+export 'offline_banner.dart';

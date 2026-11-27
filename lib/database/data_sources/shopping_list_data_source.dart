@@ -33,20 +33,31 @@ abstract class ShoppingListDataSource {
 
 /// Data source that keeps all lists as JSON in a [KeyValueStore].
 ///
-/// The app keeps lists on the Baskit server; tests use this as a list backend
+/// The app uses it as the device copy of the server lists
+/// ([OfflineShoppingListDataSource]); tests also use it as a list backend
 /// without a server. Every change writes the full set of lists, which is fine
 /// for the size of a household's shopping lists.
 class LocalShoppingListDataSource implements ShoppingListDataSource {
-  static const String storageKey = 'baskit.shopping_lists.v1';
+  static const String defaultKey = 'baskit.shopping_lists.v1';
 
   final KeyValueStore _store;
+  final String _key;
   List<ShoppingListEntity>? _cache;
 
-  LocalShoppingListDataSource(this._store);
+  LocalShoppingListDataSource(this._store, {String key = defaultKey})
+    : _key = key;
+
+  /// Replaces all lists, e.g. with the latest copy from the server.
+  Future<void> replaceAll(List<ShoppingListEntity> lists) => _save(lists);
+
+  Future<void> clear() async {
+    _cache = [];
+    await _store.delete(_key);
+  }
 
   Future<List<ShoppingListEntity>> _load() async {
     if (_cache != null) return _cache!;
-    final raw = await _store.read(storageKey);
+    final raw = await _store.read(_key);
     if (raw == null || raw.isEmpty) {
       _cache = [];
     } else {
@@ -61,7 +72,7 @@ class LocalShoppingListDataSource implements ShoppingListDataSource {
   Future<void> _save(List<ShoppingListEntity> lists) async {
     _cache = lists;
     await _store.write(
-      storageKey,
+      _key,
       jsonEncode(lists.map((list) => list.toJson()).toList()),
     );
   }

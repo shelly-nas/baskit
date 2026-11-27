@@ -59,6 +59,33 @@ Then("I see the list {string}", async ({ baskit }, name: string) => {
   await expect(baskit.listCard(name)).toBeAttached();
 });
 
+// ---- Offline ----
+
+When("the connection drops", async ({ baskit }) => {
+  await baskit.page.context().setOffline(true);
+});
+
+When("the connection is back", async ({ baskit }) => {
+  await baskit.page.context().setOffline(false);
+});
+
+Then("I see that I am offline with {int} change(s) waiting", async ({ baskit }, count: number) => {
+  await expect(baskit.text(new RegExp(`^Offline:.*${count} changes? waiting`))).toBeAttached();
+});
+
+Then("I no longer see that I am offline within {int} seconds", async ({ baskit }, seconds: number) => {
+  // The same lookup as "I see that I am offline", so this cannot pass early.
+  await expect(baskit.text(/^Offline:/)).not.toBeAttached({ timeout: seconds * 1000 });
+});
+
+Then(
+  "{string} is checked off in {string} on the server",
+  async ({ baskit, world }, item: string, list: string) => {
+    const items = await baskit.listItems(world.current!, world.lists.get(list)!);
+    expect(items.find((i) => i.name === item)?.is_completed).toBe(true);
+  },
+);
+
 // ---- Sharing ----
 
 When("I share the list {string} with {string}", async ({ baskit, world }, list: string, name: string) => {

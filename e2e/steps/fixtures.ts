@@ -201,6 +201,14 @@ export class Baskit {
     expect(res.status(), await res.text()).toBe(201);
   }
 
+  async listItems(account: Account, listId: string): Promise<{ name: string; is_completed: boolean }[]> {
+    const res = await this.request.get(`/api/lists/${listId}`, {
+      headers: { Authorization: `Bearer ${account.token}` },
+    });
+    expect(res.status(), await res.text()).toBe(200);
+    return (await res.json()).items;
+  }
+
   /** The sign-in token the app keeps in the browser (shared_preferences). */
   async storedToken(): Promise<string | undefined> {
     return this.page.evaluate(() => {
