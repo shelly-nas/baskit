@@ -81,7 +81,23 @@ class _SignInFormState extends State<_SignInForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AppText('Baskit', fontSize: 32, fontWeight: FontWeight.w700),
+          Row(
+            children: [
+              // Decorative: the name next to it says it.
+              Image.asset(
+                'assets/images/logo.png',
+                width: 40,
+                height: 40,
+                excludeFromSemantics: true,
+              ),
+              const SizedBox(width: DesignTokens.spaceMedium),
+              const AppText(
+                'Baskit',
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
+              ),
+            ],
+          ),
           const VerticalSpace(DesignTokens.spaceLarge),
           AppText(
             _register ? 'Create an account' : 'Sign in',
