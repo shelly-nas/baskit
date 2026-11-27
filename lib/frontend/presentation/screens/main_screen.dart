@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../../di/dependency_injection.dart';
 import 'lists_screen.dart';
@@ -14,7 +16,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _selectedIndex = 0;
 
   AppDependencies get _deps => widget.dependencies;
@@ -35,12 +37,37 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _deps.shoppingListController.messages.addListener(_showMessage);
+    // Shared lists stay current while the app is open: someone else may be
+    // checking off items in the same shop.
+    WidgetsBinding.instance.addObserver(this);
+    _deps.shoppingListController.startAutoRefresh();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _deps.shoppingListController.stopAutoRefresh();
     _deps.shoppingListController.messages.removeListener(_showMessage);
     super.dispose();
+  }
+
+  /// No requests while the app or browser tab is in the background; catch up
+  /// at once when it comes back.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final lists = _deps.shoppingListController;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        unawaited(lists.refresh());
+        lists.startAutoRefresh();
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        lists.stopAutoRefresh();
+      case AppLifecycleState.inactive:
+        // Briefly, e.g. behind a system dialog: keep refreshing.
+        break;
+    }
   }
 
   void _showMessage() {

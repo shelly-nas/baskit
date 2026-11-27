@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:baskit/database/data_sources/baskit_api_client.dart';
@@ -14,6 +15,10 @@ class FakeBaskitServer {
 
   /// When true every request fails as if the server cannot be reached.
   bool offline = false;
+
+  /// When set, the next `GET lists` takes its answer at once but only sends
+  /// it when this completes, like a slow connection.
+  Completer<void>? holdNextListsRead;
 
   BaskitApiClient client() => BaskitApiClient(
     baseUri: Uri.parse('https://baskit.test/api'),
@@ -80,7 +85,11 @@ class FakeBaskitServer {
     }
     if (path == 'auth/me') return _json(me);
     if (path == 'lists' && request.method == 'GET') {
-      return _json(lists.values.toList());
+      final answer = _json(lists.values.toList());
+      final hold = holdNextListsRead;
+      holdNextListsRead = null;
+      if (hold != null) await hold.future;
+      return answer;
     }
     if (path == 'lists' && request.method == 'POST') {
       final now = DateTime.now().toUtc().toIso8601String();

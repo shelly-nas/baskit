@@ -15,3 +15,10 @@ Feature: Sharing a list
     Given I am signed in as "bram@baskit.demo"
     When I go to my lists
     Then I see the list "Weekboodschappen"
+
+  Scenario: Changes made elsewhere show up without reopening the list
+    Given I am signed in with a new account named "Lotte"
+    And I have a list called "Weekend" with "Coffee"
+    And I open the list "Weekend"
+    When "Milk" is added to the list "Weekend" on another device
+    Then I see "Milk" within 20 seconds

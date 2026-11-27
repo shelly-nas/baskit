@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../backend/models/offer.dart';
@@ -21,6 +23,12 @@ class ShoppingListController extends ChangeNotifier {
 
   List<ShoppingList> _lists = [];
   bool _isLoading = false;
+  bool _isRefreshing = false;
+  Timer? _autoRefresh;
+
+  /// Counts changes made through this controller, so a background refresh
+  /// that read the lists before a change can tell its answer is stale.
+  int _changeCount = 0;
   bool _hasLoaded = false;
   String? _error;
 
@@ -41,6 +49,7 @@ class ShoppingListController extends ChangeNotifier {
 
   /// Forgets the lists of the previous account.
   void reset() {
+    stopAutoRefresh();
     _lists = [];
     _hasLoaded = false;
     _error = null;
@@ -60,6 +69,39 @@ class ShoppingListController extends ChangeNotifier {
       _hasLoaded = true;
       notifyListeners();
     }
+  }
+
+  /// Fetches the lists again to pick up changes made elsewhere: on another
+  /// device or by someone the list is shared with. Runs in the background, so
+  /// it shows no loader; a failure keeps the last known lists without a
+  /// message, as the next refresh tries again.
+  Future<void> refresh() async {
+    if (_isRefreshing || _isLoading || !_hasLoaded) return;
+    _isRefreshing = true;
+    final changesBefore = _changeCount;
+    try {
+      final lists = await _fetch();
+      // A change saved meanwhile already reloaded newer lists.
+      if (_changeCount != changesBefore) return;
+      _lists = lists;
+      notifyListeners();
+    } catch (_) {
+      // Offline or the server is busy: keep showing the last known lists.
+    } finally {
+      _isRefreshing = false;
+    }
+  }
+
+  /// Calls [refresh] every [interval] until [stopAutoRefresh]. The app runs it
+  /// while it is in the foreground, so shared lists stay current in the shop.
+  void startAutoRefresh([Duration interval = const Duration(seconds: 10)]) {
+    _autoRefresh?.cancel();
+    _autoRefresh = Timer.periodic(interval, (_) => unawaited(refresh()));
+  }
+
+  void stopAutoRefresh() {
+    _autoRefresh?.cancel();
+    _autoRefresh = null;
   }
 
   /// Ensures the lists are loaded before they are needed (e.g. from search).
@@ -147,6 +189,7 @@ class ShoppingListController extends ChangeNotifier {
   /// Runs a change, reloads the lists and reports a failure to [messages]
   /// instead of throwing, so screens do not have to handle errors themselves.
   Future<T?> _guard<T>(Future<T> Function() action) async {
+    _changeCount++;
     T? result;
     try {
       result = await action();
@@ -174,14 +217,19 @@ class ShoppingListController extends ChangeNotifier {
   }
 
   Future<void> _reload() async {
+    _lists = await _fetch();
+  }
+
+  Future<List<ShoppingList>> _fetch() async {
     final lists = await _service.getAllLists();
     // Most recently changed first.
     lists.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    _lists = lists;
+    return lists;
   }
 
   @override
   void dispose() {
+    stopAutoRefresh();
     messages.dispose();
     super.dispose();
   }
