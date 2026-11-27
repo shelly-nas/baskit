@@ -44,9 +44,9 @@ Update the section of a module when you add, remove or rename it, or when its re
   `ListDetailScreen` (share sheet, leave, compare), `PriceComparisonScreen`, `ProfileScreen`
   (account, delete account), `AdminScreen` (admins only), tabbed in `MainScreen` with an
   `IndexedStack`. `MainScreen` runs the auto refresh while the app is in the foreground (app
-  lifecycle; stopped when hidden or paused, refreshed at once on resume) and shows an
-  `OfflineBanner` (offline, or changes waiting); `ListsScreen` and `ListDetailScreen` also
-  refresh on pull-down.
+  lifecycle; stopped when hidden or paused, refreshed at once on resume); `ListsScreen` and
+  `ListDetailScreen` also refresh on pull-down. `BaskitApp` (`main.dart`) shows the
+  `OfflineBanner` (offline, or changes waiting) above every screen through `MaterialApp.builder`.
 - List item IDs and list IDs are client generated UUIDs, also on the server.
 
 ### Server (`server/`)

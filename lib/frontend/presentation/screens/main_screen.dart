@@ -5,8 +5,6 @@ import '../../../di/dependency_injection.dart';
 import 'lists_screen.dart';
 import 'profile_screen.dart';
 import 'search_screen.dart';
-import '../../../database/data_sources/offline_shopping_list_data_source.dart';
-import '../components/molecules/offline_banner.dart';
 import '../components/organisms/bottom_navigation.dart';
 
 class MainScreen extends StatefulWidget {
@@ -89,23 +87,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          ValueListenableBuilder<SyncStatus>(
-            valueListenable: _deps.shoppingListController.syncStatus,
-            builder: (context, sync, _) => sync.isOffline || sync.pending > 0
-                ? OfflineBanner(pending: sync.pending)
-                : const SizedBox.shrink(),
-          ),
-          Expanded(
-            // IndexedStack keeps the search state when switching tabs.
-            child: IndexedStack(
-              index: _selectedIndex,
-              children: _widgetOptions,
-            ),
-          ),
-        ],
-      ),
+      // IndexedStack keeps the search state when switching tabs.
+      body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
       bottomNavigationBar: BottomNavigation(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,

@@ -250,12 +250,22 @@ void main() {
     expect(find.textContaining('Offline'), findsOneWidget);
     expect(find.textContaining('1 change waiting'), findsOneWidget);
 
+    // Also on an open list, which is a screen on top of the tabs.
+    await tester.tap(find.text('Lists').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Weekend'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add an item'), findsOneWidget);
+    expect(find.textContaining('1 change waiting'), findsOneWidget);
+
     server.offline = false;
     await tester.pump(const Duration(seconds: 10));
     await tester.pumpAndSettle();
 
     expect(serverItems(list.id), ['Coffee']);
     expect(find.textContaining('Offline'), findsNothing);
+    // The banner went away, the open list stayed open.
+    expect(find.text('Add an item'), findsOneWidget);
   });
 
   testWidgets('a change refused on sync is shown as a message', (tester) async {
