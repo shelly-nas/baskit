@@ -11,16 +11,18 @@ import '../../theme/design_tokens.dart';
 import '../../utils/formatters.dart';
 import '../components/atoms/app_icon.dart';
 import '../components/atoms/app_text.dart';
+import '../components/organisms/favorites_bar.dart';
 import '../components/organisms/item_suggestions_panel.dart';
 import '../components/organisms/list_item_row.dart';
 import '../components/organisms/share_list_sheet.dart';
+import '../controllers/favorites_controller.dart';
 import '../controllers/shopping_list_controller.dart';
 import '../dialogs/text_input_dialog.dart';
 import 'price_comparison_screen.dart';
 
 enum _DetailAction { rename, share, clearCompleted, delete, leave }
 
-enum _ItemAction { quantity, remove }
+enum _ItemAction { quantity, favorite, remove }
 
 /// One shopping list: add items, check them off, remove them.
 class ListDetailScreen extends StatefulWidget {
@@ -33,12 +35,16 @@ class ListDetailScreen extends StatefulWidget {
   /// Suggests items while typing when set.
   final ItemSuggestionService? suggestions;
 
+  /// Shows favorites to put on the list with one tap when set.
+  final FavoritesController? favorites;
+
   const ListDetailScreen({
     super.key,
     required this.controller,
     required this.listId,
     this.comparisonService,
     this.suggestions,
+    this.favorites,
   });
 
   @override
@@ -125,6 +131,8 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
   }
 
   Future<void> _onItemTap(ListItem item) async {
+    final favorites = widget.favorites;
+    final favorite = favorites?.byName(item.name);
     final action = await showModalBottomSheet<_ItemAction>(
       context: context,
       backgroundColor: AppColors.card,
@@ -139,6 +147,21 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
               title: const Text('Set quantity'),
               onTap: () => Navigator.of(sheetContext).pop(_ItemAction.quantity),
             ),
+            if (favorites != null)
+              ListTile(
+                leading: AppIcon(
+                  favorite == null
+                      ? CupertinoIcons.star
+                      : CupertinoIcons.star_fill,
+                ),
+                title: Text(
+                  favorite == null
+                      ? 'Add to favorites'
+                      : 'Remove from favorites',
+                ),
+                onTap: () =>
+                    Navigator.of(sheetContext).pop(_ItemAction.favorite),
+              ),
             ListTile(
               leading: const AppIcon(
                 CupertinoIcons.delete,
@@ -157,6 +180,12 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
     switch (action) {
       case _ItemAction.quantity:
         await _editQuantity(item);
+      case _ItemAction.favorite:
+        if (favorite == null) {
+          await favorites!.add(item.name, quantity: item.quantity);
+        } else {
+          await favorites!.remove(favorite.id);
+        }
       case _ItemAction.remove:
         await _controller.deleteItem(widget.listId, item.id);
       case null:
@@ -318,6 +347,11 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                   padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
                   children: [
                     if (list.offerItems.isNotEmpty) _buildOfferSummary(list),
+                    if (widget.favorites != null)
+                      ListenableBuilder(
+                        listenable: widget.favorites!,
+                        builder: (context, _) => _buildFavorites(list),
+                      ),
                     _buildNewItemField(),
                     if (!_suggestions.isEmpty)
                       ItemSuggestionsPanel(
@@ -404,6 +438,25 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
             fontWeight: FontWeight.w600,
           ),
         ],
+      ),
+    );
+  }
+
+  /// Favorites not open on the list yet, as one-tap chips.
+  Widget _buildFavorites(ShoppingList list) {
+    final open = {
+      for (final item in list.uncompletedItems) item.name.trim().toLowerCase(),
+    };
+    final offered = widget.favorites!.favorites
+        .where((f) => !open.contains(f.name.toLowerCase()))
+        .toList();
+    if (offered.isEmpty) return const SizedBox.shrink();
+    return FavoritesBar(
+      favorites: offered,
+      onAdd: (favorite) => _controller.addItem(
+        widget.listId,
+        favorite.name,
+        quantity: favorite.quantity,
       ),
     );
   }

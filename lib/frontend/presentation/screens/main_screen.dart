@@ -30,8 +30,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       controller: _deps.shoppingListController,
       comparisonService: _deps.priceComparisonService,
       suggestions: _deps.itemSuggestionService,
+      favorites: _deps.favoritesController,
     ),
-    ProfileScreen(auth: _deps.authController),
+    ProfileScreen(
+      auth: _deps.authController,
+      favorites: _deps.favoritesController,
+    ),
   ];
 
   @override

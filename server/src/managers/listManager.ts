@@ -1,38 +1,16 @@
-import crypto from "crypto";
 import dbContext from "../context/dbContext";
 import { badRequest, forbidden, HttpError, notFound } from "../middleware/errors";
 import { recordAdded } from "./itemManager";
+import { idOrNew, isUuid, optionalText, requiredText } from "./validation";
 
 // List and item JSON use the same snake_case shape the app stores locally
 // (ShoppingListEntity.toJson in the Flutter app), so it can parse either.
 
 type Role = "owner" | "editor";
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_OFFER_JSON = 4000;
 const MAX_IMPORT_LISTS = 50;
 const MAX_IMPORT_ITEMS = 500;
-
-function idOrNew(value: unknown): string {
-  if (value === undefined || value === null) return crypto.randomUUID();
-  if (typeof value !== "string" || !UUID_PATTERN.test(value)) throw badRequest("Invalid id");
-  return value.toLowerCase();
-}
-
-function requiredText(value: unknown, field: string, max: number): string {
-  const text = typeof value === "string" ? value.trim() : "";
-  if (text.length === 0) throw badRequest(`${field} cannot be empty`);
-  if (text.length > max) throw badRequest(`${field} is too long`);
-  return text;
-}
-
-function optionalText(value: unknown, field: string, max: number): string | null {
-  if (value === undefined || value === null) return null;
-  if (typeof value !== "string") throw badRequest(`Invalid ${field}`);
-  const text = value.trim();
-  if (text.length > max) throw badRequest(`${field} is too long`);
-  return text.length === 0 ? null : text;
-}
 
 function offerJson(value: unknown): string | null {
   if (value === undefined || value === null) return null;
@@ -50,7 +28,7 @@ function timestamp(value: unknown): string | null {
 
 /** The caller's role on a list, or null when they have no access. */
 async function roleOn(listId: string, userId: string): Promise<Role | null> {
-  if (!UUID_PATTERN.test(listId)) return null;
+  if (!isUuid(listId)) return null;
   const result = await dbContext.query(
     `SELECT CASE WHEN l.owner_id = $2 THEN 'owner'
                  WHEN m.user_id IS NOT NULL THEN 'editor' END AS role

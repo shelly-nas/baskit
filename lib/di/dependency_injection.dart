@@ -6,6 +6,7 @@ import '../backend/use_cases/shopping_list_use_cases.dart';
 import '../config/app_config.dart';
 import '../database/data_sources/baskit_api_client.dart';
 import '../database/data_sources/discount_api_data_source.dart';
+import '../database/data_sources/favorites_data_source.dart';
 import '../database/data_sources/item_suggestion_data_source.dart';
 import '../database/data_sources/key_value_store.dart';
 import '../database/data_sources/offline_shopping_list_data_source.dart';
@@ -15,6 +16,7 @@ import '../database/repositories/auth_repository.dart';
 import '../database/repositories/offer_repository.dart';
 import '../database/repositories/shopping_list_repository.dart';
 import '../frontend/presentation/controllers/auth_controller.dart';
+import '../frontend/presentation/controllers/favorites_controller.dart';
 import '../frontend/presentation/controllers/shopping_list_controller.dart';
 
 /// Builds the shopping list service stack on top of a data source.
@@ -39,6 +41,7 @@ class AppDependencies {
   final PriceComparisonService priceComparisonService;
   final ItemSuggestionService itemSuggestionService;
   final ShoppingListController shoppingListController;
+  final FavoritesController favoritesController;
   final AuthController authController;
 
   AppDependencies._({
@@ -46,6 +49,7 @@ class AppDependencies {
     required this.priceComparisonService,
     required this.itemSuggestionService,
     required this.shoppingListController,
+    required this.favoritesController,
     required this.authController,
   });
 
@@ -80,9 +84,14 @@ class AppDependencies {
       remote: remoteLists,
       offline: offlineLists,
     );
+    final favorites = FavoritesController(
+      FavoritesDataSource(api, storage),
+      onMessage: lists.showMessage,
+    );
     final auth = AuthController(
       repository: AuthRepository(api, storage),
       lists: lists,
+      favorites: favorites,
     );
     api.onUnauthorized = auth.handleUnauthorized;
 
@@ -95,6 +104,7 @@ class AppDependencies {
       ),
       priceComparisonService: PriceComparisonService(offers),
       shoppingListController: lists,
+      favoritesController: favorites,
       authController: auth,
     );
   }

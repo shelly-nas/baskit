@@ -72,6 +72,12 @@ class ShoppingListController extends ChangeNotifier {
     await _offline?.clear();
   }
 
+  /// Shows [message] in the snack bar (also for other controllers).
+  void showMessage(String message) {
+    messages.value = null;
+    messages.value = message;
+  }
+
   /// A change made offline that the server refused when it was sent (for
   /// example because the list was deleted meanwhile).
   void reportRejected(String reason) {

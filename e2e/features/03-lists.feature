@@ -30,3 +30,11 @@ Feature: Shopping lists
     And I type "cof" to add an item
     And I pick the suggestion "Coffee"
     Then "Coffee" is on the list again, not checked off
+
+  Scenario: Put a favorite on the list with one tap
+    Given I have a list called "Weekend" with "Coffee"
+    And I open the list "Weekend"
+    When I make "Coffee" a favorite
+    And I check off "Coffee"
+    And I tap the favorite "Coffee"
+    Then "Coffee" is on the list again, not checked off

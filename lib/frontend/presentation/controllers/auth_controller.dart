@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../backend/models/user_account.dart';
 import '../../../database/data_sources/baskit_api_client.dart';
 import '../../../database/repositories/auth_repository.dart';
+import 'favorites_controller.dart';
 import 'shopping_list_controller.dart';
 
 /// Where the app is in signing in; decides which screen the app shows.
@@ -27,12 +28,15 @@ enum AuthStatus {
 class AuthController extends ChangeNotifier {
   final AuthRepository _repository;
   final ShoppingListController _lists;
+  final FavoritesController? _favorites;
 
   AuthController({
     required AuthRepository repository,
     required ShoppingListController lists,
+    FavoritesController? favorites,
   }) : _repository = repository,
-       _lists = lists;
+       _lists = lists,
+       _favorites = favorites;
 
   AuthStatus _status = AuthStatus.restoring;
   UserAccount? _user;
@@ -116,13 +120,17 @@ class AuthController extends ChangeNotifier {
     _user = user;
     _restoreError = null;
     _setStatus(AuthStatus.signedIn);
-    await _lists.load();
+    await Future.wait([
+      _lists.load(),
+      if (_favorites != null) _favorites.load(),
+    ]);
   }
 
   Future<void> _leaveAccount() async {
     _user = null;
     _setStatus(AuthStatus.signedOut);
     await _lists.reset();
+    await _favorites?.reset();
   }
 
   void _setStatus(AuthStatus status) {

@@ -9,6 +9,7 @@ import '../components/atoms/app_icon.dart';
 import '../components/atoms/app_text.dart';
 import '../components/molecules/list_header.dart';
 import '../components/organisms/shopping_list_card_component.dart';
+import '../controllers/favorites_controller.dart';
 import '../controllers/shopping_list_controller.dart';
 import '../dialogs/text_input_dialog.dart';
 import 'list_detail_screen.dart';
@@ -22,11 +23,15 @@ class ListsScreen extends StatefulWidget {
   /// Suggests items while typing in a list.
   final ItemSuggestionService? suggestions;
 
+  /// Favorites to put on a list with one tap.
+  final FavoritesController? favorites;
+
   const ListsScreen({
     super.key,
     required this.controller,
     this.comparisonService,
     this.suggestions,
+    this.favorites,
   });
 
   @override
@@ -64,6 +69,7 @@ class _ListsScreenState extends State<ListsScreen> {
           listId: list.id,
           comparisonService: widget.comparisonService,
           suggestions: widget.suggestions,
+          favorites: widget.favorites,
         ),
       ),
     );

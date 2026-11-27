@@ -18,6 +18,9 @@ class FakeBaskitServer {
   final Map<String, int> history = {};
   final Map<String, String> _spelling = {};
 
+  /// Favorites by id (all users together; tests use one account).
+  final Map<String, Map<String, dynamic>> favorites = {};
+
   /// When true every request fails as if the server cannot be reached.
   bool offline = false;
 
@@ -89,6 +92,38 @@ class FakeBaskitServer {
       return http.Response('', 204);
     }
     if (path == 'auth/me') return _json(me);
+    if (path == 'favorites' && request.method == 'GET') {
+      final all = favorites.values.toList()
+        ..sort(
+          (a, b) => (a['name'] as String).toLowerCase().compareTo(
+            (b['name'] as String).toLowerCase(),
+          ),
+        );
+      return _json(all);
+    }
+    if (path == 'favorites' && request.method == 'POST') {
+      final name = (body['name'] as String).trim();
+      final same = favorites.values.where(
+        (f) => (f['name'] as String).toLowerCase() == name.toLowerCase(),
+      );
+      if (same.isNotEmpty && same.first['id'] != body['id']) {
+        return _json({
+          'error': '${same.first['name']} is already a favorite',
+        }, 409);
+      }
+      final favorite = favorites[body['id'] as String] = {
+        'id': body['id'],
+        'name': name,
+        'quantity': body['quantity'],
+        'created_at': '2026-11-01T00:00:00.000Z',
+      };
+      return _json(favorite, 201);
+    }
+    final favoriteMatch = RegExp(r'^favorites/(.+)$').firstMatch(path);
+    if (favoriteMatch != null && request.method == 'DELETE') {
+      favorites.remove(favoriteMatch.group(1));
+      return http.Response('', 204);
+    }
     if (path == 'items/suggestions') {
       final q = (request.url.queryParameters['q'] ?? '').toLowerCase();
       final matches = history.entries.where((e) => e.key.contains(q)).toList()

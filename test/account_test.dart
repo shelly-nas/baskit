@@ -188,6 +188,8 @@ void main() {
 
       await tester.tap(find.text('Profile').last);
       await tester.pumpAndSettle();
+      // The profile scrolls; the button can be below the fold.
+      await tester.ensureVisible(find.text('Log Out'));
       await tester.tap(find.text('Log Out'));
       await tester.pumpAndSettle();
 

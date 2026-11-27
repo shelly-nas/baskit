@@ -74,6 +74,17 @@ Then("{string} is on the list again, not checked off", async ({ baskit }, item: 
   await expect(open).toHaveCount(1);
 });
 
+// ---- Favorites ----
+
+When("I make {string} a favorite", async ({ baskit }, item: string) => {
+  await baskit.page.getByRole("group", { name: item }).click();
+  await baskit.button("Add to favorites").click();
+});
+
+When("I tap the favorite {string}", async ({ baskit }, name: string) => {
+  await baskit.button(`Add ${name}`).click();
+});
+
 // ---- Offline ----
 
 When("the connection drops", async ({ baskit }) => {
