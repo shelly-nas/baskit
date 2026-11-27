@@ -10,9 +10,11 @@ import '../components/atoms/app_icon.dart';
 import '../components/atoms/app_text.dart';
 import '../components/molecules/filter_pill.dart';
 import '../components/molecules/search_field.dart';
+import '../components/organisms/favorite_deals_section.dart';
 import '../components/organisms/offer_card.dart';
 import '../components/organisms/add_to_list_sheet.dart';
 import '../components/organisms/offer_details_sheet.dart';
+import '../controllers/favorites_controller.dart';
 import '../controllers/shopping_list_controller.dart';
 
 /// Search engine over all current supermarket offers from the discount API.
@@ -23,10 +25,14 @@ class SearchScreen extends StatefulWidget {
   /// Enables "Add to list" on offers when set.
   final ShoppingListController? listController;
 
+  /// Shows "Your favorites on offer" above the results when set.
+  final FavoritesController? favorites;
+
   const SearchScreen({
     super.key,
     required this.service,
     this.listController,
+    this.favorites,
     this.debounce = const Duration(milliseconds: 350),
   });
 
@@ -186,6 +192,15 @@ class _SearchScreenState extends State<SearchScreen> {
     _search();
   }
 
+  /// The favorites on offer, while the user is not searching for something.
+  Widget _buildFavoriteDeals() {
+    final deals = widget.favorites!.deals;
+    if (deals.isEmpty || _query.text.trim().isNotEmpty) {
+      return const SizedBox.shrink();
+    }
+    return FavoriteDealsSection(deals: deals, onOpen: _openOffer);
+  }
+
   Future<void> _openOffer(Offer offer) async {
     final listController = widget.listController;
     final addToList = await OfferDetailsSheet.show(
@@ -234,6 +249,18 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     sliver: SliverToBoxAdapter(child: _buildHeader()),
                   ),
+                  if (widget.favorites != null)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: DesignTokens.spaceXLarge,
+                      ),
+                      sliver: SliverToBoxAdapter(
+                        child: ListenableBuilder(
+                          listenable: widget.favorites!,
+                          builder: (context, _) => _buildFavoriteDeals(),
+                        ),
+                      ),
+                    ),
                   ..._buildResults(),
                 ],
               ),

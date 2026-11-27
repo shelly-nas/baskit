@@ -32,6 +32,8 @@ Update the section of a module when you add, remove or rename it, or when its re
 - `lib/backend/` - domain models (`offer.dart`, `shopping_list.dart` incl. `ListItemOffer`,
   `ListPerson`, `isOwner`; `price_comparison.dart`; `user_account.dart`) and services
   (`OfferSearchService`, `ShoppingListService` + use cases, `PriceComparisonService`,
+  `FavoriteDealsService` (FR-010): per favorite the best match on offer through the scraper search
+  (sorted by discount), kept 30 minutes; a failed search means no deal for that favorite;
   `StoreLayout` (FR-006): the `StoreSection` of an item from its supermarket category, else from Dutch
   words in its name (longest match wins), and `group` for the order of a walk through the shop;
   `ItemSuggestionService`: while typing an item (with an "Only offers" switch, on by default), the
@@ -41,7 +43,8 @@ Update the section of a module when you add, remove or rename it, or when its re
 - An account is required: there is no signed-out mode. The token stays on the device until sign-out
   or until the server rejects it, so users stay signed in between visits (FR-001).
 - `FavoritesDataSource` (`/api/favorites`; keeps the last list on the device for offline use) and
-  `FavoritesController` (loaded on sign-in and cleared on sign-out by `AuthController`; failures
+  `FavoritesController` (loaded on sign-in and cleared on sign-out by `AuthController`; `deals` /
+  `dealFor` from `FavoriteDealsService`, fetched in the background after load and add; failures
   go to the snack bar through `ShoppingListController.showMessage`).
 - `lib/frontend/presentation/controllers/` - `ShoppingListController` (one instance for all tabs,
   server lists; `reset` on sign-out, also clears the device copy; `syncStatus` and
@@ -51,7 +54,8 @@ Update the section of a module when you add, remove or rename it, or when its re
   run it every 10 seconds) and `AuthController` (`AuthStatus` restoring / signedOut / unreachable / signedIn;
   restore, sign in/up/out, delete account, `handleUnauthorized`; loads the lists on sign-in).
 - Screens: `AuthGate` (home: loader while restoring, retry when unreachable, `SignInScreen`
-  (sign in / create account) or `MainScreen` keyed by user), `SearchScreen`, `ListsScreen`,
+  (sign in / create account) or `MainScreen` keyed by user), `SearchScreen` ("On offer" chip; `FavoriteDealsSection` "Your favorites on offer" above the
+  results while not searching), `ListsScreen`,
   `ListDetailScreen` (share sheet, leave, compare; open items grouped by `StoreLayout` unless
   `ShoppingListController.sortByLayout` is off (device preference `baskit.lists.sort_by_layout`);
   "Undo" after checking off; `FavoritesBar` with the favorites not open on

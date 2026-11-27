@@ -1,3 +1,4 @@
+import '../backend/services/favorite_deals_service.dart';
 import '../backend/services/item_suggestion_service.dart';
 import '../backend/services/offer_search_service.dart';
 import '../backend/services/price_comparison_service.dart';
@@ -85,9 +86,11 @@ class AppDependencies {
       offline: offlineLists,
       preferences: storage,
     );
+    final offerSearch = OfferSearchService(offers);
     final favorites = FavoritesController(
       FavoritesDataSource(api, storage),
       onMessage: lists.showMessage,
+      deals: FavoriteDealsService(offerSearch),
     );
     final auth = AuthController(
       repository: AuthRepository(api, storage),
@@ -96,7 +99,6 @@ class AppDependencies {
     );
     api.onUnauthorized = auth.handleUnauthorized;
 
-    final offerSearch = OfferSearchService(offers);
     return AppDependencies._(
       offerSearchService: offerSearch,
       itemSuggestionService: ItemSuggestionService(

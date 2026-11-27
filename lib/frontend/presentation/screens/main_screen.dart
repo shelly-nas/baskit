@@ -25,6 +25,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     SearchScreen(
       service: _deps.offerSearchService,
       listController: _deps.shoppingListController,
+      favorites: _deps.favoritesController,
     ),
     ListsScreen(
       controller: _deps.shoppingListController,

@@ -17,6 +17,8 @@ export class World {
   lists = new Map<string, string>();
   /** Number of offers before a filter changed. */
   offerCount?: number;
+  /** A favorite made from a product on offer. */
+  favoriteName?: string;
 }
 
 export const test = base.extend<{ world: World; baskit: Baskit }>({
