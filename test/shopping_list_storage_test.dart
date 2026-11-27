@@ -20,7 +20,7 @@ void main() {
         category: 'Zuivel',
         supermarket: const Supermarket(key: 'dirk', name: 'Dirk'),
         originalPrice: 1.09,
-        discountPrice: 0.79,
+        price: 0.79,
         specialDiscount: '2 voor 1,50',
         expireDate: DateTime.utc(2030, 1, 1),
       ),

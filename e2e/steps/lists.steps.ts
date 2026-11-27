@@ -142,6 +142,25 @@ Then("I see offers from the supermarkets", async ({ baskit }) => {
   await expect(baskit.page.getByRole("button", { name: /€/ }).first()).toBeVisible();
 });
 
+/** The number in "123 offers" / "4567 products" above the results. */
+async function resultCount(baskit: import("./fixtures").Baskit, unit: RegExp): Promise<number> {
+  const label = baskit.text(new RegExp(`^\\d+ ${unit.source}$`));
+  await expect(label).toBeAttached();
+  const text = (await label.textContent()) || (await label.getAttribute("aria-label")) || "";
+  return parseInt(text, 10);
+}
+
+When("I switch off {string}", async ({ baskit, world }, filter: string) => {
+  await baskit.tab("Search");
+  world.offerCount = await resultCount(baskit, /offers?/);
+  await baskit.button(filter).click();
+});
+
+Then("I see products at their regular price", async ({ baskit, world }) => {
+  // The catalog comes on top of the offers.
+  await expect.poll(() => resultCount(baskit, /products?/)).toBeGreaterThan(world.offerCount!);
+});
+
 When("I add the first offer to a new list {string}", async ({ baskit }, name: string) => {
   await baskit.tab("Search");
   await baskit.page.getByRole("button", { name: /€/ }).first().click();

@@ -80,7 +80,9 @@ class OfferCard extends StatelessWidget {
                             borderRadius: DesignTokens.radiusSmall,
                           ),
                         AppBadge(
-                          text: Formatters.expiry(offer.expireDate),
+                          text: offer.expireDate == null
+                              ? 'Regular price'
+                              : Formatters.expiry(offer.expireDate!),
                           backgroundColor: AppColors.secondary,
                           textColor: AppColors.mutedForeground,
                           borderRadius: DesignTokens.radiusSmall,
@@ -111,12 +113,11 @@ class _PriceColumn extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         AppText(
-          Formatters.price(offer.discountPrice),
+          Formatters.price(offer.price),
           fontSize: 16,
           fontWeight: FontWeight.w700,
         ),
-        if (offer.originalPrice != null &&
-            offer.originalPrice! > offer.discountPrice)
+        if (offer.originalPrice != null && offer.originalPrice! > offer.price)
           Text(
             Formatters.price(offer.originalPrice!),
             style: const TextStyle(

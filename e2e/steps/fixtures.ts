@@ -15,6 +15,8 @@ export class World {
   current?: Account;
   /** Lists made through the API, by name: their ids. */
   lists = new Map<string, string>();
+  /** Number of offers before a filter changed. */
+  offerCount?: number;
 }
 
 export const test = base.extend<{ world: World; baskit: Baskit }>({

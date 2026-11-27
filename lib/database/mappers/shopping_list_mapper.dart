@@ -85,7 +85,9 @@ class ListItemMapper {
       price: (json['price'] as num).toDouble(),
       originalPrice: (json['original_price'] as num?)?.toDouble(),
       specialDiscount: json['special_discount'] as String?,
-      expireDate: DateTime.parse(json['expire_date'] as String),
+      expireDate: json['expire_date'] == null
+          ? null
+          : DateTime.parse(json['expire_date'] as String),
     );
   }
 
@@ -97,7 +99,7 @@ class ListItemMapper {
       'price': offer.price,
       'original_price': offer.originalPrice,
       'special_discount': offer.specialDiscount,
-      'expire_date': offer.expireDate.toUtc().toIso8601String(),
+      'expire_date': offer.expireDate?.toUtc().toIso8601String(),
     };
   }
 }

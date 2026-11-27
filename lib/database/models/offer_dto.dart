@@ -19,8 +19,22 @@ class OfferDto {
     );
   }
 
+  /// A search item: on offer when it has a `discount`, else a catalog
+  /// product at its regular `price` (search with `scope=all`).
   static Offer offerFromJson(Map<String, dynamic> json) {
-    final discount = json['discount'] as Map<String, dynamic>;
+    final discount = json['discount'] as Map<String, dynamic>?;
+    if (discount == null) {
+      return Offer(
+        productId: (json['id'] as num).toInt(),
+        name: json['name'] as String,
+        category: json['category'] as String? ?? '',
+        supermarket: supermarketFromJson(
+          json['supermarket'] as Map<String, dynamic>,
+        ),
+        productUrl: json['productUrl'] as String?,
+        price: (json['price'] as num).toDouble(),
+      );
+    }
     return Offer(
       productId: (json['id'] as num).toInt(),
       name: json['name'] as String,
@@ -30,7 +44,7 @@ class OfferDto {
       ),
       productUrl: json['productUrl'] as String?,
       originalPrice: (discount['originalPrice'] as num?)?.toDouble(),
-      discountPrice: (discount['discountPrice'] as num).toDouble(),
+      price: (discount['discountPrice'] as num).toDouble(),
       unitPrice: discount['unitPrice'] as String?,
       specialDiscount: discount['specialDiscount'] as String?,
       discountPercentage: (discount['discountPercentage'] as num?)?.toInt(),

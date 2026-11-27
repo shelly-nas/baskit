@@ -53,6 +53,8 @@ class DiscountApiDataSource {
                 'supermarket': query.supermarketKeys.join(','),
               if (query.category != null) 'category': query.category!,
               'sort': query.sort.apiValue,
+              // Catalog products at their regular price too, when asked.
+              if (!query.offersOnly) 'scope': 'all',
               'limit': '$limit',
               'offset': '$offset',
             })

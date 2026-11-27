@@ -13,3 +13,7 @@ Feature: Search offers
     Given I am signed in with a new account named "Kees"
     When I add the first offer to a new list "Groceries"
     Then the list "Groceries" has 1 item
+
+  Scenario: Find products at their regular price too
+    When I switch off "On offer"
+    Then I see products at their regular price

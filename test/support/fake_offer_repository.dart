@@ -13,7 +13,7 @@ final sampleOffers = [
     category: 'Zuivel',
     supermarket: dirk,
     originalPrice: 1.09,
-    discountPrice: 0.79,
+    price: 0.79,
     discountPercentage: 28,
     expireDate: DateTime.now().add(const Duration(days: 3)),
   ),
@@ -22,7 +22,7 @@ final sampleOffers = [
     name: 'Melkchocolade reep',
     category: 'Snoep',
     supermarket: jumbo,
-    discountPrice: 1.99,
+    price: 1.99,
     specialDiscount: '2 voor 3,50',
     expireDate: DateTime.now().add(const Duration(days: 1)),
   ),
@@ -32,9 +32,28 @@ final sampleOffers = [
     category: 'Vlees',
     supermarket: dirk,
     originalPrice: 5.99,
-    discountPrice: 3.99,
+    price: 3.99,
     discountPercentage: 33,
     expireDate: DateTime.now().add(const Duration(days: 5)),
+  ),
+];
+
+/// Catalog products that are not on offer: only found with "On offer"
+/// switched off (`scope=all`).
+final sampleCatalog = [
+  const Offer(
+    productId: 10,
+    name: 'Volkoren brood',
+    category: 'Brood',
+    supermarket: jumbo,
+    price: 2.29,
+  ),
+  const Offer(
+    productId: 11,
+    name: 'Halfvolle melk 1L',
+    category: 'Zuivel',
+    supermarket: jumbo,
+    price: 1.15,
   ),
 ];
 
@@ -67,7 +86,8 @@ class FakeOfferRepository implements OfferRepository {
         .toLowerCase()
         .split(' ')
         .where((w) => w.isNotEmpty);
-    final matches = sampleOffers.where((o) {
+    final products = [...sampleOffers, if (!query.offersOnly) ...sampleCatalog];
+    final matches = products.where((o) {
       final name = o.name.toLowerCase();
       return words.every(name.contains) &&
           (query.supermarketKeys.isEmpty ||

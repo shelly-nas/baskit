@@ -66,7 +66,7 @@ class ShoppingList {
 
   /// Items that are linked to a supermarket offer
   List<ListItem> get offerItems =>
-      items.where((item) => item.offer != null).toList();
+      items.where((item) => item.offer?.isOnOffer ?? false).toList();
 
   /// Sum of the offer prices of all items that are linked to an offer
   double get offerTotal =>
@@ -156,8 +156,9 @@ class ListItem {
   }
 }
 
-/// Snapshot of a supermarket offer stored on a list item, so the list still
-/// shows where and for how much an item was on offer when the offer is gone.
+/// Snapshot of a supermarket product stored on a list item, so the list
+/// still shows where and for how much it was when the offer is gone. A
+/// product added at its regular price has no [expireDate].
 class ListItemOffer {
   final int productId;
   final String supermarketKey;
@@ -165,7 +166,7 @@ class ListItemOffer {
   final double price;
   final double? originalPrice;
   final String? specialDiscount;
-  final DateTime expireDate;
+  final DateTime? expireDate;
 
   const ListItemOffer({
     required this.productId,
@@ -174,10 +175,13 @@ class ListItemOffer {
     required this.price,
     this.originalPrice,
     this.specialDiscount,
-    required this.expireDate,
+    this.expireDate,
   });
 
-  bool isExpired([DateTime? now]) => expireDate.isBefore(now ?? DateTime.now());
+  bool get isOnOffer => expireDate != null;
+
+  bool isExpired([DateTime? now]) =>
+      expireDate?.isBefore(now ?? DateTime.now()) ?? false;
 }
 
 /// Someone a list belongs to or is shared with.

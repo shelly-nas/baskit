@@ -94,11 +94,12 @@ class ListItemRow extends StatelessWidget {
                                   offer.supermarketName,
                                   if (offer.specialDiscount != null)
                                     offer.specialDiscount!,
-                                  offer.isExpired()
-                                      ? 'offer ended'
-                                      : Formatters.expiry(
-                                          offer.expireDate,
-                                        ).toLowerCase(),
+                                  if (offer.isExpired())
+                                    'offer ended'
+                                  else if (offer.expireDate != null)
+                                    Formatters.expiry(
+                                      offer.expireDate!,
+                                    ).toLowerCase(),
                                 ].join('  /  '),
                                 fontSize: 12,
                                 color: offer.isExpired()

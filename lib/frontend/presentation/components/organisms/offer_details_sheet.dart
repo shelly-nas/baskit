@@ -49,7 +49,10 @@ class OfferDetailsSheet extends StatelessWidget {
     final rows = <MapEntry<String, String>>[
       MapEntry('Supermarket', offer.supermarket.name),
       if (offer.category.isNotEmpty) MapEntry('Category', offer.category),
-      MapEntry('Offer price', Formatters.price(offer.discountPrice)),
+      MapEntry(
+        offer.isOnOffer ? 'Offer price' : 'Price',
+        Formatters.price(offer.price),
+      ),
       if (offer.originalPrice != null)
         MapEntry('Regular price', Formatters.price(offer.originalPrice!)),
       if (offer.savings != null)
@@ -57,7 +60,8 @@ class OfferDetailsSheet extends StatelessWidget {
       if (offer.unitPrice != null) MapEntry('Unit price', offer.unitPrice!),
       if (offer.specialDiscount != null)
         MapEntry('Deal', offer.specialDiscount!),
-      MapEntry('Valid', Formatters.expiry(offer.expireDate)),
+      if (offer.expireDate != null)
+        MapEntry('Valid', Formatters.expiry(offer.expireDate!)),
     ];
 
     return SafeArea(
