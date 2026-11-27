@@ -8,13 +8,14 @@ import '../../theme/design_tokens.dart';
 import '../components/atoms/app_icon.dart';
 import '../components/atoms/app_text.dart';
 import '../components/molecules/list_header.dart';
+import '../components/organisms/share_list_sheet.dart';
 import '../components/organisms/shopping_list_card_component.dart';
 import '../controllers/favorites_controller.dart';
 import '../controllers/shopping_list_controller.dart';
 import '../dialogs/text_input_dialog.dart';
 import 'list_detail_screen.dart';
 
-enum _ListAction { rename, delete, leave }
+enum _ListAction { rename, share, delete, leave }
 
 class ListsScreen extends StatefulWidget {
   final ShoppingListController controller;
@@ -77,6 +78,12 @@ class _ListsScreenState extends State<ListsScreen> {
 
   Future<void> _onAction(ShoppingList list, _ListAction action) async {
     switch (action) {
+      case _ListAction.share:
+        await showShareListSheet(
+          context,
+          controller: _controller,
+          listId: list.id,
+        );
       case _ListAction.rename:
         final name = await showTextInputDialog(
           context,
@@ -159,6 +166,11 @@ class _ListsScreenState extends State<ListsScreen> {
                         value: _ListAction.rename,
                         child: Text('Rename'),
                       ),
+                      if (list.isOwner)
+                        const PopupMenuItem(
+                          value: _ListAction.share,
+                          child: Text('Share'),
+                        ),
                       list.isOwner
                           ? const PopupMenuItem(
                               value: _ListAction.delete,

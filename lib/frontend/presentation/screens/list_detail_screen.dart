@@ -301,6 +301,20 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
               ],
             ),
             actions: [
+              // Sharing in sight, not only in the menu.
+              if (list.isOwner)
+                IconButton(
+                  tooltip: 'Share list',
+                  icon: const AppIcon(
+                    CupertinoIcons.person_add,
+                    size: DesignTokens.iconMedium,
+                  ),
+                  onPressed: () => showShareListSheet(
+                    context,
+                    controller: _controller,
+                    listId: list.id,
+                  ),
+                ),
               if (widget.comparisonService != null &&
                   list.uncompletedItems.isNotEmpty)
                 TextButton.icon(
