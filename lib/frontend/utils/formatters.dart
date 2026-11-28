@@ -5,6 +5,15 @@ class Formatters {
     return '€$fixed';
   }
 
+  /// The deal itself ("50% KORTING"), without the explanation supermarkets
+  /// put after a bar ("| Alle AH Donuts van de bakkerij"); for small labels.
+  static String dealLabel(String deal) {
+    String tidy(String text) => text.trim().replaceAll(RegExp(r'\s+'), ' ');
+    final parts = deal.split('|');
+    final first = tidy(parts.first);
+    return first.isNotEmpty ? first : tidy(parts.skip(1).join('|'));
+  }
+
   static String expiry(DateTime expireDate, [DateTime? now]) {
     final reference = now ?? DateTime.now();
     final today = DateTime(reference.year, reference.month, reference.day);

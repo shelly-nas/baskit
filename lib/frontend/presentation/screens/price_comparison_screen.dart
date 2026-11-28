@@ -249,7 +249,9 @@ class _LineRow extends StatelessWidget {
           if (line.isOffer) ...[
             const SizedBox(width: DesignTokens.spaceMedium),
             AppBadge(
-              text: line.specialDiscount ?? 'Offer',
+              text: line.specialDiscount == null
+                  ? 'Offer'
+                  : Formatters.dealLabel(line.specialDiscount!),
               backgroundColor: AppColors.warningBackground,
               textColor: AppColors.warning,
               borderRadius: DesignTokens.radiusSmall,

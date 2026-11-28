@@ -6,8 +6,14 @@ import '../../../utils/formatters.dart';
 import '../atoms/app_badge.dart';
 import '../atoms/app_text.dart';
 
-/// Organism component showing a single supermarket offer as a Notion style row
+/// Organism component showing a single supermarket offer as a compact,
+/// Notion style row: the deal as a short label (full text in the details).
 class OfferCard extends StatelessWidget {
+  static const EdgeInsets _badgePadding = EdgeInsets.symmetric(
+    horizontal: DesignTokens.spaceMedium,
+    vertical: DesignTokens.spaceXSmall,
+  );
+
   final Offer offer;
   final VoidCallback? onTap;
 
@@ -25,7 +31,10 @@ class OfferCard extends StatelessWidget {
         hoverColor: AppColors.hover,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
         child: Container(
-          padding: const EdgeInsets.all(DesignTokens.spaceLarge),
+          padding: const EdgeInsets.symmetric(
+            horizontal: DesignTokens.spaceLarge,
+            vertical: DesignTokens.spaceMedium,
+          ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
             border: Border.all(
@@ -38,7 +47,7 @@ class OfferCard extends StatelessWidget {
             children: [
               Container(
                 width: 4,
-                height: 40,
+                height: 32,
                 decoration: BoxDecoration(
                   color: accent,
                   borderRadius: BorderRadius.circular(DesignTokens.radiusSmall),
@@ -67,17 +76,18 @@ class OfferCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: DesignTokens.spaceMedium),
+                    const SizedBox(height: DesignTokens.spaceSmall),
                     Wrap(
                       spacing: DesignTokens.spaceSmall,
                       runSpacing: DesignTokens.spaceSmall,
                       children: [
                         if (offer.specialDiscount != null)
                           AppBadge(
-                            text: offer.specialDiscount!,
+                            text: Formatters.dealLabel(offer.specialDiscount!),
                             backgroundColor: AppColors.warningBackground,
                             textColor: AppColors.warning,
                             borderRadius: DesignTokens.radiusSmall,
+                            padding: _badgePadding,
                           ),
                         AppBadge(
                           text: offer.expireDate == null
@@ -86,6 +96,7 @@ class OfferCard extends StatelessWidget {
                           backgroundColor: AppColors.secondary,
                           textColor: AppColors.mutedForeground,
                           borderRadius: DesignTokens.radiusSmall,
+                          padding: _badgePadding,
                         ),
                       ],
                     ),
@@ -117,25 +128,32 @@ class _PriceColumn extends StatelessWidget {
           fontSize: 16,
           fontWeight: FontWeight.w700,
         ),
-        if (offer.originalPrice != null && offer.originalPrice! > offer.price)
-          Text(
-            Formatters.price(offer.originalPrice!),
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.mutedForeground,
-              decoration: TextDecoration.lineThrough,
-            ),
-          ),
-        if (offer.discountPercentage != null &&
-            offer.discountPercentage! > 0) ...[
-          const SizedBox(height: DesignTokens.spaceSmall),
-          AppBadge(
-            text: '-${offer.discountPercentage}%',
-            backgroundColor: AppColors.successBackground,
-            textColor: AppColors.success,
-            borderRadius: DesignTokens.radiusSmall,
-          ),
-        ],
+        // The regular price and the discount side by side, on one line.
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (offer.originalPrice != null &&
+                offer.originalPrice! > offer.price)
+              Text(
+                Formatters.price(offer.originalPrice!),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.mutedForeground,
+                  decoration: TextDecoration.lineThrough,
+                ),
+              ),
+            if (offer.discountPercentage != null &&
+                offer.discountPercentage! > 0) ...[
+              const SizedBox(width: DesignTokens.spaceSmall),
+              AppText(
+                '-${offer.discountPercentage}%',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.success,
+              ),
+            ],
+          ],
+        ),
       ],
     );
   }
