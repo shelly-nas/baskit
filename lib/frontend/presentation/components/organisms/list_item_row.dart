@@ -93,7 +93,9 @@ class ListItemRow extends StatelessWidget {
                                 [
                                   offer.supermarketName,
                                   if (offer.specialDiscount != null)
-                                    offer.specialDiscount!,
+                                    Formatters.dealLabel(
+                                      offer.specialDiscount!,
+                                    ),
                                   if (offer.isExpired())
                                     'offer ended'
                                   else if (offer.expireDate != null)
