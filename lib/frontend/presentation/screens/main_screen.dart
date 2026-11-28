@@ -93,6 +93,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // The content scrolls on under the floating glass tab bar.
+      extendBody: true,
       // IndexedStack keeps the search state when switching tabs.
       body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
       bottomNavigationBar: BottomNavigation(

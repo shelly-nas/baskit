@@ -3,11 +3,12 @@ import '../../../theme/colors.dart';
 import '../../../theme/design_tokens.dart';
 import '../atoms/app_icon.dart';
 import '../atoms/app_text.dart';
-import '../atoms/spacing.dart';
 
-/// Molecular component for bottom navigation bar items
+/// One tab of the glass tab bar: the selected tab sits in a soft capsule
+/// with a filled icon.
 class BottomNavItem extends StatelessWidget {
   final IconData icon;
+  final IconData selectedIcon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -15,6 +16,7 @@ class BottomNavItem extends StatelessWidget {
   const BottomNavItem({
     super.key,
     required this.icon,
+    required this.selectedIcon,
     required this.label,
     required this.isSelected,
     required this.onTap,
@@ -22,34 +24,41 @@ class BottomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = isSelected ? AppColors.primary : AppColors.mutedForeground;
     return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        excludeSemantics: true,
+        onTap: onTap,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
-          child: Padding(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
             padding: const EdgeInsets.symmetric(
-              vertical: DesignTokens.spaceXSmall,
+              vertical: DesignTokens.spaceMedium,
+            ),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.glassSelected : Colors.transparent,
+              borderRadius: BorderRadius.circular(DesignTokens.radiusPill),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 AppIcon(
-                  icon,
+                  isSelected ? selectedIcon : icon,
                   size: DesignTokens.iconLarge,
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.mutedForeground,
+                  color: color,
                 ),
-                const VerticalSpace.small(),
+                const SizedBox(height: DesignTokens.spaceXSmall),
                 AppText(
                   label,
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.mutedForeground,
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: color,
                 ),
               ],
             ),
