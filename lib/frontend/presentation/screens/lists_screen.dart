@@ -146,7 +146,13 @@ class _ListsScreenState extends State<ListsScreen> {
             body = ListView.builder(
               // Scrollable even when the lists fit, so pull-to-refresh works.
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
+              // Clear of the floating tab bar at the bottom.
+              padding: EdgeInsets.fromLTRB(
+                DesignTokens.spaceXLarge,
+                DesignTokens.spaceXLarge,
+                DesignTokens.spaceXLarge,
+                DesignTokens.spaceXLarge + MediaQuery.paddingOf(context).bottom,
+              ),
               itemCount: lists.length,
               itemBuilder: (context, index) {
                 final list = lists[index];

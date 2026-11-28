@@ -34,6 +34,10 @@ class DesignTokens {
   static const double borderMedium = 2.0;
   static const double borderThick = 3.0;
 
+  // Glass surfaces
+  static const double glassBlur = 24.0;
+  static const double radiusPill = 999.0;
+
   // ========== COMPONENT WIDTHS ==========
   static const double avatarSize = 64.0;
 }

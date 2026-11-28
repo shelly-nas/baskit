@@ -37,7 +37,13 @@ class ProfileScreen extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(DesignTokens.spaceXLarge),
+              // Clear of the floating tab bar at the bottom.
+              padding: EdgeInsets.fromLTRB(
+                DesignTokens.spaceXLarge,
+                DesignTokens.spaceXLarge,
+                DesignTokens.spaceXLarge,
+                DesignTokens.spaceXLarge + MediaQuery.paddingOf(context).bottom,
+              ),
               // Signing out swaps this screen for the sign-in screen.
               child: auth.isSignedIn
                   ? _AccountView(auth: auth, favorites: favorites)
