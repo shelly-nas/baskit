@@ -64,7 +64,7 @@ Update the section of a module when you add, remove or rename it, or when its re
   the list as one-tap chips (each its own button for screen readers); "Add to / Remove from
   favorites" in the item sheet; `ItemSuggestionsPanel` under the add field, asked 250 ms after
   typing stops), `FavoritesScreen` (from the profile: add and remove favorites), `PriceComparisonScreen`, `ProfileScreen`
-  (account, delete account), `AdminScreen` (admins only), tabbed in `MainScreen` with an
+  (account, delete account), `AdminScreen` (admins only), tabbed in `MainScreen` (a floating glass `BottomNavigation` in Apple's Liquid Glass style; the body extends under it, so scrolling screens add `MediaQuery.paddingOf(context).bottom`) with an
   `IndexedStack`. `MainScreen` runs the auto refresh while the app is in the foreground (app
   lifecycle; stopped when hidden or paused, refreshed at once on resume); `ListsScreen` and
   `ListDetailScreen` also refresh on pull-down. `BaskitApp` (`main.dart`) shows the

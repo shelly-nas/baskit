@@ -40,6 +40,13 @@ class AppColors {
   static const Color warning = Color(0xFFD9730D);
   static const Color warningBackground = Color(0xFFFAEBDD);
 
+  // Glass (Apple "Liquid Glass" style): a light, translucent surface over
+  // blurred content, with a bright edge and a soft shadow.
+  static const Color glass = Color(0x9EFFFFFF); // white, 62%
+  static const Color glassEdge = Color(0xCCFFFFFF); // white, 80%
+  static const Color glassShadow = Color(0x1F000000); // black, 12%
+  static const Color glassSelected = Color(0x14000000); // black, 8%
+
   /// Brand accent per supermarket key (as returned by the discount API).
   static Color supermarket(String key) {
     switch (key) {
